@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include layout="@layout/comment_b30_title_layout"/>
+    <include layout="@layout/comment_date_arrow_layout"/>
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+   <LinearLayout
+       android:layout_width="match_parent"
+       android:orientation="vertical"
+       android:layout_height="wrap_content">
+
+       <LinearLayout
+           android:visibility="gone"
+           android:id="@+id/single_block_spo2h"
+           style="@style/style_block"
+           android:layout_marginTop="1dp"
+           android:background="@drawable/vpspo2h_bg_spo2h">
+
+           <RelativeLayout
+               android:id="@+id/block_title_spo2h"
+               style="@style/style_block_toptitle">
+
+               <TextView
+                   android:id="@+id/analysis_chartview_title_spo2h"
+                   style="@style/style_block_toptitle_tv"
+                   android:text="@string/spo2_breath_break" />
+
+               <ImageView style="@style/style_block_toptitle_img" />
+
+           </RelativeLayout>
+
+           <com.github.mikephil.charting.charts.LineChart
+               android:id="@+id/singleBlockChartviewSpo2h"
+               android:layout_width="match_parent"
+               android:layout_height="@dimen/block_chartview_height"
+               android:layout_marginLeft="@dimen/block_chartview_maginleft"
+               android:layout_marginRight="@dimen/block_chartview_maginleft" />
+
+           <LinearLayout
+               android:id="@+id/block_state_spo2h"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:layout_marginLeft="@dimen/block_state_maginleft"
+               android:layout_marginRight="@dimen/block_state_maginleft"
+               android:background="@color/block_backgroud_spo2h">
+
+               <LinearLayout style="@style/style_block_bottom_state_left">
+
+                   <TextView
+                       style="@style/style_block_bottom_state_dot"
+                       android:textColor="@color/spo2h_dot_spo2h_1" />
+
+                   <TextView
+                       style="@style/style_block_bottom_state_tv"
+                       android:text="@string/vpspo2h_state_realtime" />
+               </LinearLayout>
+
+               <LinearLayout style="@style/style_block_bottom_state_right">
+
+                   <TextView
+                       style="@style/style_block_bottom_state_dot"
+                       android:textColor="@color/spo2h_dot_spo2h_2" />
+
+                   <TextView
+                       style="@style/style_block_bottom_state_tv"
+                       android:text="@string/vpspo2h_state_breathbreak"
+                       android:textColor="@android:color/white" />
+               </LinearLayout>
+           </LinearLayout>
+
+
+           <TextView
+               android:id="@+id/block_bottom_tip_spo2h"
+               style="@style/style_block_bottom_tip" />
+       </LinearLayout>
+
+       <include layout="@layout/include_b31_single_desc"/>
+
+
+       <com.bozlun.health.android.b30.view.CusExpandableListView
+           android:id="@+id/singleDescExpandView"
+           android:layout_width="match_parent"
+           android:layout_height="match_parent"
+           android:layout_marginLeft="10dp"
+           android:layout_marginRight="10dp"
+           android:cacheColorHint="#00000000"
+           android:divider="@android:color/transparent">
+
+       </com.bozlun.health.android.b30.view.CusExpandableListView>
+
+
+
+
+       <LinearLayout
+           android:layout_width="match_parent"
+           android:orientation="horizontal"
+           android:layout_height="wrap_content">
+
+
+           <TextView
+               android:id="@+id/singleSpo2DetailLeftTv"
+               android:layout_width="0dp"
+               android:layout_weight="1"
+               android:layout_height="wrap_content"
+               android:padding="8dp"
+               android:text="@string/time_area"
+               android:layout_gravity="center"
+               android:gravity="center"
+               android:textColor="@color/contents_text"
+               android:textSize="16sp" />
+
+
+           <TextView
+               android:id="@+id/singleSpo2DetailMiddleTv"
+               android:layout_width="0dp"
+               android:layout_weight="1"
+               android:layout_height="wrap_content"
+               android:padding="8dp"
+               android:text="呼吸暂停(次)"
+               android:layout_gravity="center"
+               android:gravity="center"
+               android:textColor="@color/contents_text"
+               android:textSize="16sp" />
+
+
+
+           <TextView
+               android:id="@+id/singleSpo2DetailRightTv"
+               android:layout_width="0dp"
+               android:layout_weight="1"
+               android:layout_height="wrap_content"
+               android:padding="8dp"
+               android:text="平均值/分"
+               android:layout_gravity="center"
+               android:gravity="center"
+               android:textColor="@color/contents_text"
+               android:textSize="16sp" />
+
+
+       </LinearLayout>
+
+
+       <View
+           android:layout_width="match_parent"
+           android:layout_height="1dp"
+           android:layout_marginTop="10dp"
+           android:background="@color/chang_white"/>
+
+
+       <android.support.v7.widget.RecyclerView
+           android:id="@+id/singleSpo2DetailRecyclerView"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content">
+
+
+       </android.support.v7.widget.RecyclerView>
+
+
+
+   </LinearLayout>
+
+    </android.support.v4.widget.NestedScrollView>
+
+</LinearLayout>

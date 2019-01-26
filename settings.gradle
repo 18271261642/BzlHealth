@@ -1,0 +1,2 @@
+include ':app', ':wheelpicker', ':dfu', ':litepals', ':circleviewprogress', ':w30sblelibrary', ':MPChartLib', ':calendarview'
+project(':litepals').projectDir = new File('litepal')

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/b30SleepLin"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp"
+    android:background="@drawable/b30_sport_chart_select"
+    android:orientation="vertical">
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/size__15">
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="今日 睡眠质量"
+            android:textSize="18sp" />
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_margin="@dimen/size_5"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="@dimen/size_35"
+                android:layout_height="@dimen/size_35"
+                android:background="@drawable/fgm_home_sleep" />
+
+
+            <TextView
+                android:id="@+id/b30StartEndTimeTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="@dimen/size_10"
+                android:gravity="center"
+                android:text="01::10-09:30"
+                android:textColor="#6074BF" />
+
+        </LinearLayout>
+
+
+    </RelativeLayout>
+
+    <com.bozlun.health.android.b30.b30view.B30CusSleepView
+        android:id="@+id/b30CusSleepView"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/size_180"
+        app:awakeSleepColor="#fcd647"
+        app:deepSleepColor="#b592d6"
+        app:lightSleepColor="#a6a8ff"
+        app:sleepEmptyData="@dimen/sp_10"
+        app:sleepViewHeight="@dimen/size_180" />
+
+
+</LinearLayout>

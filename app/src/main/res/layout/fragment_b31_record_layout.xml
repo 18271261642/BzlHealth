@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:background="@color/new_colorAccent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <include layout="@layout/b30_home_title_layout" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/white"/>
+
+    <!--4DDDFF-->
+    <com.scwang.smartrefresh.layout.SmartRefreshLayout
+        android:id="@+id/b31HomeSwipeRefreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="61dp"
+        app:srlAccentColor="@color/new_colorAccent"
+        app:srlEnableLoadMore="false"
+        app:srlEnablePreviewInEditMode="false"
+        app:srlPrimaryColor="#ffffff">
+        <!-- srlAccentColor srlPrimaryColor 将会改变 Header 和 Footer 的主题颜色 -->
+        <!-- srlEnablePreviewInEditMode 可以开启和关闭下拉预览 -->
+
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <!--圆的布局-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="@color/new_colorAccent"
+                    android:orientation="vertical">
+
+                    <FrameLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center">
+
+                        <com.littlejie.circleprogress.circleprogress.WaveProgress
+                            android:id="@+id/b31ProgressBar"
+                            android:layout_width="230dp"
+                            android:layout_height="230dp"
+                            android:layout_gravity="center"
+                            app:darkWaveAnimTime="3000"
+                            app:darkWaveColor="#1ebae3"
+                            app:lightWaveAnimTime="4000"
+                            app:lightWaveColor="#34c7e7"
+                            app:lightWaveDirect="R2L"
+                            app:lockWave="false"
+                            app:valueColor="@color/white"
+                            app:valueSize="45sp"
+                            app:waveHeight="10dp"
+                            app:waveNum="1" />
+
+
+                        <ImageView
+                            android:layout_width="270dp"
+                            android:layout_height="270dp"
+                            android:layout_gravity="center"
+                            android:background="@mipmap/icon_record_circule_luminous" />
+
+
+                    </FrameLayout>
+
+
+                    <TextView
+                        android:id="@+id/b31GoalStepTv"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="20dp"
+                        android:layout_marginTop="10dp"
+                        android:gravity="center"
+                        android:text=""
+                        android:textColor="@color/white"
+                        android:textSize="18sp" />
+
+                </LinearLayout>
+
+
+                <include layout="@layout/include_b31_home_item_layout"/>
+
+
+                <!--日期-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+
+                        <TextView
+                            android:id="@+id/b31HomeTodayTv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center|top"
+                            android:gravity="center"
+                            android:padding="3dp"
+                            android:text="@string/today"
+                            android:textSize="18sp" />
+
+                        <ImageView
+                            android:id="@+id/b31HomeTodayImg"
+                            android:layout_width="15dp"
+                            android:layout_height="15dp"
+                            android:layout_gravity="center|bottom"
+                            android:background="@drawable/fgm_home_move" />
+
+
+                    </LinearLayout>
+
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+
+                        <TextView
+                            android:id="@+id/b31HomeYestTodayTv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center|top"
+                            android:gravity="center"
+                            android:padding="3dp"
+                            android:text="@string/yesterday"
+                            android:textSize="18sp" />
+
+                        <ImageView
+                            android:id="@+id/b31HomeYestdayImg"
+                            android:layout_width="15dp"
+                            android:layout_height="15dp"
+                            android:layout_gravity="center|bottom"
+                            android:background="@drawable/fgm_home_move"
+                            android:visibility="invisible" />
+
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+
+                        <TextView
+                            android:id="@+id/b31HomeBeYestdayTv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center|top"
+                            android:gravity="center"
+                            android:padding="3dp"
+                            android:text="@string/string_yesterday"
+                            android:textSize="18sp" />
+
+                        <ImageView
+                            android:id="@+id/b31HomeBeYestdayImg"
+                            android:layout_width="15dp"
+                            android:layout_height="15dp"
+                            android:layout_gravity="center|bottom"
+                            android:background="@drawable/fgm_home_move"
+                            android:visibility="invisible" />
+
+
+                    </LinearLayout>
+
+
+                </LinearLayout>
+                <!--HRV-->
+                <include layout="@layout/inclue_b31_home_hrv_layout"/>
+                <!--睡眠图表-->
+                <include layout="@layout/include_b30_sleep_view_layout" />
+                <!--血氧-->
+                <include layout="@layout/include_b31_home_bpoxy_layout"/>
+
+                <!--模块1 血氧/呼吸暂停-->
+                <LinearLayout
+                    android:id="@+id/block_spo2h"
+                    style="@style/style_block"
+                    android:layout_marginTop="1dp"
+                    android:background="@drawable/vpspo2h_bg_spo2h">
+
+                    <RelativeLayout
+                        android:id="@+id/block_title_spo2h"
+                        style="@style/style_block_toptitle">
+
+                        <TextView
+                            android:id="@+id/analysis_chartview_title_spo2h"
+                            style="@style/style_block_toptitle_tv"
+                            android:text="血氧/呼吸暂停体检" />
+
+                        <ImageView style="@style/style_block_toptitle_img" />
+
+                    </RelativeLayout>
+
+                    <com.github.mikephil.charting.charts.LineChart
+                        android:id="@+id/block_chartview_spo2h"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/block_chartview_height"
+                        android:layout_marginLeft="@dimen/block_chartview_maginleft"
+                        android:layout_marginRight="@dimen/block_chartview_maginleft" />
+
+                    <LinearLayout
+                        android:id="@+id/block_state_spo2h"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/block_state_maginleft"
+                        android:layout_marginRight="@dimen/block_state_maginleft"
+                        android:background="@color/block_backgroud_spo2h">
+
+                        <LinearLayout style="@style/style_block_bottom_state_left">
+
+                            <TextView
+                                style="@style/style_block_bottom_state_dot"
+                                android:textColor="@color/spo2h_dot_spo2h_1" />
+
+                            <TextView
+                                style="@style/style_block_bottom_state_tv"
+                                android:text="@string/vpspo2h_state_realtime" />
+                        </LinearLayout>
+
+                        <LinearLayout style="@style/style_block_bottom_state_right">
+
+                            <TextView
+                                style="@style/style_block_bottom_state_dot"
+                                android:textColor="@color/spo2h_dot_spo2h_2" />
+
+                            <TextView
+                                style="@style/style_block_bottom_state_tv"
+                                android:text="@string/vpspo2h_state_breathbreak"
+                                android:textColor="@android:color/white" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+
+                    <TextView
+                        android:id="@+id/block_bottom_tip_spo2h"
+                        style="@style/style_block_bottom_tip" />
+                </LinearLayout>
+                <include layout="@layout/include_b31_spo2_charts_layout"/>
+
+                <!--运动图表-->
+                <include layout="@layout/include_b30_barchart" />
+                <!--心率图表-->
+                <include layout="@layout/include_b30_heart_chart" />
+
+            </LinearLayout>
+
+        </ScrollView>
+
+    </com.scwang.smartrefresh.layout.SmartRefreshLayout>
+
+</LinearLayout>

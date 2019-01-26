@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include layout="@layout/comment_b30_title_layout"/>
+
+
+    <ImageView
+        android:layout_width="100dp"
+        android:background="@drawable/oad_pic"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:layout_marginTop="20dp"
+        android:layout_height="100dp"/>
+
+
+
+
+    <Button
+        android:id="@+id/b30DufBtn"
+        style="@style/match_btn"
+        android:layout_height="45dp"
+        android:layout_below="@+id/email_login_form"
+        android:layout_marginTop="@dimen/size_16"
+        android:background="@drawable/blue_btn_selector"
+        android:text="@string/string_upgrade" />
+
+</LinearLayout>

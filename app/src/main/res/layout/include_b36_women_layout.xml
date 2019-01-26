@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_margin="15dp"
+    android:id="@+id/b36WomenLin"
+    android:background="@drawable/b30_sport_chart_select"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_marginBottom="@dimen/size__10"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_margin="@dimen/size_5"
+            android:layout_centerVertical="true"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:layout_width="40dp"
+                android:background="@mipmap/ic_b36_home_women"
+                android:layout_height="40dp" />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:text="@string/female"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:textSize="@dimen/sp_15"
+                android:textColor="#ffc27a"
+                android:layout_marginLeft="@dimen/size_10"
+                android:layout_height="wrap_content" />
+
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/b36WomenPrivacyImg"
+            android:layout_width="25dp"
+            android:orientation="vertical"
+            android:layout_centerVertical="true"
+            android:gravity="center"
+            android:background="@mipmap/ic_b36_home_woman_rec"
+            android:layout_margin="@dimen/size_5"
+            android:layout_alignParentRight="true"
+            android:layout_height="25dp"
+            tools:ignore="RtlHardcoded"/>
+
+
+    </RelativeLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:layout_height="182dp">
+
+
+
+        <ImageView
+            android:id="@+id/homeB36StatusLin"
+            android:layout_width="150dp"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:background="@drawable/womendetail_period_mense"
+            android:layout_height="150dp"/>
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:layout_height="wrap_content">
+
+
+            <TextView
+                android:id="@+id/status1Tv"
+                android:layout_width="wrap_content"
+                android:textSize="18sp"
+                android:textColor="@color/white"
+                android:text=""
+                android:layout_gravity="center"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/status2Tv"
+                android:layout_width="wrap_content"
+                android:textSize="18sp"
+                android:textColor="@color/white"
+                android:layout_gravity="center"
+                android:text="@string/string_no_data"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/status3Tv"
+                android:layout_width="wrap_content"
+                android:textSize="18sp"
+                android:layout_gravity="center"
+                android:textColor="@color/white"
+                android:text=""
+                android:layout_height="wrap_content"/>
+
+
+
+        </LinearLayout>
+
+
+
+    </FrameLayout>
+
+
+</LinearLayout>

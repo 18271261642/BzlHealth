@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar_normal"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:popupTheme="@style/AppTheme.PopupOverlay"
+        app:title=" ">
+
+        <TextView
+            android:id="@+id/bar_titles"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="title"
+            android:textColor="#ffffffff"
+            android:textSize="@dimen/sp_17" />
+
+    </android.support.v7.widget.Toolbar>
+
+    <View
+        android:background="@color/white"
+        android:layout_width="match_parent"
+        android:layout_height="0.3dp" />
+
+
+   <ScrollView
+       android:scrollbars="none"
+       android:fillViewport="true"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content">
+
+       <LinearLayout
+           android:orientation="vertical"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content">
+
+           <RelativeLayout
+               android:id="@+id/rela_step"
+               android:layout_width="match_parent"
+               android:layout_height="@dimen/size_200"
+               android:background="#17E1EB">
+
+               <ImageView
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_centerVertical="true"
+                   android:layout_marginEnd="@dimen/size_50"
+                   android:layout_toStartOf="@+id/view_reference_step"
+                   android:src="@mipmap/ic_frend_step" />
+
+
+               <View
+                   android:id="@+id/view_reference_step"
+                   android:layout_width="1dp"
+                   android:layout_height="0dp"
+                   android:layout_centerInParent="true" />
+
+               <LinearLayout
+                   android:layout_width="match_parent"
+                   android:layout_height="match_parent"
+                   android:layout_centerVertical="true"
+                   android:layout_marginStart="@dimen/size__20"
+                   android:layout_toEndOf="@+id/view_reference_step"
+                   android:gravity="center_vertical"
+                   android:orientation="vertical">
+
+                   <TextView
+                       android:id="@+id/frend_step_number"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:text="步数(STEP)：0"
+                       android:textColor="#ffffffff"
+                       android:textSize="@dimen/sp_12" />
+
+                   <TextView
+                       android:id="@+id/frend_step_dis"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:layout_marginTop="@dimen/sp_24"
+                       android:layout_marginBottom="@dimen/sp_24"
+                       android:text="距离(KM)：0.0"
+                       android:textColor="#ffffffff"
+                       android:textSize="@dimen/sp_12" />
+
+                   <TextView
+                       android:id="@+id/frend_step_kcl"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:text="卡路里(KCAL):0"
+                       android:textColor="#ffffffff"
+                       android:textSize="@dimen/sp_12" />
+
+               </LinearLayout>
+
+           </RelativeLayout>
+
+           <RelativeLayout
+               android:id="@+id/rela_sleep"
+               android:layout_width="match_parent"
+               android:layout_height="@dimen/size_200"
+               android:background="#9351fc">
+               <!--7e4ad1-->
+
+               <ImageView
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_centerVertical="true"
+                   android:layout_marginEnd="@dimen/size_50"
+                   android:layout_toStartOf="@+id/view_reference_sleep"
+                   android:src="@mipmap/ic_frend_sleep" />
+
+
+               <View
+                   android:id="@+id/view_reference_sleep"
+                   android:layout_width="1dp"
+                   android:layout_height="0dp"
+                   android:layout_centerInParent="true" />
+
+
+               <LinearLayout
+                   android:layout_width="match_parent"
+                   android:layout_height="match_parent"
+                   android:layout_centerVertical="true"
+                   android:layout_marginStart="@dimen/size__20"
+                   android:layout_toEndOf="@+id/view_reference_sleep"
+                   android:gravity="center_vertical"
+                   android:orientation="vertical">
+
+                   <TextView
+                       android:id="@+id/frend_slee_deep"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:text="深睡（HOUR)：0.0"
+                       android:textColor="#ffffffff"
+                       android:textSize="@dimen/sp_12" />
+
+                   <TextView
+                       android:id="@+id/frend_sleep_shallow"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:layout_marginTop="@dimen/sp_24"
+                       android:layout_marginBottom="@dimen/sp_24"
+                       android:text="浅睡(HOUR)：0.0"
+                       android:textColor="#ffffffff"
+                       android:textSize="@dimen/sp_12" />
+
+                   <TextView
+                       android:id="@+id/frend_sleep_time"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:text="时长(HOUR)：0.0"
+                       android:textColor="#ffffffff"
+                       android:textSize="@dimen/sp_12" />
+
+               </LinearLayout>
+
+           </RelativeLayout>
+
+           <RelativeLayout
+               android:id="@+id/rela_heart"
+               android:layout_width="match_parent"
+               android:layout_height="@dimen/size_200"
+               android:background="#EE3A8C">
+
+               <ImageView
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_centerVertical="true"
+                   android:layout_marginEnd="@dimen/size_50"
+                   android:layout_toStartOf="@+id/view_reference_heart"
+                   android:src="@mipmap/ic_frend_heart" />
+
+               <View
+                   android:id="@+id/view_reference_heart"
+                   android:layout_width="1dp"
+                   android:layout_height="0dp"
+                   android:layout_centerInParent="true" />
+
+
+               <LinearLayout
+                   android:layout_width="match_parent"
+                   android:layout_height="match_parent"
+                   android:layout_centerVertical="true"
+                   android:layout_marginStart="@dimen/size__20"
+                   android:layout_toEndOf="@+id/view_reference_heart"
+                   android:gravity="center_vertical"
+                   android:orientation="vertical">
+
+                   <TextView
+                       android:id="@+id/frend_hrart_max"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:text="最高心率(BPM）：0"
+                       android:textColor="#ffffffff"
+                       android:textSize="@dimen/sp_12" />
+
+                   <TextView
+                       android:id="@+id/frend_heart_min"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:layout_marginTop="@dimen/sp_24"
+                       android:layout_marginBottom="@dimen/sp_24"
+                       android:text="最低心率(BPM）：0"
+                       android:textColor="#ffffffff"
+                       android:textSize="@dimen/sp_12" />
+
+                   <TextView
+                       android:id="@+id/frend_hreat_average"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:text="平均心率(BPM）：0"
+                       android:textColor="#ffffffff"
+                       android:textSize="@dimen/sp_12" />
+
+               </LinearLayout>
+
+           </RelativeLayout>
+
+           <RelativeLayout
+               android:visibility="visible"
+               android:id="@+id/rela_bp"
+               android:layout_width="match_parent"
+               android:layout_height="@dimen/size_200"
+               android:background="#FFCC99">
+               <!--FFCC99-->
+
+               <ImageView
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_centerVertical="true"
+                   android:layout_marginEnd="@dimen/size_50"
+                   android:layout_toStartOf="@+id/view_reference_bp"
+                   android:src="@mipmap/ic_frend_heart" />
+
+               <View
+                   android:id="@+id/view_reference_bp"
+                   android:layout_width="1dp"
+                   android:layout_height="0dp"
+                   android:layout_centerInParent="true" />
+
+
+               <LinearLayout
+                   android:layout_width="match_parent"
+                   android:layout_height="match_parent"
+                   android:layout_centerVertical="true"
+                   android:layout_marginStart="@dimen/size__20"
+                   android:layout_toEndOf="@+id/view_reference_bp"
+                   android:gravity="center_vertical"
+                   android:orientation="vertical">
+
+                   <TextView
+                       android:id="@+id/frend_bp_max"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:text="收缩压(mmHg）：0"
+                       android:textColor="#ffffffff"
+                       android:textSize="@dimen/sp_12" />
+
+                   <TextView
+                       android:id="@+id/frend_bp_min"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:layout_marginTop="@dimen/sp_24"
+                       android:layout_marginBottom="@dimen/sp_24"
+                       android:text="舒张压(mmHg）：0"
+                       android:textColor="#ffffffff"
+                       android:textSize="@dimen/sp_12" />
+
+                   <TextView
+                       android:id="@+id/frend_bp_average"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:text="参考结果：--"
+                       android:textColor="#ffffffff"
+                       android:textSize="@dimen/sp_12" />
+
+               </LinearLayout>
+
+           </RelativeLayout>
+
+       </LinearLayout>
+
+   </ScrollView>
+</LinearLayout>
