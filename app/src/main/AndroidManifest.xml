@@ -136,12 +136,12 @@
 
         <!-- 最新 -->
         <activity
-            android:name="com.bozlun.health.android.bzlmaps.googlemaps.BzlGoogleMapsActivity"
+            android:name=".bzlmaps.googlemaps.BzlGoogleMapsActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <service
-            android:name="com.bozlun.health.android.bzlmaps.googlemaps.FetchAddressIntentService"
+            android:name=".bzlmaps.googlemaps.FetchAddressIntentService"
             android:exported="false" />
 
         <meta-data
@@ -149,7 +149,7 @@
             android:value="90c2a258d5ba55e981d480e70becb4c9" />
 
         <activity
-            android:name="com.bozlun.health.android.bzlmaps.gaodemaps.BzlGaoDeActivity"
+            android:name=".bzlmaps.gaodemaps.BzlGaoDeActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
 
@@ -158,7 +158,7 @@
 
         <!-- 新的引导页和欢迎页 -->
         <activity
-            android:name="com.bozlun.health.android.activity.LaunchActivity"
+            android:name=".activity.LaunchActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|navigation|keyboard"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -170,42 +170,42 @@
 
         <!--y运动历史-->
         <activity
-            android:name="com.bozlun.health.android.b30.GPSSportHisyory"
+            android:name=".b30.GPSSportHisyory"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <!-- 欢迎页面 -->
         <activity
-            android:name="com.bozlun.health.android.activity.NewGuidActivity"
+            android:name=".activity.NewGuidActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name="com.bozlun.health.android.activity.HelpActivity"
+            android:name=".activity.HelpActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <!-- 忘记密码 -->
         <activity
-            android:name="com.bozlun.health.android.activity.ForgetPasswardActivity"
+            android:name=".activity.ForgetPasswardActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <!-- 地图类 -->
         <activity
-            android:name="com.bozlun.health.android.activity.wylactivity.OutdoorCyclingActivityStar"
+            android:name=".activity.wylactivity.OutdoorCyclingActivityStar"
             android:theme="@style/AppTheme.NoActionBar" />
         <!-- 微信绑定 -->
         <activity
-            android:name="com.bozlun.health.android.activity.wylactivity.WenxinBandActivity"
+            android:name=".activity.wylactivity.WenxinBandActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <!-- 记录运动数据界面 -->
         <activity
-            android:name="com.bozlun.health.android.activity.wylactivity.SportsHistoryActivity"
+            android:name=".activity.wylactivity.SportsHistoryActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <!-- 地图轨迹展示 -->
         <activity
-            android:name="com.bozlun.health.android.activity.wylactivity.MapRecordActivity"
+            android:name=".activity.wylactivity.MapRecordActivity"
             android:theme="@style/AppTheme.NoActionBar" />
 
 
         <activity
-            android:name="com.bozlun.health.android.activity.NewLoginActivity"
+            android:name=".activity.NewLoginActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <!--<action android:name="com.sina.weibo.sdk.action.ACTION_SDK_REQ_ACTIVITY" />-->
@@ -324,45 +324,45 @@
 
         <!-- 注册 -->
         <activity
-            android:name="com.bozlun.health.android.activity.RegisterActivity"
+            android:name=".activity.RegisterActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <!-- 注册详细信息 -->
         <activity
-            android:name="com.bozlun.health.android.activity.PersonDataActivity"
+            android:name=".activity.PersonDataActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <!-- 个人信息 -->
         <activity
-            android:name="com.bozlun.health.android.activity.MyPersonalActivity"
+            android:name=".activity.MyPersonalActivity"
             android:launchMode="standard"
             android:theme="@style/AppTheme.NoActionBar" />
         <!-- 信息修改 -->
         <activity
-            android:name="com.bozlun.health.android.activity.ModifyNickNameActivity"
+            android:name=".activity.ModifyNickNameActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <!-- 设置 -->
         <activity
-            android:name="com.bozlun.health.android.activity.SetActivity"
+            android:name=".activity.SetActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <!-- 修改密码 -->
         <activity
-            android:name="com.bozlun.health.android.activity.ModifyPasswordActivity"
+            android:name=".activity.ModifyPasswordActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <!-- 意见反馈 -->
         <activity
-            android:name="com.bozlun.health.android.activity.FeedbackActivity"
+            android:name=".activity.FeedbackActivity"
             android:configChanges="orientation|keyboardHidden"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustUnspecified|stateHidden" />
         <!-- 关于 -->
         <activity
-            android:name="com.bozlun.health.android.activity.AboutActivity"
+            android:name=".activity.AboutActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <!-- 目标设置 -->
         <activity
-            android:name="com.bozlun.health.android.activity.TargetSettingActivity"
+            android:name=".activity.TargetSettingActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.bozlun.health.android.activity.PrivateModeActivity"
+            android:name=".activity.PrivateModeActivity"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <!--  -->
@@ -469,37 +469,37 @@
             android:windowSoftInputMode="stateHidden" />
         <!-- 获取手表时间页面 -->
         <activity
-            android:name="com.bozlun.health.android.siswatch.GetWatchTimeActivity"
+            android:name=".siswatch.GetWatchTimeActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
         <!-- 搜索帮助 -->
         <activity
-            android:name="com.bozlun.health.android.siswatch.SearchExplainActivity"
+            android:name=".siswatch.SearchExplainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
 
         <!-- 记录 -->
         <activity
-            android:name="com.bozlun.health.android.siswatch.record.RecordHistoryActivity"
+            android:name=".siswatch.record.RecordHistoryActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
         <!-- 柱状图记录 -->
         <activity
-            android:name="com.bozlun.health.android.siswatch.data.H8DataLinchartActivity"
+            android:name=".siswatch.data.H8DataLinchartActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
         <!-- 分享页面 -->
         <activity
-            android:name="com.bozlun.health.android.siswatch.H8ShareActivity"
+            android:name=".siswatch.H8ShareActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
         <!-- 接收时间变化的广播 -->
-        <receiver android:name="com.bozlun.health.android.siswatch.DateChanageReceiver">
+        <receiver android:name=".siswatch.DateChanageReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.TIME_SET" />
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
@@ -507,24 +507,24 @@
             </intent-filter>
         </receiver>
         <!-- service -->
-        <service android:name="com.bozlun.health.android.siswatch.bleus.WatchBluetoothService" />
+        <service android:name=".siswatch.bleus.WatchBluetoothService" />
 
         <activity
-            android:name="com.bozlun.health.android.bi8i.b18isystemic.B18ITargetSettingActivity"
+            android:name=".bi8i.b18isystemic.B18ITargetSettingActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateAlwaysHidden" />
         <!-- 智能提醒设置 -->
         <activity
-            android:name="com.bozlun.health.android.bi8i.b18isystemic.B18IIntelligentReminderActivity"
+            android:name=".bi8i.b18isystemic.B18IIntelligentReminderActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateAlwaysHidden" />
         <!-- 通知 -->
         <activity
-            android:name="com.bozlun.health.android.bi8i.b18isystemic.B18ISettingActivity"
+            android:name=".bi8i.b18isystemic.B18ISettingActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
@@ -532,7 +532,7 @@
 
         <!-- H9 设备界面-->
         <activity
-            android:name="com.bozlun.health.android.h9.settingactivity.H9SettingsActivity"
+            android:name=".h9.settingactivity.H9SettingsActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
@@ -540,7 +540,7 @@
 
         <!-- H9 消息提醒开关界面-->
         <activity
-            android:name="com.bozlun.health.android.h9.settingactivity.H9ReminderActivity"
+            android:name=".h9.settingactivity.H9ReminderActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
@@ -548,7 +548,7 @@
 
         <!-- H9 开关设置界面-->
         <activity
-            android:name="com.bozlun.health.android.h9.settingactivity.H9SwitchActivity"
+            android:name=".h9.settingactivity.H9SwitchActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
@@ -571,7 +571,7 @@
             <!--android:windowSoftInputMode="stateAlwaysHidden" />-->
         <!--H9 闹钟编辑界面-->
         <activity
-            android:name="com.bozlun.health.android.h9.settingactivity.EditAddAlarmActivity"
+            android:name=".h9.settingactivity.EditAddAlarmActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
@@ -580,7 +580,7 @@
 
         <!--h9  闹钟界面-->
         <activity
-            android:name="com.bozlun.health.android.h9.settingactivity.H9AlarmClockActivity"
+            android:name=".h9.settingactivity.H9AlarmClockActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
@@ -588,7 +588,7 @@
 
         <!-- 震动 -->
         <activity
-            android:name="com.bozlun.health.android.bi8i.b18isystemic.ShockActivity"
+            android:name=".bi8i.b18isystemic.ShockActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
@@ -607,7 +607,7 @@
 
         <!-- 久坐提醒 -->
         <activity
-            android:name="com.bozlun.health.android.bi8i.b18isystemic.SedentaryReminder"
+            android:name=".bi8i.b18isystemic.SedentaryReminder"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
@@ -615,7 +615,7 @@
 
         <!-- 预设睡眠 -->
         <activity
-            android:name="com.bozlun.health.android.bi8i.b18isystemic.SleepGoalActivity"
+            android:name=".bi8i.b18isystemic.SleepGoalActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
@@ -623,14 +623,14 @@
 
         <!-- 个人资料 -->
         <activity
-            android:name="com.bozlun.health.android.bi8i.b18isystemic.MinePersonDataActivity"
+            android:name=".bi8i.b18isystemic.MinePersonDataActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
 
         <!-- 分享跳转 -->
         <activity
-            android:name="com.bozlun.health.android.h9.settingactivity.SharePosterActivity"
+            android:name=".h9.settingactivity.SharePosterActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
@@ -641,35 +641,35 @@
 
         <!-- 设置 -->
         <activity
-            android:name="com.bozlun.health.android.bi8i.b18isystemic.B18IAppSettingActivity"
+            android:name=".bi8i.b18isystemic.B18IAppSettingActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
 
         <!-- 心率数据历史 -->
         <activity
-            android:name="com.bozlun.health.android.h9.settingactivity.H9HearteDataActivity"
+            android:name=".h9.settingactivity.H9HearteDataActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
 
         <!-- 心率测试 -->
         <activity
-            android:name="com.bozlun.health.android.h9.settingactivity.H9HearteTestActivity"
+            android:name=".h9.settingactivity.H9HearteTestActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
 
         <!-- 心率 -->
         <activity
-            android:name="com.bozlun.health.android.bi8i.b18isystemic.HeartRateActivity"
+            android:name=".bi8i.b18isystemic.HeartRateActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
 
         <!-- 关于 -->
         <activity
-            android:name="com.bozlun.health.android.bi8i.b18isystemic.SettingAboutActivity"
+            android:name=".bi8i.b18isystemic.SettingAboutActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
@@ -682,7 +682,7 @@
 
         <!-- H9手表页面 -->
         <activity
-            android:name="com.bozlun.health.android.h9.H9HomeActivity"
+            android:name=".h9.H9HomeActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
@@ -691,14 +691,14 @@
         <service android:name="com.sdk.bluetooth.manage.BluetoothService" />
         <!-- H9手表血压 -->
         <activity
-            android:name="com.bozlun.health.android.h9.settingactivity.BloodPressureActivity"
+            android:name=".h9.settingactivity.BloodPressureActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateAlwaysHidden" />
         <!-- H9手表单位 -->
         <activity
-            android:name="com.bozlun.health.android.h9.settingactivity.IsUnitActivity"
+            android:name=".h9.settingactivity.IsUnitActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
@@ -706,27 +706,27 @@
 
         <!-- H9手表校针 -->
         <activity
-            android:name="com.bozlun.health.android.h9.settingactivity.CorrectionTimeActivity"
+            android:name=".h9.settingactivity.CorrectionTimeActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateAlwaysHidden" />
         <!-- H9手表校针指南 -->
         <activity
-            android:name="com.bozlun.health.android.h9.settingactivity.H9GuideActivity"
+            android:name=".h9.settingactivity.H9GuideActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateAlwaysHidden" />
         <!-- 心率历史页面 -->
         <activity
-            android:name="com.bozlun.health.android.h9.H9HeartHistoryListActivity"
+            android:name=".h9.H9HeartHistoryListActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateAlwaysHidden" />
         <activity
-            android:name="com.bozlun.health.android.h9.utils.Device_Time_Activity"
+            android:name=".h9.utils.Device_Time_Activity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
@@ -734,7 +734,7 @@
 
         <!-- W30S  手表 主界面HOME -->
         <activity
-            android:name="com.bozlun.health.android.w30s.W30SHomeActivity"
+            android:name=".w30s.W30SHomeActivity"
             android:configChanges="keyboard"
             android:hardwareAccelerated="false"
             android:launchMode="singleTask"
@@ -744,7 +744,7 @@
 
         <provider
             android:name="android.support.v4.content.FileProvider"
-            android:authorities="com.bozlun.health.android.fileprovider_racefitpro"
+            android:authorities=".fileprovider_racefitpro"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
@@ -754,7 +754,7 @@
 
         <!-- W30S  手表 添加朋友界面 -->
         <activity
-            android:name="com.bozlun.health.android.friend.AddNewFriendActivity"
+            android:name=".friend.AddNewFriendActivity"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -763,7 +763,7 @@
 
         <!-- W30S  手表 朋友   我的二维码展示 -->
         <activity
-            android:name="com.bozlun.health.android.friend.ErCodeActity"
+            android:name=".friend.ErCodeActity"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -773,7 +773,7 @@
 
         <!-- W30S  手表 朋友列表 -->
         <activity
-            android:name="com.bozlun.health.android.friend.FriendActivity"
+            android:name=".friend.FriendActivity"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -782,7 +782,7 @@
 
         <!--赞我的好友-->
         <activity
-            android:name="com.bozlun.health.android.friend.FrendLoveMineActivity"
+            android:name=".friend.FrendLoveMineActivity"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -791,7 +791,7 @@
 
         <!-- 朋友隐私设置 -->
         <activity
-            android:name="com.bozlun.health.android.friend.FrendSettingActivity"
+            android:name=".friend.FrendSettingActivity"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -800,7 +800,7 @@
 
         <!-- W30S  手表 新的朋友请求界面 -->
         <activity
-            android:name="com.bozlun.health.android.friend.FriendApplyActivity"
+            android:name=".friend.FriendApplyActivity"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -809,7 +809,7 @@
 
         <!-- W30S  手表朋友数据界面 -->
         <activity
-            android:name="com.bozlun.health.android.friend.FrendDataActivity"
+            android:name=".friend.FrendDataActivity"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -818,7 +818,7 @@
 
         <!--&lt;!&ndash; W30S  手表朋友步数数据界面 &ndash;&gt;-->
         <activity
-            android:name="com.bozlun.health.android.friend.FrendStepActivity"
+            android:name=".friend.FrendStepActivity"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -827,7 +827,7 @@
 
         <!--&lt;!&ndash; W30S  手表朋友睡眠数据界面 &ndash;&gt;-->
         <activity
-            android:name="com.bozlun.health.android.friend.FrendSleepActivity"
+            android:name=".friend.FrendSleepActivity"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -836,7 +836,7 @@
 
         <!-- W30S  手表朋友心率数据界面 -->
         <activity
-            android:name="com.bozlun.health.android.friend.FrendHeartActivity"
+            android:name=".friend.FrendHeartActivity"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -844,7 +844,7 @@
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
         <!--  手表朋友血压数据界面 -->
         <activity
-            android:name="com.bozlun.health.android.friend.FrendBpActivity"
+            android:name=".friend.FrendBpActivity"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -855,7 +855,7 @@
 
         <!-- W30S  手表 更多提醒界面 -->
         <activity
-            android:name="com.bozlun.health.android.w30s.activity.MoreShockActivity"
+            android:name=".w30s.activity.MoreShockActivity"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -864,7 +864,7 @@
 
         <!-- W30S  手表 更多提醒详细界面 -->
         <activity
-            android:name="com.bozlun.health.android.w30s.activity.ShockDetailedActivity"
+            android:name=".w30s.activity.ShockDetailedActivity"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -873,7 +873,7 @@
 
         <!-- W30S  手表 更多提醒详细界面 -->
         <activity
-            android:name="com.bozlun.health.android.w30s.activity.W30SReminderActivity"
+            android:name=".w30s.activity.W30SReminderActivity"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -882,7 +882,7 @@
 
         <!-- W30S  手表 闹钟界面 -->
         <activity
-            android:name="com.bozlun.health.android.w30s.activity.W30SAlarmClockRemindActivity"
+            android:name=".w30s.activity.W30SAlarmClockRemindActivity"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -891,7 +891,7 @@
 
         <!-- W30S  手表 闹钟界面 -->
         <activity
-            android:name="com.bozlun.health.android.w30s.activity.W30SAlarmClockActivity"
+            android:name=".w30s.activity.W30SAlarmClockActivity"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -900,7 +900,7 @@
 
         <!-- W30S  手表 闹钟新建与修改界面 -->
         <activity
-            android:name="com.bozlun.health.android.w30s.activity.W30STimePicker"
+            android:name=".w30s.activity.W30STimePicker"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -909,7 +909,7 @@
 
         <!-- W30S  手表 管理界面 -->
         <activity
-            android:name="com.bozlun.health.android.w30s.activity.W30SSettingActivity"
+            android:name=".w30s.activity.W30SSettingActivity"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -918,7 +918,7 @@
 
         <!-- W30S  手表 拍照界面 -->
         <activity
-            android:name="com.bozlun.health.android.w30s.carema.W30sCameraActivity"
+            android:name=".w30s.carema.W30sCameraActivity"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -927,7 +927,7 @@
 
         <!-- W30S  手表 拍照界面 -->
         <activity
-            android:name="com.bozlun.health.android.w30s.carema.PreviewActivity"
+            android:name=".w30s.carema.PreviewActivity"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -936,7 +936,7 @@
 
         <!-- W30S  手表 相册 -->
         <activity
-            android:name="com.bozlun.health.android.w30s.activity.W30sAlbumActivity"
+            android:name=".w30s.activity.W30sAlbumActivity"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -945,7 +945,7 @@
 
         <!-- W30S  手表 相册,显示相片 -->
         <activity
-            android:name="com.bozlun.health.android.w30s.activity.ShowAlbumActivity"
+            android:name=".w30s.activity.ShowAlbumActivity"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -954,7 +954,7 @@
 
         <!-- W30S  运动历史 -->
         <activity
-            android:name="com.bozlun.health.android.w30s.activity.StepHistoryDataActivity"
+            android:name=".w30s.activity.StepHistoryDataActivity"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -963,7 +963,7 @@
 
         <!-- W30S  睡眠历史 -->
         <activity
-            android:name="com.bozlun.health.android.w30s.activity.SleepHistoryActivity"
+            android:name=".w30s.activity.SleepHistoryActivity"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -972,25 +972,25 @@
 
         <!-- W30S  当天心率 -->
         <activity
-            android:name="com.bozlun.health.android.w30s.activity.W30SHearteDataActivity"
+            android:name=".w30s.activity.W30SHearteDataActivity"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
         <activity
-            android:name="com.bozlun.health.android.w30s.ota.NewW30sFirmwareUpgrade"
+            android:name=".w30s.ota.NewW30sFirmwareUpgrade"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
 
-        <service android:name="com.bozlun.health.android.w30s.ota.W30SDfuService" />
+        <service android:name=".w30s.ota.W30SDfuService" />
 
         <!-- OTA 升级-->
         <activity
-            android:name="com.bozlun.health.android.w30s.ota.W30OTAActivity"
+            android:name=".w30s.ota.W30OTAActivity"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -998,7 +998,7 @@
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
         <!-- 隐私介绍 -->
         <activity
-            android:name="com.bozlun.health.android.view.PrivacyActivity"
+            android:name=".view.PrivacyActivity"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -1007,7 +1007,7 @@
 
         <!-- B30界面 -->
         <activity
-            android:name="com.bozlun.health.android.b30.B30HomeActivity"
+            android:name=".b30.B30HomeActivity"
             android:configChanges="keyboard"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -1017,154 +1017,154 @@
 
         <!-- 步数详情页面 -->
         <activity
-            android:name="com.bozlun.health.android.b30.B30StepDetailActivity"
+            android:name=".b30.B30StepDetailActivity"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <!-- 心率详情界面 -->
         <activity
-            android:name="com.bozlun.health.android.b30.B30HeartDetailActivity"
+            android:name=".b30.B30HeartDetailActivity"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <!-- 血压详情界面 -->
         <activity
-            android:name="com.bozlun.health.android.b30.B30BloadDetailActivity"
+            android:name=".b30.B30BloadDetailActivity"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <!-- 手动测量心率界面 -->
         <activity
-            android:name="com.bozlun.health.android.b30.ManualMeaureHeartActivity"
+            android:name=".b30.ManualMeaureHeartActivity"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <!-- 设备界面 -->
         <activity
-            android:name="com.bozlun.health.android.b30.B30DeviceActivity"
+            android:name=".b30.B30DeviceActivity"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <!-- 测量血压界面 -->
         <activity
-            android:name="com.bozlun.health.android.b30.ManualMeaureBloadActivity"
+            android:name=".b30.ManualMeaureBloadActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <!-- 消息提醒界面 -->
         <activity
-            android:name="com.bozlun.health.android.b30.B30MessAlertActivity"
+            android:name=".b30.B30MessAlertActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <!-- 转腕亮品设置页面 -->
         <activity
-            android:name="com.bozlun.health.android.b30.B30TrunWristSetActivity"
+            android:name=".b30.B30TrunWristSetActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <!-- 开关设置 -->
         <activity
-            android:name="com.bozlun.health.android.b30.B30SwitchSetActivity"
+            android:name=".b30.B30SwitchSetActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <!-- 久坐提醒设置 -->
         <activity
-            android:name="com.bozlun.health.android.b30.B30LongSitSetActivity"
+            android:name=".b30.B30LongSitSetActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <!-- 界面风格设置 -->
         <activity
-            android:name="com.bozlun.health.android.b30.B30ScreenStyleActivity"
+            android:name=".b30.B30ScreenStyleActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <!-- 睡眠详情页面 -->
         <activity
-            android:name="com.bozlun.health.android.b30.B30SleepDetailActivity"
+            android:name=".b30.B30SleepDetailActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <!-- 私人血压设置 -->
         <activity
-            android:name="com.bozlun.health.android.b30.PrivateBloadActivity"
+            android:name=".b30.PrivateBloadActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <!-- 系统设置 -->
         <activity
-            android:name="com.bozlun.health.android.b30.B30SysSettingActivity"
+            android:name=".b30.B30SysSettingActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <!-- 固件升级 -->
         <activity
-            android:name="com.bozlun.health.android.b30.B30DufActivity"
+            android:name=".b30.B30DufActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <!-- 重置设备密码 -->
         <activity
-            android:name="com.bozlun.health.android.b30.B30ResetActivity"
+            android:name=".b30.B30ResetActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <!-- 倒计时 -->
         <activity
-            android:name="com.bozlun.health.android.b30.B30CounDownActivity"
+            android:name=".b30.B30CounDownActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <!-- 注册界面2 -->
         <activity
-            android:name="com.bozlun.health.android.activity.RegisterActivity2"
+            android:name=".activity.RegisterActivity2"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <!-- B30闹钟界面 -->
         <activity
-            android:name="com.bozlun.health.android.b30.view.B30DeviceAlarmActivity"
+            android:name=".b30.view.B30DeviceAlarmActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <!-- B30闹钟界面 -->
         <activity
-            android:name="com.bozlun.health.android.b30.B30SettingAlarmActiivty"
+            android:name=".b30.B30SettingAlarmActiivty"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <!--B30手环运动历史记录-->
         <activity
-            android:name="com.bozlun.health.android.b30.DevicesSportHisyory"
+            android:name=".b30.DevicesSportHisyory"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
 
 
         <!--微信运动界面-->
         <activity
-            android:name="com.bozlun.health.android.w30s.wxsport.WXSportActivity"
+            android:name=".w30s.wxsport.WXSportActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <!--B36的女性功能个人资料设置-->
         <activity
-            android:name="com.bozlun.health.android.b30.women.WomenPersonalActivity"
+            android:name=".b30.women.WomenPersonalActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <!--B36的女性功能详情-->
         <activity
-            android:name="com.bozlun.health.android.b30.women.WomenDetailActivity"
+            android:name=".b30.women.WomenDetailActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <!--B36屏幕亮度设置-->
         <activity
-            android:name="com.bozlun.health.android.b36.B36LightActivity"
+            android:name=".b36.B36LightActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <!--B36开关设置-->
         <activity
-            android:name="com.bozlun.health.android.b36.B36SwitchActivity"
+            android:name=".b36.B36SwitchActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
 
 
         <service
-            android:name="com.bozlun.health.android.b30.service.B30ConnStateService"
+            android:name=".b30.service.B30ConnStateService"
             android:exported="false"
             android:persistent="true">
 
@@ -1177,48 +1177,48 @@
         </service>
 
         <!--B31的主页面-->
-        <activity android:name="com.bozlun.health.android.b31.B31HomeActivity"
+        <activity android:name=".b31.B31HomeActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <!--B31的设备页面-->
-        <activity android:name="com.bozlun.health.android.b31.B31DeviceActivity"
+        <activity android:name=".b31.B31DeviceActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <!--B31血氧测试页面-->
-        <activity android:name="com.bozlun.health.android.b31.B31ManSpO2Activity"
+        <activity android:name=".b31.B31ManSpO2Activity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <!--B31呼吸率测量界面-->
-        <activity android:name="com.bozlun.health.android.b31.B31RespiratoryRateActivity"
+        <activity android:name=".b31.B31RespiratoryRateActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <!--疲劳度测试页面-->
-        <activity android:name="com.bozlun.health.android.b31.B31ManFatigueActivity"
+        <activity android:name=".b31.B31ManFatigueActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <!--HRV详细数据页面-->
-        <activity android:name="com.bozlun.health.android.b31.hrv.B31HrvDetailActivity"
+        <activity android:name=".b31.hrv.B31HrvDetailActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <!--B31的开关设置界面-->
-        <activity android:name="com.bozlun.health.android.b31.B31SwitchActivity"
+        <activity android:name=".b31.B31SwitchActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <!--B31血氧详情页面-->
-        <activity android:name="com.bozlun.health.android.b31.bpoxy.B31BpOxyAnysisActivity"
+        <activity android:name=".b31.bpoxy.B31BpOxyAnysisActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <!--Hrv的详情页面-->
-        <activity android:name="com.bozlun.health.android.b31.bpoxy.HrvHistoryActivity"
+        <activity android:name=".b31.bpoxy.HrvHistoryActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name="com.bozlun.health.android.b31.bpoxy.ShowSpo2DescActivity"
+        <activity android:name=".b31.bpoxy.ShowSpo2DescActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name="com.bozlun.health.android.b31.hrv.GlossaryActivity"/>
-        <activity android:name="com.bozlun.health.android.b31.hrv.GlossaryDetailActivity"/>
+        <activity android:name=".b31.hrv.GlossaryActivity"/>
+        <activity android:name=".b31.hrv.GlossaryDetailActivity"/>
         <!--展示血氧每个图表的详情的页面-->
-        <activity android:name="com.bozlun.health.android.b31.bpoxy.ShowSpo2DetailActivity"
+        <activity android:name=".b31.bpoxy.ShowSpo2DetailActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
         <!--展示单个的描述-->
