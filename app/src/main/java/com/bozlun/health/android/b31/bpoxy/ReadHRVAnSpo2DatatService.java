@@ -59,7 +59,7 @@ public class ReadHRVAnSpo2DatatService extends IntentService {
                     break;
                 case 1002:
                     Spo2hOriginData spo2hOriginData = (Spo2hOriginData) msg.obj;
-                    //Log.e(TAG,"-----------spo2hOriginData="+spo2hOriginData.getmTime().getDateADC()+"==="+spo2hOriginData.toString());
+                   // Log.e(TAG,"-----------spo2hOriginData="+spo2hOriginData.getmTime().getDateADC()+"==="+spo2hOriginData.toString());
                     B31Spo2hBean b31Spo2hBean = new B31Spo2hBean();
                     b31Spo2hBean.setDateStr(spo2hOriginData.getDate());
                     b31Spo2hBean.setBleMac(MyApp.getInstance().getMacAddress());
@@ -104,11 +104,7 @@ public class ReadHRVAnSpo2DatatService extends IntentService {
         String date = mLocalTool.getUpdateDate();// 最后更新总数据的日期
         if(WatchUtils.isEmpty(date))
             date = WatchUtils.obtainFormatDate(1);
-        if(date.equals(WatchUtils.getCurrentDate())){   //今天
-            isToday = true;
-        }else{
-            isToday = false;
-        }
+        isToday = date.equals(WatchUtils.getCurrentDate());
 
 
     }

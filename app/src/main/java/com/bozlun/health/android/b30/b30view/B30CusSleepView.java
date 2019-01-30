@@ -192,6 +192,12 @@ public class B30CusSleepView extends View {
         isShowSeekBar = showSeekBar;
     }
 
+    //是否绘制标线
+    public void setShowSeekBar(boolean showSeekBar,int nor) {
+        isShowSeekBar = showSeekBar;
+        invalidate();
+    }
+
     //绘制文字
     public void setSleepDateTxt(String txt){
         this.timeTxt = txt;

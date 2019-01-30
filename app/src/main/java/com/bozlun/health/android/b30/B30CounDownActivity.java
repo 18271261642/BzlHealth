@@ -165,7 +165,7 @@ public class B30CounDownActivity extends WatchBaseActivity implements CompoundBu
                     showCounDownTv.setText(secToTime(dataSecond) + "");
                     startCounDown(dataSecond, false);
                 } else {
-                    oftenDateTv.setText(date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds());
+                    oftenDateTv.setText(secToTime(dataSecond)+"");
                     startCounDown(dataSecond, true);
                 }
 
@@ -259,7 +259,7 @@ public class B30CounDownActivity extends WatchBaseActivity implements CompoundBu
     public static String unitFormat(int i) {
         String retStr = null;
         if (i >= 0 && i < 10)
-            retStr = "0" + Integer.toString(i);
+            retStr = "0" + i;
         else
             retStr = "" + i;
         return retStr;

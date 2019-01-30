@@ -31,8 +31,8 @@ android {
         applicationId "com.bozlun.health.android"
         minSdkVersion 19
         targetSdkVersion 27
-        versionCode 1
-        versionName "1.0"
+        versionCode 3
+        versionName "1.0.2"
         flavorDimensions "versionName"
         manifestPlaceholders = [
                 qq_id: "101357650"
@@ -64,7 +64,7 @@ android {
 
     }
     greendao {
-        schemaVersion 1
+        schemaVersion 2
         daoPackage 'com.afa.tourism.greendao.gen'
         targetGenDir 'src/main/java'
     }

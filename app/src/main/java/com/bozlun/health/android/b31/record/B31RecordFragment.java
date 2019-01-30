@@ -273,6 +273,10 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
                     break;
                 case 1003:  //心率图表显示
                     if (getActivity() != null && !getActivity().isFinishing()) {
+                        if (lastTimeTv != null)
+                            lastTimeTv.setText(getResources().getString(R.string.string_recent) + " " + "--:--");
+                        if (b30HeartValueTv != null)
+                            b30HeartValueTv.setText("0 bpm");
                         List<HalfHourRateData> rateData = (List<HalfHourRateData>) msg.obj;
                         showSportHeartData(rateData);//展示心率的图表
                     }
@@ -280,6 +284,8 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
                     break;
                 case 1004:  //睡眠数据
                     if (getActivity() != null && !getActivity().isFinishing()) {
+                        if (b30StartEndTimeTv != null)
+                            b30StartEndTimeTv.setText("--:--");
                         SleepData sleepData = (SleepData) msg.obj;
                         showSleepData(sleepData);//展示睡眠的图表
                     }
@@ -819,32 +825,36 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
     //取出本地的HRV数据
     private void updateHRVData(final String mac, final String day) {
         tmpHRVlist.clear();
-
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-                super.run();
-                String where = "bleMac = ? and dateStr = ?";
-                List<B31HRVBean> hrvBeanList = DataSupport.where(where, mac,
-                        day).find(B31HRVBean.class);
-                if (hrvBeanList == null || hrvBeanList.isEmpty()) {
+        try {
+            Thread thread = new Thread() {
+                @Override
+                public void run() {
+                    super.run();
+                    String where = "bleMac = ? and dateStr = ?";
+                    List<B31HRVBean> hrvBeanList = DataSupport.where(where, mac,
+                            day).find(B31HRVBean.class);
+                    if (hrvBeanList == null || hrvBeanList.isEmpty()) {
+                        Message message = handler.obtainMessage();
+                        message.what = 1113;
+                        message.obj = tmpHRVlist;
+                        handler.sendMessage(message);
+                        return;
+                    }
+                    for (B31HRVBean hrvBean : hrvBeanList) {
+                        tmpHRVlist.add(gson.fromJson(hrvBean.getHrvDataStr(), HRVOriginData.class));
+                    }
                     Message message = handler.obtainMessage();
                     message.what = 1113;
                     message.obj = tmpHRVlist;
                     handler.sendMessage(message);
-                    return;
+                    //showHrvData(tmpHRVlist);
                 }
-                for (B31HRVBean hrvBean : hrvBeanList) {
-                    tmpHRVlist.add(gson.fromJson(hrvBean.getHrvDataStr(), HRVOriginData.class));
-                }
-                Message message = handler.obtainMessage();
-                message.what = 1113;
-                message.obj = tmpHRVlist;
-                handler.sendMessage(message);
-                //showHrvData(tmpHRVlist);
-            }
-        };
-        thread.start();
+            };
+            thread.start();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
 
     }
 
@@ -958,7 +968,8 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
                 }
             }
             sleepList.add(0, 2);
-            sleepList.add(sleepLin.length()+1, 2);
+            sleepList.add(0);
+            sleepList.add(2);
         } else {
             if (b30StartEndTimeTv != null)  b30StartEndTimeTv.setText("--:--");
         }

@@ -138,7 +138,7 @@ public class FriendActivity
         myfriendsList = new ArrayList<>();
         frendAdapter = new FrendAdapter(FriendActivity.this, myfriendsList);
         recyclerViewFrend.setAdapter(frendAdapter);
-
+        frendAdapter.setmOnItemListenter(this);
 
         //非好友列表
         recyclerViewUnFrend.setLayoutManager(new GridLayoutManager(this, 1));

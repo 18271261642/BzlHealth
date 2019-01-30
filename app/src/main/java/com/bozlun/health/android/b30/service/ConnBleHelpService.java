@@ -393,7 +393,7 @@ public class ConnBleHelpService {
         //设置消息提醒的开关状态
         WatchUtils.setCommSocailMsgSetting(MyApp.getContext());
 
-        //设置开关，默认都关闭
+        //设置开关，佩戴检测、自动心率 血氧测量打开
         WatchUtils.setSwitchCheck();
 
     }
@@ -430,6 +430,7 @@ public class ConnBleHelpService {
 
             }
         });
+
     }
 
 

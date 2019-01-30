@@ -72,10 +72,16 @@ public class PhoneBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
-        Log.e(TAG, "---------action---" + action);
+        //Log.e(TAG, "---------action---" + action);
 
+        if(!AndPermission.hasPermissions(MyApp.getContext(),Manifest.permission.READ_CONTACTS)){
+            AndPermission.with(MyApp.getContext()).runtime().permission(Manifest.permission.READ_CONTACTS,Manifest.permission.READ_CALL_LOG).start();
+        }
+        if(action == null)
+            return;
         //呼入电话
-        if (!WatchUtils.isEmpty(action) && action.equals(B_PHONE_STATE)) {
+        if (action.equals(B_PHONE_STATE) || action.equals("android.intent.action.PHONE_STATE")) {
+            //Log.d(TAG, "---1111----");
             doReceivePhone(context, intent);
         }
     }
@@ -88,78 +94,83 @@ public class PhoneBroadcastReceiver extends BroadcastReceiver {
      */
     public void doReceivePhone(Context context, Intent intent) {
         phoneNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
+        //Log.d(TAG, "---phoneNumber--111--" + phoneNumber);
+        if (!WatchUtils.isEmpty(phoneNumber)){
+            //Log.d(TAG, "---phoneNumber----" + phoneNumber);
+            TelephonyManager telephony = (TelephonyManager) context.getSystemService(TELEPHONY_SERVICE);
+            if (telephony == null)
+                return;
+            int state = telephony.getCallState();
+            Log.d(TAG, "-----state-----" + state);
+            switch (state) {
+                case TelephonyManager.CALL_STATE_RINGING://"[Broadcast]等待接电话="
+                    Log.d(TAG, "------收到了来电广播---" + phoneNumber);
+                    if (!WatchUtils.isEmpty(phoneNumber) && !WatchUtils.isEmpty(bleName)) {
+                        if (onClallListener != null) {
+                            onClallListener.callPhoneAlert(phoneNumber);
+                        }
+                        if (bleName.equals("bozlun")) {
+                            sendH8PhoneAlert();
+                        }
 
-        if (!WatchUtils.isEmpty(phoneNumber))Log.d(TAG, "---phoneNumber----" + phoneNumber);
-
-        TelephonyManager telephony = (TelephonyManager) context.getSystemService(TELEPHONY_SERVICE);
-        if (telephony == null)
-            return;
-        int state = telephony.getCallState();
-        Log.d(TAG, "-----state-----" + state);
-        switch (state) {
-            case TelephonyManager.CALL_STATE_RINGING://"[Broadcast]等待接电话="
-                Log.d(TAG, "------收到了来电广播---" + phoneNumber);
-                if (!WatchUtils.isEmpty(phoneNumber) && !WatchUtils.isEmpty(bleName)) {
-                    if (onClallListener != null) {
-                        onClallListener.callPhoneAlert(phoneNumber);
-                    }
-                    if (bleName.equals("bozlun")) {
-                        sendH8PhoneAlert();
-                    }
-
-                    if (bleName.equals(H9_NAME_TAG)) {
-                        getPeople(phoneNumber, context);
-                    }
-                }
-
-
-                //W30
-                if(!WatchUtils.isEmpty(bleName) &&(bleName.equals("w30") || bleName.equals("W30"))){
-                    if(!WatchUtils.isEmpty(phoneNumber)){
-                        boolean isOn = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(),"w30sswitch_Phone",true);
-                        if(isOn){
-                            sendPhoneAlertData(phoneNumber,"W30");
+                        if (bleName.equals(H9_NAME_TAG)) {
+                            getPeople(phoneNumber, context);
                         }
                     }
-                }
-                //维亿魄系列
-                if(!WatchUtils.isEmpty(bleName) && WatchUtils.isVPBleDevice(bleName)){   //B30手环
-                    sendPhoneAlertData(phoneNumber,"B30");
-                }
-                break;
-            case TelephonyManager.CALL_STATE_IDLE:// "[Broadcast]挂断电话
-                Log.d(TAG, "------挂断电话--");
-                if (!WatchUtils.isEmpty(bleName) && bleName.equals("bozlun")||bleName.equals(H9_NAME_TAG)) {
-                    missCallPhone();    //挂断电话
-                }
-                if(!WatchUtils.isEmpty(bleName) &&(bleName.equals("w30") || bleName.equals("W30"))){
-                    disW30Phone();
-                }
-                if(!WatchUtils.isEmpty(bleName) && WatchUtils.isVPBleDevice(bleName)){
-                    setB30DisPhone();
-                }
-                break;
-            case TelephonyManager.CALL_STATE_OFFHOOK://"[Broadcast]通话中="
-                Log.d(TAG, "------通话中--");
-                if (!WatchUtils.isEmpty(bleName) && bleName.equals("bozlun")) {
-                    missCallPhone();    //挂断电话
-                }
-                if(!WatchUtils.isEmpty(bleName) &&(bleName.equals("w30") || bleName.equals("W30"))){
-                    disW30Phone();
-                }
-                if(!WatchUtils.isEmpty(bleName) && WatchUtils.isVPBleDevice(bleName)){
-                    setB30DisPhone();
-                }
-                break;
+
+
+                    //W30
+                    if(!WatchUtils.isEmpty(bleName) &&(bleName.equals("w30") || bleName.equals("W30"))){
+                        if(!WatchUtils.isEmpty(phoneNumber)){
+                            boolean isOn = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(),"w30sswitch_Phone",true);
+                            if(isOn){
+                                sendPhoneAlertData(phoneNumber,"W30");
+                            }
+                        }
+                    }
+                    //维亿魄系列
+                    if(!WatchUtils.isEmpty(bleName) && WatchUtils.isVPBleDevice(bleName)){   //B30手环
+                        sendPhoneAlertData(phoneNumber,"B30");
+                    }
+                    break;
+                case TelephonyManager.CALL_STATE_IDLE:// "[Broadcast]挂断电话
+                    Log.d(TAG, "------挂断电话--");
+                    if (!WatchUtils.isEmpty(bleName) && bleName.equals("bozlun")||bleName.equals(H9_NAME_TAG)) {
+                        missCallPhone();    //挂断电话
+                    }
+                    if(!WatchUtils.isEmpty(bleName) &&(bleName.equals("w30") || bleName.equals("W30"))){
+                        disW30Phone();
+                    }
+                    if(!WatchUtils.isEmpty(bleName) && WatchUtils.isVPBleDevice(bleName)){
+                        setB30DisPhone();
+                    }
+                    break;
+                case TelephonyManager.CALL_STATE_OFFHOOK://"[Broadcast]通话中="
+                    Log.d(TAG, "------通话中--");
+                    if (!WatchUtils.isEmpty(bleName) && bleName.equals("bozlun")) {
+                        missCallPhone();    //挂断电话
+                    }
+                    if(!WatchUtils.isEmpty(bleName) &&(bleName.equals("w30") || bleName.equals("W30"))){
+                        disW30Phone();
+                    }
+                    if(!WatchUtils.isEmpty(bleName) && WatchUtils.isVPBleDevice(bleName)){
+                        setB30DisPhone();
+                    }
+                    break;
+            }
         }
+
+
+
     }
 
     //发送电话号码
     private void sendPhoneAlertData(String phoneNumber, String tag) {
 
         //判断是否有读取联系人和通讯录的权限
-        if(!AndPermission.hasPermissions(MyApp.getContext(),Manifest.permission.READ_CONTACTS)){
-            AndPermission.with(MyApp.getContext()).runtime().permission(Manifest.permission.READ_CONTACTS).start();
+        if(!AndPermission.hasPermissions(MyApp.getContext(),Manifest.permission.READ_CONTACTS,Manifest.permission.READ_CALL_LOG)){
+            AndPermission.with(MyApp.getContext()).runtime().permission(Manifest.permission.READ_CONTACTS
+                    ,Manifest.permission.READ_CALL_LOG,Manifest.permission.WRITE_CALL_LOG).start();
         }else{
             getPhoneContacts(phoneNumber, tag);
         }

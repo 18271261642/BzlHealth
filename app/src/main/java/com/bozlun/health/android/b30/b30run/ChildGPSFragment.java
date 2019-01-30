@@ -188,9 +188,9 @@ public class ChildGPSFragment extends LazyFragment implements OutDoorSportAdapte
             List<SportMaps> sportMapsList = daoSession.getSportMapsDao()
                     .queryBuilder().where(SportMapsDao.Properties.Mac.eq(bleMac),
                             SportMapsDao.Properties.UserId.eq(userId), SportMapsDao.Properties.Rtc.eq(WatchUtils.getCurrentDate())).list();
-            for (SportMaps sportMaps : sportMapsList) {
-                Log.e(TAG, "------sportMaps----" + sportMaps.toString());
-            }
+//            for (SportMaps sportMaps : sportMapsList) {
+//                Log.e(TAG, "------sportMaps----" + sportMaps.toString());
+//            }
 
             if (sportMapsList == null || sportMapsList.size() == 0) {
                 gpsSportRecyclerView.setVisibility(View.GONE);

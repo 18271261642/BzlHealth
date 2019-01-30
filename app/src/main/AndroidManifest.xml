@@ -146,7 +146,7 @@
 
         <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="90c2a258d5ba55e981d480e70becb4c9" />
+            android:value="a0ac40c22a2581b222155a2a3592689c" />
 
         <activity
             android:name=".bzlmaps.gaodemaps.BzlGaoDeActivity"

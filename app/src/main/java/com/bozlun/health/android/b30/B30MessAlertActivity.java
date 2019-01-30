@@ -113,10 +113,10 @@ public class B30MessAlertActivity extends WatchBaseActivity {
 
     //申请电话权限
     private void requestPermiss() {
-        if (!AndPermission.hasPermissions(B30MessAlertActivity.this, new String[]{Manifest.permission.CALL_PHONE, Manifest.permission.READ_PHONE_STATE})) {
+        if (!AndPermission.hasPermissions(B30MessAlertActivity.this, new String[]{Manifest.permission.CALL_PHONE, Manifest.permission.READ_PHONE_STATE,Manifest.permission.READ_CALL_LOG})) {
             AndPermission.with(B30MessAlertActivity.this)
                     .runtime()
-                    .permission(Manifest.permission.CALL_PHONE, Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_CONTACTS)
+                    .permission(Manifest.permission.CALL_PHONE, Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_CONTACTS,Manifest.permission.READ_CALL_LOG,Manifest.permission.WRITE_CALL_LOG)
                     .rationale(new Rationale<List<String>>() {
                         @Override
                         public void showRationale(Context context, List<String> data, RequestExecutor executor) {
@@ -129,7 +129,7 @@ public class B30MessAlertActivity extends WatchBaseActivity {
         if (!AndPermission.hasPermissions(B30MessAlertActivity.this, new String[]{Manifest.permission.READ_SMS, Manifest.permission.READ_CONTACTS})) {
             AndPermission.with(B30MessAlertActivity.this)
                     .runtime()
-                    .permission(Manifest.permission.READ_SMS, Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_CONTACTS)
+                    .permission(Manifest.permission.READ_SMS, Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_CONTACTS,Manifest.permission.READ_CALL_LOG,Manifest.permission.WRITE_CALL_LOG)
                     .start();
         }
     }

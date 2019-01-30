@@ -76,14 +76,16 @@ public class FrendAdapter extends RecyclerView.Adapter<FrendAdapter.ViewHodler> 
                         @Override
                         public void onClick(View view) {
                             //
-                            mOnItemListenter.ItemLoveOnClick(view, myfriendsBean.getUserId());
+                            if (mOnItemListenter != null)
+                                mOnItemListenter.ItemLoveOnClick(view, myfriendsBean.getUserId());
                         }
                     });
                     //item点击
                     holder.line_onclick.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            mOnItemListenter.ItemOnClick(view, myfriendsBean.getUserId(), myfriendsBean.getStepNumber(), myfriendsBean.getHeight(), position);
+                            if (mOnItemListenter != null)
+                                mOnItemListenter.ItemOnClick(view, myfriendsBean.getUserId(), myfriendsBean.getStepNumber(), myfriendsBean.getHeight(), position);
                         }
                     });
                     //item长按
@@ -94,13 +96,16 @@ public class FrendAdapter extends RecyclerView.Adapter<FrendAdapter.ViewHodler> 
                             final String userName = TextUtils.isEmpty(myfriendsBean.getNickName()) ? myfriendsBean.getPhone() : myfriendsBean.getNickName();
                             new CommomDialog(context, R.style.dialog,
                                     MyApp.getInstance().getResources().getString(R.string.string_ok_delete_frend)
-                                    + userName + "？", new CommomDialog.OnCloseListener() {
+                                            + userName + "？", new CommomDialog.OnCloseListener() {
                                 @Override
                                 public void onClick(Dialog dialog, boolean confirm) {
                                     if (confirm) {
-                                        mOnItemListenter.ItemOnLongClick(view, myfriendsBean.getUserId());
-                                        myfriends.remove(position);
-                                        notifyDataSetChanged();
+                                        if (mOnItemListenter != null) {
+                                            mOnItemListenter.ItemOnLongClick(view, myfriendsBean.getUserId());
+                                            myfriends.remove(position);
+                                            notifyDataSetChanged();
+                                        }
+
                                     }
                                     dialog.dismiss();
                                 }
@@ -109,7 +114,7 @@ public class FrendAdapter extends RecyclerView.Adapter<FrendAdapter.ViewHodler> 
                             return false;
                         }
                     });
-                }else {
+                } else {
                     String nickName = myfriendsBean.getNickName().trim();
                     String phone = myfriendsBean.getPhone().trim();
                     //昵称
@@ -158,13 +163,13 @@ public class FrendAdapter extends RecyclerView.Adapter<FrendAdapter.ViewHodler> 
         TextView userNames, rankNuber, frendSteps, zan_count;
         CircleImageView circleImageView;
         ImageView image_tautas;
-        LinearLayout line_onclick, zanOclick,line_views;
+        LinearLayout line_onclick, zanOclick, line_views;
         View viewst_view;
 
         ViewHodler(View itemView) {
             super(itemView);
 
-            line_views= itemView.findViewById(R.id.line_views);
+            line_views = itemView.findViewById(R.id.line_views);
             viewst_view = itemView.findViewById(R.id.st_view);
             userNames = itemView.findViewById(R.id.user_names);
             rankNuber = itemView.findViewById(R.id.text_rank_nuber);

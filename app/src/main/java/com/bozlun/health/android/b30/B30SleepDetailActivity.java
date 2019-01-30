@@ -159,7 +159,7 @@ public class B30SleepDetailActivity extends WatchBaseActivity {
 //            listValue.add(slleepLin.length()+1, 2);
         }
         if (listValue.size() > 0) {
-            detailCusSleepView.setShowSeekBar(true);
+            detailCusSleepView.setShowSeekBar(false);
             detailCusSleepView.setSleepList(listValue);
             //Log.e(TAG,"---11----max="+sleepSeekBar.getMax()+"--="+listValue.size());
             sleepSeekBar.setMax(listValue.size());
@@ -190,7 +190,7 @@ public class B30SleepDetailActivity extends WatchBaseActivity {
 
                 @Override
                 public void onStartTrackingTouch(SeekBar seekBar) {
-
+                    detailCusSleepView.setShowSeekBar(true,0);
                 }
 
                 @Override

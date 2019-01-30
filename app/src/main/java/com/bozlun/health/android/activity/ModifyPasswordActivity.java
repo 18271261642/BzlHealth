@@ -4,6 +4,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.R;
 import com.bozlun.health.android.base.BaseActivity;
 import com.bozlun.health.android.net.OkHttpObservable;
@@ -15,6 +17,8 @@ import com.bozlun.health.android.util.Md5Util;
 import com.bozlun.health.android.util.ToastUtil;
 import com.bozlun.health.android.util.URLs;
 import com.google.gson.Gson;
+import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.HashMap;
@@ -97,7 +101,7 @@ public class ModifyPasswordActivity extends BaseActivity {
     private void modifyPersonData(String oldePwd, String newPwd) {
         Gson gson = new Gson();
         HashMap<String, Object> map = new HashMap<>();
-        map.put("userId", Common.customer_id);
+        map.put("userId", SharedPreferencesUtils.readObject(this,Commont.USER_ID_DATA));
         map.put("oldePwd", Md5Util.Md532(oldePwd));
         map.put("newPwd", Md5Util.Md532(newPwd));
         String mapjson = gson.toJson(map);

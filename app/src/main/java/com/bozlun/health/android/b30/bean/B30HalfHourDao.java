@@ -1,5 +1,7 @@
 package com.bozlun.health.android.b30.bean;
 
+import android.util.Log;
+
 import com.bozlun.health.android.b31.model.B31HRVBean;
 import com.bozlun.health.android.b31.model.B31Spo2hBean;
 import com.bozlun.health.android.util.MyLogUtil;
@@ -104,13 +106,19 @@ public class B30HalfHourDao {
 
 
     //保存B31HRV的数据
-    public synchronized void saveB31HRVData(B31HRVBean db) {
+    public synchronized void saveB31HRVData(final B31HRVBean db) {
         boolean result;
         B31HRVBean localData = getHRVOriginData(db.getBleMac(), db.getDateStr(),db.getCurrHrvDate());
         if (localData == null) {
-            result = db.save();// 本地没有,就直接新增
-            MyLogUtil.d("bobo", "date:"
-                    + db.getDateStr() + " ,result:"+result );
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    db.save();
+                }
+            }).start();
+            //result = db.save();// 本地没有,就直接新增
+//            MyLogUtil.d("bobo", "date:"
+//                    + db.getDateStr() + " ,result:"+result );
         }
 //        else {
 //            localData.setHrvDataStr(db.getHrvDataStr());
@@ -131,12 +139,18 @@ public class B30HalfHourDao {
 
 
     //保存B31血氧的数据
-    public synchronized void saveB31Spo2hData(B31Spo2hBean db) {
+    public synchronized void saveB31Spo2hData(final B31Spo2hBean db) {
         //Log.e("DB","------db="+db.getSpo2currDate());
         boolean result;
         B31Spo2hBean localData = getSpo2hOriginData(db.getBleMac(), db.getDateStr(),db.getSpo2currDate());
         if (localData == null) {
-            result = db.save();// 本地没有,就直接新增
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    db.save();// 本地没有,就直接新增
+                }
+            }).start();
+
           //Log.e("DB","--------数据库中没有="+result);
         }
 //        else {

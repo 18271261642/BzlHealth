@@ -249,6 +249,10 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
                     break;
                 case 1003://心率
                     if (getActivity() != null && !getActivity().isFinishing()) {
+                        if (lastTimeTv != null)
+                            lastTimeTv.setText(getResources().getString(R.string.string_recent) + " " + "--:--");
+                        if (b30HeartValueTv != null)
+                            b30HeartValueTv.setText("0 bpm");
                         List<HalfHourRateData> rateData = (List<HalfHourRateData>) msg.obj;
                         showSportHeartData(rateData);//展示心率的图表
                     }
@@ -261,6 +265,8 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
                     break;
                 case 1005:
                     if (getActivity() != null && !getActivity().isFinishing()) {
+                        if (b30StartEndTimeTv != null)
+                            b30StartEndTimeTv.setText("--:--");
                         SleepData sleepData = (SleepData) msg.obj;
                         showSleepData(sleepData);//展示睡眠的图表
                     }
@@ -800,7 +806,8 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
                 }
             }
             sleepList.add(0, 2);
-            sleepList.add(sleepLin.length(), 2);
+            sleepList.add(0);
+            sleepList.add(2);
         } else {
             if (b30StartEndTimeTv != null) b30StartEndTimeTv.setText("");
         }

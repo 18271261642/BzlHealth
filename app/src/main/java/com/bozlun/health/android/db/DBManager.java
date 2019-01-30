@@ -16,7 +16,7 @@ import com.afa.tourism.greendao.gen.DaoSession;
 
 public class DBManager {
 
-    private final static String dbName = "b18i_db";
+    private final static String dbName = "bzl_health_db";
     private static DBManager mInstance;
     private static DaoMaster.DevOpenHelper openHelper;
     private Context context;
