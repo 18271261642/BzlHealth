@@ -171,9 +171,9 @@ public class NewLoginActivity extends BaseActivity implements LoginListenter {
         //if (loginWaveView != null) loginWaveView.startMove();  //波浪线贝塞尔曲线
 
 
-//        String upUrl = URLs.HTTPs + URLs.getvision;
-//        updateManager = new UpdateManager(NewLoginActivity.this, upUrl);
-//        updateManager.checkForUpdate(true);
+        String upUrl = URLs.HTTPs + URLs.bozlun_health_url;
+        updateManager = new UpdateManager(NewLoginActivity.this, upUrl);
+        updateManager.checkForUpdate(true);
     }
 
     @Override

@@ -1,14 +1,13 @@
 package com.bozlun.health.android.w30s;
 
 import android.content.Context;
-
 import com.bozlun.health.android.bi8i.b18iutils.B18iUtils;
 import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.w30s.bean.W30SAlarmClockBean;
 import com.suchengkeji.android.w30sblelibrary.bean.W30S_AlarmInfo;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 
-import org.litepal.crud.DataSupport;
+import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +23,7 @@ import java.util.List;
 public class SharePeClear {
 
     public static void clearDatas(Context context) {
-        DataSupport.deleteAll(W30SAlarmClockBean.class);//清楚闹钟数据库表
+        LitePal.deleteAll(W30SAlarmClockBean.class);//清楚闹钟数据库表
         //上传数据时间间隔
         SharedPreferencesUtils.setParam(context, "upSportTime", "2017-11-02 15:00:00");
         SharedPreferencesUtils.setParam(context, "upSleepTime", "2017-11-02 15:00:00");
@@ -133,7 +132,7 @@ public class SharePeClear {
         /**
          * 设置用户闹钟信息
          */
-        List<W30SAlarmClockBean> mAlarmClock = DataSupport.findAll(W30SAlarmClockBean.class);
+        List<W30SAlarmClockBean> mAlarmClock = LitePal.findAll(W30SAlarmClockBean.class);
         if (mAlarmClock != null) {
             List<W30S_AlarmInfo> w30S_alarmInfos = new ArrayList<W30S_AlarmInfo>();
             for (int i = 0; i < mAlarmClock.size(); i++) {

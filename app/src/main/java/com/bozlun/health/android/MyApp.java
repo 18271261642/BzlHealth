@@ -31,6 +31,7 @@ import com.suchengkeji.android.w30sblelibrary.W30SBLEManage;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import com.veepoo.protocol.VPOperateManager;
 
+import org.litepal.LitePal;
 import org.litepal.LitePalApplication;
 
 import java.util.ArrayList;
@@ -71,7 +72,7 @@ public class MyApp extends LitePalApplication {
 
         //App初始启动是断开状态
         MyCommandManager.DEVICENAME = null;
-        initialize(instance);
+        LitePal.initialize(instance);
         /**
          * 第三方登陆分享+注册短信
          */

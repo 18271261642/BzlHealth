@@ -20,7 +20,6 @@ import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.bozlun.health.android.MyApp;
@@ -30,13 +29,10 @@ import com.bozlun.health.android.w30s.utils.W30BasicUtils;
 import com.bozlun.health.android.R;
 import com.suchengkeji.android.w30sblelibrary.bean.W30S_AlarmInfo;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
-
-import org.litepal.crud.DataSupport;
-
+import org.litepal.LitePal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -94,7 +90,7 @@ public class W30SAlarmClockRemindActivity extends WatchBaseActivity
 
 
     private void initViews() {
-        mAlarmClock = DataSupport.findAll(W30SAlarmClockBean.class);
+        mAlarmClock = LitePal.findAll(W30SAlarmClockBean.class);
         Log.e(TAG, "----initViewsmAlarmClock-=" + mAlarmClock.size() + mAlarmClock.toString());
         if (mAlarmClock == null || mAlarmClock.size() <= 0) {
             relaView.setVisibility(View.VISIBLE);
@@ -116,7 +112,7 @@ public class W30SAlarmClockRemindActivity extends WatchBaseActivity
 
     public List<W30S_AlarmInfo> getAliarmList() {
         if (mAlarmClock == null) {
-            mAlarmClock = DataSupport.findAll(W30SAlarmClockBean.class);
+            mAlarmClock = LitePal.findAll(W30SAlarmClockBean.class);
         }
         if (mAlarmClock.size() >= 5) {
             imageAddRemind.setVisibility(View.GONE);
@@ -142,7 +138,7 @@ public class W30SAlarmClockRemindActivity extends WatchBaseActivity
         @Override
         public boolean handleMessage(Message msg) {
             if (msg.what == HANDLER_MES) {
-                mAlarmClock = DataSupport.findAll(W30SAlarmClockBean.class);
+                mAlarmClock = LitePal.findAll(W30SAlarmClockBean.class);
                 if (mAlarmClock == null || mAlarmClock.size() <= 0) {
                     relaView.setVisibility(View.VISIBLE);
                     alarmList.setVisibility(View.GONE);
@@ -288,7 +284,7 @@ public class W30SAlarmClockRemindActivity extends WatchBaseActivity
                     }
 
 
-                    w30SAlarmClockBean = DataSupport.find(W30SAlarmClockBean.class, ids);
+                    w30SAlarmClockBean = LitePal.find(W30SAlarmClockBean.class, ids);
                     w30SAlarmClockBean.setId(ids);
                     w30SAlarmClockBean.setHour(h);
                     w30SAlarmClockBean.setMin(m);
@@ -300,7 +296,7 @@ public class W30SAlarmClockRemindActivity extends WatchBaseActivity
                     Log.e(TAG, "------111=" + w30SAlarmClockBean.toString());
                     Log.e("=======", "--改---" + h + ":" + m + "===" + week + "==" + ids);//B18iUtils.getCycle()
                     //  w30SAlarmClockBean1.updateAll("id=? and hour=? and min=? and datas=?", ids + "", h + "", m + "", integer1 + "");
-                    Log.e(TAG, "------修改查询=" + DataSupport.find(W30SAlarmClockBean.class, ids).toString());
+                    Log.e(TAG, "------修改查询=" + LitePal.find(W30SAlarmClockBean.class, ids).toString());
 
                     MyApp.getInstance().getmW30SBLEManage().setAlarm(mAliarmList);
                     break;
@@ -510,7 +506,7 @@ public class W30SAlarmClockRemindActivity extends WatchBaseActivity
                             }
 
 
-                            w30SAlarmClockBean = DataSupport.find(W30SAlarmClockBean.class, id);
+                            w30SAlarmClockBean = LitePal.find(W30SAlarmClockBean.class, id);
                             w30SAlarmClockBean.setId(id);
                             w30SAlarmClockBean.setHour(hour);
                             w30SAlarmClockBean.setMin(min);
@@ -521,7 +517,7 @@ public class W30SAlarmClockRemindActivity extends WatchBaseActivity
                             w30SAlarmClockBean.save();
 
                             MyApp.getInstance().getmW30SBLEManage().setAlarm(mAliarmList);
-                            Log.e(TAG, "-----查询=" + DataSupport.find(W30SAlarmClockBean.class, id).toString());
+                            Log.e(TAG, "-----查询=" + LitePal.find(W30SAlarmClockBean.class, id).toString());
                         } else {
                             //List<W30S_AlarmInfo> w30S_alarmInfos = new ArrayList<>();
                             W30S_AlarmInfo alarmInfo = new W30S_AlarmInfo();
@@ -541,7 +537,7 @@ public class W30SAlarmClockRemindActivity extends WatchBaseActivity
                                 mAliarmList = getAliarmList();
                                 mAliarmList.add(alarmInfo);
                             }
-                            w30SAlarmClockBean = DataSupport.find(W30SAlarmClockBean.class, id);
+                            w30SAlarmClockBean = LitePal.find(W30SAlarmClockBean.class, id);
                             // Log.d("-----w30SAlarmClockBean-----", w30SAlarmClockBean.getStatus() + "");
                             if (w30SAlarmClockBean != null) {
                                 w30SAlarmClockBean.setId(id);

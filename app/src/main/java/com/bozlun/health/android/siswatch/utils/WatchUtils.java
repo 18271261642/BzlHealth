@@ -3,20 +3,15 @@ package com.bozlun.health.android.siswatch.utils;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.AppOpsManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
-import android.support.annotation.RequiresApi;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-
 import com.alibaba.fastjson.JSON;
 import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.MyApp;
@@ -42,13 +37,8 @@ import com.veepoo.protocol.model.enums.ESex;
 import com.veepoo.protocol.model.settings.AllSetSetting;
 import com.veepoo.protocol.model.settings.CustomSetting;
 import com.veepoo.protocol.model.settings.CustomSettingData;
-
 import org.apache.commons.lang.StringUtils;
-
 import java.io.File;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -61,9 +51,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import static android.content.Context.TELEPHONY_SERVICE;
-import static com.tencent.mm.sdk.platformtools.MMApplicationContext.getDefaultPreferencePath;
 import static com.tencent.mm.sdk.platformtools.MMApplicationContext.getPackageName;
 
 
@@ -402,7 +390,7 @@ public class WatchUtils {
      *
      * @param startTime
      * @param endTime
-     * @return
+     * @return 毫秒
      */
     public static int intervalTime(String startTime, String endTime) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
@@ -416,6 +404,30 @@ public class WatchUtils {
             return (int) (diffDay > 0 ? diffDay / 86400000L : diffDay == 0 ? 0 : diffDay / 86400000L);
 
 
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+
+    }
+
+
+    /**
+     * 日期相差多少，string类型
+     *
+     * @param startTime
+     * @param endTime
+     * @return 毫秒
+     */
+    public static int intervalTimeStr(String startTime, String endTime) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA);
+        try {
+            long startLongTime = sdf.parse(startTime).getTime();
+            long endLongTime = sdf.parse(endTime).getTime();
+
+            //结束日期减开始日期
+            long diffDay = endLongTime - startLongTime;
+            return (int) (diffDay > 0 ? diffDay / 60000 : diffDay == 0 ? 0 : diffDay / 60000);
         } catch (Exception e) {
             e.printStackTrace();
             return 0;
@@ -516,6 +528,31 @@ public class WatchUtils {
      */
     public static boolean comPariDate(String currDay, String comDay) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
+        try {
+            //转换成long类型
+            long currLongDay = sdf.parse(currDay).getTime();
+            //需要比较的时间
+            long comLongDay = sdf.parse(comDay).getTime();
+
+            return comLongDay > currLongDay;
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
+    /**
+     * 比较两个日期的大小 yyyy-MM-dd HH:MM:SS格式
+     *
+     * @param currDay 当前日期
+     * @param comDay  需要比较的日期
+     * @return
+     */
+    public static boolean comPariDateDetail(String currDay, String comDay) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA);
         try {
             //转换成long类型
             long currLongDay = sdf.parse(currDay).getTime();

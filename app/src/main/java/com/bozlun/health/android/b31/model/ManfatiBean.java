@@ -1,12 +1,13 @@
 package com.bozlun.health.android.b31.model;
 
-import org.litepal.crud.DataSupport;
+
+import org.litepal.crud.LitePalSupport;
 
 /**
  * Created by Admin
  * Date 2019/1/8
  */
-public class ManfatiBean extends DataSupport {
+public class ManfatiBean extends LitePalSupport {
 
     /**
      * 日期

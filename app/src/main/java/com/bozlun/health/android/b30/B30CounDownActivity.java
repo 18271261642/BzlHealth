@@ -56,6 +56,9 @@ public class B30CounDownActivity extends WatchBaseActivity implements CompoundBu
 
     private int dataSecond = 0; //设置的秒
 
+    //常用时间
+    private int oftenSecond = 0;
+
     boolean isShowUI = false;
     //是否正在倒计时
     boolean isCountDown = false;
@@ -116,8 +119,10 @@ public class B30CounDownActivity extends WatchBaseActivity implements CompoundBu
                     }
                     isShowUI = countDownData.isOpenWatchUI();
                     showScreentViewTogg.setChecked(isShowUI);
+                    oftenDateRel.setVisibility(isShowUI?View.VISIBLE:View.GONE);
                     //常用时间
-                    oftenDateTv.setText(secToTime(countDownData.getCountDownSecondWatch()));
+                    oftenSecond = countDownData.getCountDownSecondWatch();
+                    oftenDateTv.setText(secToTime(oftenSecond));
                 }
             });
         }
@@ -186,7 +191,13 @@ public class B30CounDownActivity extends WatchBaseActivity implements CompoundBu
      */
     private void startCounDown(int startSecond, boolean isTestByWatch) {
         if (MyCommandManager.DEVICENAME != null) {
-            CountDownSetting countDownSetting = new CountDownSetting(1,startSecond, isShowUI, isTestByWatch);
+            CountDownSetting countDownSetting;
+            if(MyCommandManager.DEVICENAME.equals("B31")){
+                countDownSetting = new CountDownSetting(0,startSecond, isShowUI, isTestByWatch);
+            }else{
+                countDownSetting = new CountDownSetting(startSecond, isShowUI, isTestByWatch);
+            }
+            //countDownSetting = new CountDownSetting(startSecond, isShowUI, isTestByWatch);
             Log.e(TAG,"-------countDownSetting="+countDownSetting.toString());
             MyApp.getInstance().getVpOperateManager().settingCountDown(iBleWriteResponse, countDownSetting,
                     new ICountDownListener() {
@@ -217,8 +228,7 @@ public class B30CounDownActivity extends WatchBaseActivity implements CompoundBu
                 }else{
                     oftenDateRel.setVisibility(View.VISIBLE);
                 }
-
-               startCounDown(0, isChecked);
+                startCounDown(oftenSecond, true);
                 break;
         }
     }

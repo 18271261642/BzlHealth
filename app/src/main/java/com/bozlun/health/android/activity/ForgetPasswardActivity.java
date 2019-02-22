@@ -166,18 +166,26 @@ public class ForgetPasswardActivity extends BaseActivity implements RequestView 
         colorBlack = ContextCompat.getColor(this, R.color.black_9);
         leftDrawable = getResources().getDrawable(R.mipmap.yonghuming_dianji);
         phoneHeadList = new ArrayList<>();
-        phoneHeadList.add(86);
-        phoneHeadList.add(852);
-        phoneHeadList.add(853);
-        phoneHeadList.add(886);
-        phoneHeadList.add(81);
-        phoneHeadList.add(82);
-        phoneHeadList.add(84);
-        phoneHeadList.add(49);
-        phoneHeadList.add(39);
-        phoneHeadList.add(7);
-        phoneHeadList.add(34);
-        phoneHeadList.add(351);
+        phoneHeadList.add(1);       //美国 加拿大
+        phoneHeadList.add(7);       //俄罗斯
+        phoneHeadList.add(32);      //比利时
+        phoneHeadList.add(33);      //法国
+        phoneHeadList.add(34);      //西班牙
+        phoneHeadList.add(39);      //意大利
+        phoneHeadList.add(44);      //英国
+        phoneHeadList.add(49);      //德国
+        phoneHeadList.add(60);      //马来西亚
+        phoneHeadList.add(61);      //澳大利亚
+        phoneHeadList.add(65);      //新加坡
+        phoneHeadList.add(81);      //日本
+        phoneHeadList.add(82);      //韩国
+        phoneHeadList.add(84);      //越南
+        phoneHeadList.add(86);      //中国大陆
+        phoneHeadList.add(91);      //印度
+        phoneHeadList.add(351);     //葡萄牙
+        phoneHeadList.add(852);     //中国香港
+        phoneHeadList.add(853);     //中国澳门
+        phoneHeadList.add(886);     //中国台湾
 
         phoneAdapter = new PhoneAdapter(phoneHeadList,this);
 

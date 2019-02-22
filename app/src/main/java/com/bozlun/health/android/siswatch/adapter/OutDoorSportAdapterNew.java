@@ -90,8 +90,8 @@ public class OutDoorSportAdapterNew extends RecyclerView.Adapter<OutDoorSportAda
             } else { //Ft 英里
                 //            holder.discTv.setText(""+Math.round(WatchUtils.mul(tempDistance,3.28))+"ft");
 //            holder.sumdiscTv.setText(""+Math.round(WatchUtils.mul(tempDistance,3.28))+"ft");
-                holder.discTv.setText(WatchUtils.unitToImperial(distance,3)+" ft");//String.format("%.3f", metric)
-                holder.sumdiscTv.setText(WatchUtils.unitToImperial(distance,3)+" ft");
+                holder.discTv.setText(WatchUtils.unitToImperial(distance,3)+" Mi");//String.format("%.3f", metric)
+                holder.sumdiscTv.setText(WatchUtils.unitToImperial(distance,3)+" Mi");
             }
         }
 

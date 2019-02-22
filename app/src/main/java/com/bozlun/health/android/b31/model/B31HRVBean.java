@@ -1,14 +1,14 @@
 package com.bozlun.health.android.b31.model;
 
-import org.litepal.crud.DataSupport;
+import org.litepal.crud.LitePalSupport;
 
 /**
  * Created by Admin
  * Date 2018/12/21
  */
-public class B31HRVBean extends DataSupport {
+public class B31HRVBean extends LitePalSupport {
 
-    private long id;
+
 
     /**
      * 日期yyyy-MM-dd格式
@@ -21,7 +21,7 @@ public class B31HRVBean extends DataSupport {
     private String bleMac;
 
     //HRV的日期yyyy-MM-dd-HH:mm:ss
-    private String currHrvDate;
+    //private String currHrvDate;
 
     /**
      * 设备的数据 com.veepoo.protocol.model.datas.HRVOriginData
@@ -29,13 +29,6 @@ public class B31HRVBean extends DataSupport {
      */
     private String  hrvDataStr;
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
 
     public String getDateStr() {
         return dateStr;
@@ -62,21 +55,11 @@ public class B31HRVBean extends DataSupport {
     }
 
 
-    public String getCurrHrvDate() {
-        return currHrvDate;
-    }
-
-    public void setCurrHrvDate(String currHrvDate) {
-        this.currHrvDate = currHrvDate;
-    }
-
     @Override
     public String toString() {
         return "B31HRVBean{" +
-                "id=" + id +
-                ", dateStr='" + dateStr + '\'' +
+                "dateStr='" + dateStr + '\'' +
                 ", bleMac='" + bleMac + '\'' +
-                ", currHrvDate='" + currHrvDate + '\'' +
                 ", hrvDataStr='" + hrvDataStr + '\'' +
                 '}';
     }

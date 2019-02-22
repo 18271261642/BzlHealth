@@ -8,28 +8,20 @@ import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.Window;
-
 import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.R;
 import com.bozlun.health.android.b30.B30HomeActivity;
 import com.bozlun.health.android.b31.B31HomeActivity;
-import com.bozlun.health.android.b31.model.B31HRVBean;
 import com.bozlun.health.android.h9.H9HomeActivity;
 import com.bozlun.health.android.siswatch.NewSearchActivity;
 import com.bozlun.health.android.siswatch.WatchBaseActivity;
 import com.bozlun.health.android.siswatch.h8.H8HomeActivity;
-import com.google.gson.Gson;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
 import com.bozlun.health.android.w30s.W30SHomeActivity;
 import com.suchengkeji.android.w30sblelibrary.W30SBLEManage;
-import com.veepoo.protocol.model.datas.Spo2hOriginData;
-import com.veepoo.protocol.model.datas.TimeData;
 
-import org.litepal.crud.DataSupport;
-
-import java.util.List;
 
 /**
  * 启动页

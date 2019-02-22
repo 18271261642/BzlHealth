@@ -30,13 +30,12 @@ import com.bozlun.health.android.w30s.utils.W30BasicUtils;
 import com.bozlun.health.android.R;
 import com.suchengkeji.android.w30sblelibrary.bean.W30S_AlarmInfo;
 
-import org.litepal.crud.DataSupport;
+import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -184,7 +183,7 @@ public class W30SAlarmClockActivity extends WatchBaseActivity {
 //                                Log.d("-----<<<W30>>>", "=====删除闹钟=====onLongClickListener===========" + position + "");
                                 //allDataList.get(position).delete();
                                 //allDataList.remove(position);
-                                DataSupport.deleteAll(W30SAlarmClockBean.class, "id=?", allDataList.get(position).getId() + "");
+                                LitePal.deleteAll(W30SAlarmClockBean.class, "id=?", allDataList.get(position).getId() + "");
                                 myAdapter.notifyDataSetChanged();
                                 mHandler.sendEmptyMessageDelayed(HANDLER_DELETE, RESULT_TIME);
                             }
@@ -198,7 +197,7 @@ public class W30SAlarmClockActivity extends WatchBaseActivity {
      */
     private void findAlarmClickData() {
         if (allDataList != null) allDataList.clear();
-        allDataList = DataSupport.findAll(W30SAlarmClockBean.class);
+        allDataList = LitePal.findAll(W30SAlarmClockBean.class);
         if (myAdapter != null) myAdapter.notifyDataSetChanged();
         if (allDataList != null && allDataList.size() > 0) {
             relaView.setVisibility(View.GONE);
@@ -245,7 +244,7 @@ public class W30SAlarmClockActivity extends WatchBaseActivity {
                 return;
             }
 //            Log.d("-----<<<W30>>>", "===返回===" + requestCode + "===" + resultCode);
-            allDataList = DataSupport.findAll(W30SAlarmClockBean.class);
+            allDataList = LitePal.findAll(W30SAlarmClockBean.class);
             int h = data.getIntExtra("h", 12);
             int m = data.getIntExtra("m", 12);
             int week = data.getIntExtra("c", 0);
@@ -284,7 +283,7 @@ public class W30SAlarmClockActivity extends WatchBaseActivity {
                     break;
                 case REQUEST_ALARM_CLOCK_EDIT:  //========修改
                     int ids = Integer.parseInt(data.getStringExtra("ids"));
-                    w30SAlarmClockBean = DataSupport.find(W30SAlarmClockBean.class, ids);
+                    w30SAlarmClockBean = LitePal.find(W30SAlarmClockBean.class, ids);
                     w30SAlarmClockBean.setId(ids);
                     w30SAlarmClockBean.setHour(h);
                     w30SAlarmClockBean.setMin(m);
@@ -415,7 +414,7 @@ public class W30SAlarmClockActivity extends WatchBaseActivity {
                         sta = 0;
                     }
                     Log.d("=======W30S======", item.getId() + "==" + item.getHour() + "==" + item.getMin() + "==" + item.getDatas() + "==" + item.getAlarmWeek());
-                    w30SAlarmClockBean = DataSupport.find(W30SAlarmClockBean.class, item.getId());
+                    w30SAlarmClockBean = LitePal.find(W30SAlarmClockBean.class, item.getId());
                     w30SAlarmClockBean.setId(item.getId());
                     w30SAlarmClockBean.setHour(item.getHour());
                     w30SAlarmClockBean.setMin(item.getMin());

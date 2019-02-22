@@ -209,7 +209,7 @@ public class ChildGPSFragment extends LazyFragment implements OutDoorSportAdapte
                     if (isUnit) {     //公制
                         gpsSportTypeTotalKmTv.setText("0.0 km");
                     } else {
-                        gpsSportTypeTotalKmTv.setText("0.0 ft");
+                        gpsSportTypeTotalKmTv.setText("0.0 mi");
                     }
                 }
 
@@ -258,7 +258,7 @@ public class ChildGPSFragment extends LazyFragment implements OutDoorSportAdapte
                     if (isUnit) {     //公制
                         gpsSportTypeTotalKmTv.setText("0.0 km");
                     } else {
-                        gpsSportTypeTotalKmTv.setText("0.0 ft");
+                        gpsSportTypeTotalKmTv.setText("0.0 mi");
                     }
                 }
 

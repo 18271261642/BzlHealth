@@ -1,13 +1,14 @@
 package com.bozlun.health.android.b31.model;
 
-import org.litepal.crud.DataSupport;
+
+import org.litepal.crud.LitePalSupport;
 
 /**
  * B31血氧的实体类
  * Created by Admin
  * Date 2018/12/24
  */
-public class B31Spo2hBean extends DataSupport {
+public class B31Spo2hBean extends LitePalSupport {
 
     /**
      * 日期
@@ -26,15 +27,7 @@ public class B31Spo2hBean extends DataSupport {
 
 
 
-    private String spo2currDate;
 
-    public String getSpo2currDate() {
-        return spo2currDate;
-    }
-
-    public void setSpo2currDate(String spo2currDate) {
-        this.spo2currDate = spo2currDate;
-    }
 
     public String getDateStr() {
         return dateStr;
@@ -66,7 +59,6 @@ public class B31Spo2hBean extends DataSupport {
                 "dateStr='" + dateStr + '\'' +
                 ", bleMac='" + bleMac + '\'' +
                 ", spo2hOriginData='" + spo2hOriginData + '\'' +
-                ", spo2currDate='" + spo2currDate + '\'' +
                 '}';
     }
 }

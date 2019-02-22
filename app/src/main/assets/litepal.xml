@@ -15,5 +15,6 @@
         <mapping class="com.bozlun.health.android.b31.model.B31HRVBean"/>
         <mapping class="com.bozlun.health.android.b31.model.B31Spo2hBean"/>
         <mapping class="com.bozlun.health.android.b31.model.ManfatiBean"/>
+        <mapping class="com.bozlun.health.android.b31.model.TempB31HRVBean"/>
     </list>
 </litepal>  

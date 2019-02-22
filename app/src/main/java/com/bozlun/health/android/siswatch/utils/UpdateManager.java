@@ -211,6 +211,7 @@ public class UpdateManager {
             JSONObject jsonObject = new JSONObject();
             try {
                 jsonObject.put("version", WatchUtils.getVersionCode(mContext));
+                jsonObject.put("appName","com.bozlun.health.android");
             } catch (JSONException e) {
                 e.printStackTrace();
             }

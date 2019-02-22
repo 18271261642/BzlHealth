@@ -31,14 +31,14 @@ import com.veepoo.protocol.listener.base.IBleWriteResponse;
 import com.veepoo.protocol.listener.data.IFatigueDataListener;
 import com.veepoo.protocol.model.datas.FatigueData;
 
-import org.litepal.crud.DataSupport;
+import org.litepal.LitePal;
+import org.litepal.crud.LitePalSupport;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -139,7 +139,7 @@ public class B31ManFatigueActivity extends WatchBaseActivity {
 
     private void readLocalDBData() {
         manfatiBeanList.clear();
-        List<ManfatiBean> beanList = DataSupport.findAll(ManfatiBean.class);
+        List<ManfatiBean> beanList = LitePal.findAll(ManfatiBean.class);
         if (beanList != null) {
             Collections.sort(beanList, new Comparator<ManfatiBean>() {
                 @Override
@@ -161,7 +161,7 @@ public class B31ManFatigueActivity extends WatchBaseActivity {
 
     private void initViews() {
         commentB30BackImg.setVisibility(View.VISIBLE);
-        commentB30ShareImg.setVisibility(View.VISIBLE);
+        commentB30ShareImg.setVisibility(View.INVISIBLE);
         commentB30TitleTv.setText(getResources().getString(R.string.fatigue_test));
         //不绘制中间的进度值显示数值
         b31MeaureFaitProgressView.setCanvasV(false);

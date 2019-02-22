@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.text.TextUtils;
-
 import com.bozlun.health.android.Commont;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 
@@ -31,6 +30,9 @@ public class LocalizeTool {
      * 最后更新总数据的日期
      */
     private final String UPDATE_DATE = "update_date_";
+
+    //血氧和HRV最后更新日期
+    private final String SPO2_HRV_UPDATE_DATE = "spo2_update_data_";
 
     public LocalizeTool(Context context) {
         sharedPre = context.getSharedPreferences("bracelet_info", Context.MODE_PRIVATE);
@@ -74,10 +76,29 @@ public class LocalizeTool {
     }
 
     /**
+     * 存储最后更新总数据日期
+     */
+    public void putSpo2AdHRVUpdateDate(String date) {
+        String deviceCode = getDeviceCode();
+        if (TextUtils.isEmpty(deviceCode)) return;
+        Editor editor = sharedPre.edit();
+        editor.putString(SPO2_HRV_UPDATE_DATE + deviceCode, date);
+        editor.apply();
+    }
+
+
+    /**
      * 取出本地的最后更新总数据日期
      */
     public String getUpdateDate() {
         return sharedPre.getString(UPDATE_DATE + getDeviceCode(), "");
+    }
+
+    /**
+     * 取出本地的最后更新总数据日期
+     */
+    public String getSpo2AdHRVUpdateDate() {
+        return sharedPre.getString(SPO2_HRV_UPDATE_DATE + getDeviceCode(), "");
     }
 
 }

@@ -13,6 +13,9 @@ public class URLs {
 
     public final static String getvision = "/user/updateVersion";//版本号
 
+    //天天检的更新地址
+    public final static String bozlun_health_url = "/user/healthyDayCheck";
+
     public final static String myHTTPs = "/user/register";//注册
     public final static String logon = "/user/login";//登录
     public final static String yonghuziliao = "/user/modify"; //完善用户资料

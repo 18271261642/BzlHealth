@@ -1,11 +1,8 @@
 package com.bozlun.health.android.w30s.bean;
 
 import android.util.Log;
-
 import com.suchengkeji.android.w30sblelibrary.bean.W30S_AlarmInfo;
-
-import org.litepal.crud.DataSupport;
-
+import org.litepal.crud.LitePalSupport;
 import java.util.List;
 
 /**
@@ -16,7 +13,7 @@ import java.util.List;
  * @company: 东莞速成科技有限公司
  */
 
-public class W30SAlarmClockBean extends DataSupport {
+public class W30SAlarmClockBean extends LitePalSupport {
 
     private int id;
     private int hour;

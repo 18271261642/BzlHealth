@@ -10,9 +10,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.Log;
-
 import com.bozlun.health.android.MyApp;
-import com.bozlun.health.android.b30.bean.B30HalfHourDao;
 import com.bozlun.health.android.b31.model.B31HRVBean;
 import com.bozlun.health.android.b31.model.B31Spo2hBean;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
@@ -23,6 +21,11 @@ import com.veepoo.protocol.listener.data.IHRVOriginDataListener;
 import com.veepoo.protocol.listener.data.ISpo2hOriginDataListener;
 import com.veepoo.protocol.model.datas.HRVOriginData;
 import com.veepoo.protocol.model.datas.Spo2hOriginData;
+import org.litepal.LitePal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -45,34 +48,144 @@ public class ReadHRVAnSpo2DatatService extends IntentService {
             super.handleMessage(msg);
 
             switch (msg.what){
-                case 1001:
-                    HRVOriginData hrvOriginData = (HRVOriginData) msg.obj;
-                    //Log.e(TAG,"------hrvOriginData="+hrvOriginData.getmTime().getDateADC()+"==="+hrvOriginData.toString());
-                    //读取完成了
-                    B31HRVBean hrvBean = new B31HRVBean();
-                    hrvBean.setBleMac(MyApp.getInstance().getMacAddress());
-                    hrvBean.setDateStr(hrvOriginData.getDate());
-                    hrvBean.setCurrHrvDate(hrvOriginData.getmTime().getDateAndClockAndSecondForDb());
-                    hrvBean.setHrvDataStr(gson.toJson(hrvOriginData));
-                    B30HalfHourDao.getInstance().saveB31HRVData(hrvBean);
-
+                case 888:   //HRV读取 完了
+                    final Map<String,List<B31HRVBean>> resultHrvMap = (Map<String, List<B31HRVBean>>) msg.obj;
+                    if(resultHrvMap == null || resultHrvMap.isEmpty())
+                        return;
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            saveHRVToDBServer(resultHrvMap);
+                        }
+                    }).start();
                     break;
-                case 1002:
-                    Spo2hOriginData spo2hOriginData = (Spo2hOriginData) msg.obj;
-                   // Log.e(TAG,"-----------spo2hOriginData="+spo2hOriginData.getmTime().getDateADC()+"==="+spo2hOriginData.toString());
-                    B31Spo2hBean b31Spo2hBean = new B31Spo2hBean();
-                    b31Spo2hBean.setDateStr(spo2hOriginData.getDate());
-                    b31Spo2hBean.setBleMac(MyApp.getInstance().getMacAddress());
-                    b31Spo2hBean.setSpo2hOriginData(gson.toJson(spo2hOriginData));
-                    b31Spo2hBean.setSpo2currDate(spo2hOriginData.getmTime().getDateAndClockAndSecondForDb());
-
-                    B30HalfHourDao.getInstance().saveB31Spo2hData(b31Spo2hBean);
+                case 999:   //血氧
+                    final Map<String,List<B31Spo2hBean>> resultMap = (Map<String, List<B31Spo2hBean>>) msg.obj;
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            saveSpo2Data(resultMap);
+                        }
+                    }).start();
                     break;
             }
 
 
         }
     };
+
+    //保存HRV的数据
+    private void saveHRVToDBServer(Map<String,List<B31HRVBean>> resultHrvMap) {
+        String where = "bleMac = ? and dateStr = ?";
+        String bleMac = WatchUtils.getSherpBleMac(MyApp.getContext());
+        String currDayStr = WatchUtils.getCurrentDate();
+        if(isToday){
+            List<B31HRVBean> todayHrvList = resultHrvMap.get("today");
+            List<B31HRVBean> currHrvLt = LitePal.where(where,
+                    bleMac,currDayStr).find(B31HRVBean.class);
+            //Log.e(TAG,"-------今天currHrvLtsez="+currHrvLt.size());
+            if(currHrvLt == null || currHrvLt.isEmpty()){
+                LitePal.saveAll(todayHrvList);
+            }else{
+                if(currHrvLt.size() != 420){
+                    int delCode = LitePal.deleteAll(B31HRVBean.class,"dateStr=? and bleMac=?",currDayStr
+                            ,bleMac);
+                    //Log.e(TAG,"----hrv--111--delCode="+delCode);
+                    LitePal.saveAll(todayHrvList);
+                }
+            }
+
+
+        }else{
+            //今天的 直接保存
+            List<B31HRVBean> todayHrvList = resultHrvMap.get("today");
+
+            if(todayHrvList != null && !todayHrvList.isEmpty())
+                LitePal.saveAll(todayHrvList);
+
+            //昨天的
+            List<B31HRVBean> yesDayResultHrvLt = resultHrvMap.get("yesDay");
+            //保存的 是否存在
+            List<B31HRVBean> yesDayHrvLt = LitePal.where(where,
+                    WatchUtils.getSherpBleMac(MyApp.getContext()),WatchUtils.obtainFormatDate(1)).find(B31HRVBean.class);
+            if(yesDayHrvLt == null || yesDayHrvLt.isEmpty())
+                LitePal.saveAll(yesDayResultHrvLt);
+
+            //前天的
+            List<B31HRVBean> threeDayResultHrvLt = resultHrvMap.get("threeDay");
+            List<B31HRVBean> threeDayHrvLt = LitePal.where(where,
+                    WatchUtils.getSherpBleMac(MyApp.getContext()),WatchUtils.obtainFormatDate(2)).find(B31HRVBean.class);
+            if(threeDayHrvLt == null || threeDayHrvLt.isEmpty())
+                LitePal.saveAll(threeDayResultHrvLt);
+
+        }
+
+        //发送广播，通知更新UI
+        Intent intent = new Intent();
+        intent.setAction(WatchUtils.B31_HRV_COMPLETE);
+        sendBroadcast(intent);
+
+
+    }
+
+    //保存spo2数据
+    private void saveSpo2Data(Map<String,List<B31Spo2hBean>> resultMap) {
+        if(resultMap == null || resultMap.isEmpty())
+            return;
+        String where = "bleMac = ? and dateStr = ?";
+        String bleMac = WatchUtils.getSherpBleMac(MyApp.getContext());
+        String currDayStr = WatchUtils.getCurrentDate();
+        if(isToday){    //今天
+            List<B31Spo2hBean> todayLt = resultMap.get("today");
+            //Log.e(TAG,"---todayLt="+todayLt.size());
+            //查询一下是否存在
+            List<B31Spo2hBean> currList = LitePal.where(where,WatchUtils.getSherpBleMac(MyApp.getContext()),
+                    WatchUtils.getCurrentDate()).find(B31Spo2hBean.class);
+            //Log.e(TAG,"-----------11今天="+currList.size());
+            if(currList == null || currList.isEmpty()){
+                LitePal.saveAll(todayLt);
+            }else{
+                if(currList.size() != 420){
+                    int delCode = LitePal.deleteAll(B31Spo2hBean.class,"dateStr=? and bleMac=?",currDayStr
+                            ,bleMac);
+                    //Log.e(TAG,"--------delCode="+delCode);
+                    LitePal.saveAll(todayLt);
+
+                }
+            }
+        }else{
+            //今天
+            List<B31Spo2hBean> todayLt = resultMap.get("today");
+            if(todayLt != null && !todayLt.isEmpty()){
+                LitePal.saveAll(todayLt);
+            }
+
+            //昨天
+            List<B31Spo2hBean> yesDayResult = resultMap.get("yesToday");
+            if(yesDayResult == null || yesDayResult.isEmpty())
+                return;
+            //查询一下是否存在
+            List<B31Spo2hBean> yesDayList = LitePal.where(where,WatchUtils.getSherpBleMac(MyApp.getContext()),
+                    WatchUtils.obtainFormatDate(1)).find(B31Spo2hBean.class);
+            //Log.e(TAG,"-----------22昨天="+todayLt.size());
+            if(yesDayList == null || yesDayList.isEmpty()){
+                LitePal.saveAll(yesDayResult);
+            }
+
+            //前天
+            List<B31Spo2hBean> threeDayResult = resultMap.get("threeDay");
+            if(threeDayResult == null || threeDayResult.isEmpty())
+                return;
+            //查询一下是否存在
+            List<B31Spo2hBean> threeDayList = LitePal.where(where,WatchUtils.getSherpBleMac(MyApp.getContext()),
+                    WatchUtils.obtainFormatDate(2)).find(B31Spo2hBean.class);
+            //Log.e(TAG,"--------333-threeDayList="+threeDayList.size());
+            if(threeDayList == null || threeDayList.isEmpty()){
+                LitePal.saveAll(threeDayResult);
+            }
+        }
+    }
+
 
 
 
@@ -92,6 +205,22 @@ public class ReadHRVAnSpo2DatatService extends IntentService {
 
     private LocalizeTool mLocalTool;
 
+    //HRV
+    private List<B31HRVBean> b31HRVBeanList;
+    //HRV的数据包
+    private int hrvDataCount = -1;
+
+    //血氧
+    private List<B31Spo2hBean> b31Spo2hBeanList;
+
+    //血氧的进度
+    float spo2DataProgress = -1;
+    //血氧的数据包
+    int spo2DataCount = -1;
+    //HRV的进度
+    float hrvDataProgress = -1;
+
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -101,7 +230,7 @@ public class ReadHRVAnSpo2DatatService extends IntentService {
         intentFilter.addAction(WatchUtils.B31_SPO2_COMPLETE);
         registerReceiver(broadcastReceiver,intentFilter);
         mLocalTool = new LocalizeTool(MyApp.getContext());
-        String date = mLocalTool.getUpdateDate();// 最后更新总数据的日期
+        String date = mLocalTool.getSpo2AdHRVUpdateDate();// 最后更新总数据的日期
         if(WatchUtils.isEmpty(date))
             date = WatchUtils.obtainFormatDate(1);
         isToday = date.equals(WatchUtils.getCurrentDate());
@@ -147,62 +276,144 @@ public class ReadHRVAnSpo2DatatService extends IntentService {
     }
 
 
+    //读取血氧的数据
     private void readSpo2Data(){
+        Log.e(TAG,"-------isToday="+isToday);
+        if(b31Spo2hBeanList == null)
+            b31Spo2hBeanList = new ArrayList<>();
+        b31Spo2hBeanList.clear();
+
+        final List<B31Spo2hBean> yesSpo2List = new ArrayList<>();
+        final List<B31Spo2hBean> threeSpo2List = new ArrayList<>();
+        final Map<String,List<B31Spo2hBean>> spo2Map = new HashMap<>();
         //读取血氧的数据
         MyApp.getInstance().getVpOperateManager().readSpo2hOrigin(bleWriteResponse, new ISpo2hOriginDataListener() {
             @Override
             public void onReadOriginProgress(float v) {
-
+                spo2DataProgress =  v;
+                //Log.e(TAG,"-----spo2----onReadOriginProgress="+v);
             }
 
             @Override
             public void onReadOriginProgressDetail(int i, String s, int i1, int i2) {
-
+               // Log.e(TAG,"----------血氧----="+i+"---s="+s+"--i1="+i1+"--i2="+i2);
+                spo2DataCount = i1;
             }
 
             @Override
             public void onSpo2hOriginListener(Spo2hOriginData spo2hOriginData) {
                 if(spo2hOriginData == null)
                     return;
-                // Log.e(TAG,"---血氧---日期="+spo2hOriginData.toString());
-                Message message = handler.obtainMessage();
-                message.what = 1002;
-                message.obj = spo2hOriginData;
-                handler.sendMessage(message);
+                if(isToday){    //只获取当天的，当天
+                    B31Spo2hBean b31Spo2hBean = new B31Spo2hBean();
+                    b31Spo2hBean.setBleMac(MyApp.getInstance().getMacAddress());
+                    b31Spo2hBean.setDateStr(spo2hOriginData.getDate());
+                    b31Spo2hBean.setSpo2hOriginData(gson.toJson(spo2hOriginData));
+                    b31Spo2hBeanList.add(b31Spo2hBean);
+                }else{  //今天 昨天 前天
+                    if(spo2hOriginData.getDate().equals(WatchUtils.getCurrentDate())){  //今天
+                        B31Spo2hBean b31Spo2hBean = new B31Spo2hBean();
+                        b31Spo2hBean.setBleMac(MyApp.getInstance().getMacAddress());
+                        b31Spo2hBean.setDateStr(spo2hOriginData.getDate());
+                        b31Spo2hBean.setSpo2hOriginData(gson.toJson(spo2hOriginData));
+                        b31Spo2hBeanList.add(b31Spo2hBean);
+                    }else if(spo2hOriginData.getDate().equals(WatchUtils.obtainFormatDate(1))){ //昨天
+                        B31Spo2hBean b31Spo2hBean = new B31Spo2hBean();
+                        b31Spo2hBean.setBleMac(MyApp.getInstance().getMacAddress());
+                        b31Spo2hBean.setDateStr(spo2hOriginData.getDate());
+                        b31Spo2hBean.setSpo2hOriginData(gson.toJson(spo2hOriginData));
+                        yesSpo2List.add(b31Spo2hBean);
+                    }else if(spo2hOriginData.getDate().equals(WatchUtils.obtainFormatDate(2))){ //前天
+                        B31Spo2hBean b31Spo2hBean = new B31Spo2hBean();
+                        b31Spo2hBean.setBleMac(MyApp.getInstance().getMacAddress());
+                        b31Spo2hBean.setDateStr(spo2hOriginData.getDate());
+                        b31Spo2hBean.setSpo2hOriginData(gson.toJson(spo2hOriginData));
+                        threeSpo2List.add(b31Spo2hBean);
+                    }
+
+                }
 
             }
 
             @Override
             public void onReadOriginComplete() {
-                Intent intent = new Intent();
-                intent.setAction(WatchUtils.B31_SPO2_COMPLETE);
-                sendBroadcast(intent);
+                //Log.e(TAG,"-----------spo2-onReadOriginComplete="+spo2DataProgress+"--="+spo2DataCount+"-----size="+b31Spo2hBeanList.size());
+                if(spo2DataProgress != -1 && String.valueOf(spo2DataProgress).equals("1.0")){
+                    if(isToday){
+                        spo2Map.put("today",b31Spo2hBeanList);
+                    }else{
+                        spo2Map.put("today",b31Spo2hBeanList);
+                        spo2Map.put("yesToday",yesSpo2List);
+                        spo2Map.put("threeDay",threeSpo2List);
+                    }
+
+                    Message message = handler.obtainMessage();
+                    message.what = 999;
+                    message.obj = spo2Map;
+                    handler.sendMessage(message);
+                    Intent intent = new Intent();
+                    intent.setAction(WatchUtils.B31_SPO2_COMPLETE);
+                    sendBroadcast(intent);
+
+                    mLocalTool.putSpo2AdHRVUpdateDate(WatchUtils.getCurrentDate());
+                }
+
+
             }
-        }, isToday ? 1 : 3);
+        },   isToday ? 1 : 3);
     }
 
 
-
+    //读取HRV的数据
     private void readDeviceData() {
-        //Log.e(TAG,"------isToday="+isToday);
+        if(b31HRVBeanList == null)
+            b31HRVBeanList = new ArrayList<>();
+        b31HRVBeanList.clear();
+        final List<B31HRVBean> yesHrvList = new ArrayList<>();
+        final List<B31HRVBean> threeDayHrvList = new ArrayList<>();
+        final Map<String,List<B31HRVBean>> hrvMap = new HashMap<>();
+
         MyApp.getInstance().getVpOperateManager().readHRVOrigin(bleWriteResponse, new IHRVOriginDataListener() {
             @Override
             public void onReadOriginProgress(float v) {
-
+                hrvDataProgress =  v;
             }
 
             @Override
             public void onReadOriginProgressDetail(int i, String s, int i1, int i2) {
-
+                hrvDataCount = i1;
             }
 
             @Override
             public void onHRVOriginListener(HRVOriginData hrvOriginData) {
-                //Log.e(TAG,"----------读取HRV数据="+hrvOriginData.toString());
-                Message message = handler.obtainMessage();
-                message.what = 1001;
-                message.obj = hrvOriginData;
-                handler.sendMessage(message);
+                //Log.e(TAG,"------------hrv--onHRVOriginListener="+hrvOriginData.toString());
+                if(isToday){    //当天的
+                    B31HRVBean hrvBean = new B31HRVBean();
+                    hrvBean.setBleMac(MyApp.getInstance().getMacAddress());
+                    hrvBean.setDateStr(hrvOriginData.getDate());
+                    hrvBean.setHrvDataStr(gson.toJson(hrvOriginData));
+                    b31HRVBeanList.add(hrvBean);
+                }else{
+                    if(hrvOriginData.getDate().equals(WatchUtils.getCurrentDate())){    //当天
+                        B31HRVBean hrvBean = new B31HRVBean();
+                        hrvBean.setBleMac(MyApp.getInstance().getMacAddress());
+                        hrvBean.setDateStr(hrvOriginData.getDate());
+                        hrvBean.setHrvDataStr(gson.toJson(hrvOriginData));
+                        b31HRVBeanList.add(hrvBean);
+                    }else if(hrvOriginData.getDate().equals(WatchUtils.obtainFormatDate(1))){   //昨天
+                        B31HRVBean hrvBean = new B31HRVBean();
+                        hrvBean.setBleMac(MyApp.getInstance().getMacAddress());
+                        hrvBean.setDateStr(hrvOriginData.getDate());
+                        hrvBean.setHrvDataStr(gson.toJson(hrvOriginData));
+                        yesHrvList.add(hrvBean);
+                    }else if(hrvOriginData.getDate().equals(WatchUtils.obtainFormatDate(2))){   //前天
+                        B31HRVBean hrvBean = new B31HRVBean();
+                        hrvBean.setBleMac(MyApp.getInstance().getMacAddress());
+                        hrvBean.setDateStr(hrvOriginData.getDate());
+                        hrvBean.setHrvDataStr(gson.toJson(hrvOriginData));
+                        threeDayHrvList.add(hrvBean);
+                    }
+                }
 
             }
 
@@ -213,11 +424,23 @@ public class ReadHRVAnSpo2DatatService extends IntentService {
 
             @Override
             public void onReadOriginComplete() {
-                Intent intent = new Intent();
-                intent.setAction(WatchUtils.B31_HRV_COMPLETE);
-                sendBroadcast(intent);
+               // Log.e(TAG,"--------hrv-onReadOriginComplete="+hrvDataProgress+"---hrvDataCount="+hrvDataCount+"---=size="+b31HRVBeanList.size());
+                if(hrvDataProgress != -1 && String.valueOf(hrvDataProgress).equals("1.0") ){
+                    if(isToday){
+                        hrvMap.put("today",b31HRVBeanList);
+                    }else{
+                        hrvMap.put("today",b31HRVBeanList);
+                        hrvMap.put("yesDay",yesHrvList);
+                        hrvMap.put("threeDay",threeDayHrvList);
+                    }
+                    Message message = handler.obtainMessage();
+                    message.what = 888;
+                    message.obj = hrvMap;
+                    handler.sendMessage(message);
+                }
+
             }
-        }, isToday ? 1 : 3);
+        },isToday? 1 : 3);
 
     }
 

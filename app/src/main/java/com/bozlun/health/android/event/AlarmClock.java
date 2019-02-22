@@ -19,7 +19,7 @@ package com.bozlun.health.android.event;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import org.litepal.crud.DataSupport;
+import org.litepal.crud.LitePalSupport;
 
 /**
  * 闹钟实例
@@ -27,7 +27,7 @@ import org.litepal.crud.DataSupport;
  * @author 咖枯
  * @version 1.0 2015/06
  */
-public class AlarmClock extends DataSupport implements Parcelable {
+public class AlarmClock extends LitePalSupport implements Parcelable {
 
     /**
      * 闹钟id

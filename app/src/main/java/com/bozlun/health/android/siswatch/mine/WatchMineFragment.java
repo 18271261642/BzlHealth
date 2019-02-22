@@ -1,9 +1,15 @@
 package com.bozlun.health.android.siswatch.mine;
 
+import android.Manifest;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,6 +48,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+
+import static android.content.Context.TELEPHONY_SERVICE;
 
 /**
  * Created by Administrator on 2017/7/17.
@@ -95,7 +103,7 @@ public class WatchMineFragment extends LazyFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        watchMineView = inflater.inflate(R.layout.fragment_watch_mine, null);
+        watchMineView = inflater.inflate(R.layout.fragment_watch_mine, container,false);
         unbinder = ButterKnife.bind(this, watchMineView);
 
         initViews();
@@ -289,7 +297,7 @@ public class WatchMineFragment extends LazyFragment {
                     } else if (MyCommandManager.DEVICENAME.equals("B30") || MyCommandManager.DEVICENAME.equals("B36")
                             || MyCommandManager.DEVICENAME.equals("Ringmii")) {    //B30
                         startActivity(new Intent(getActivity(), B30DeviceActivity.class));
-                    }else if(MyCommandManager.DEVICENAME.equals("B31")){    //B31
+                    } else if (MyCommandManager.DEVICENAME.equals("B31")) {    //B31
                         startActivity(new Intent(getActivity(), B31DeviceActivity.class));
                     }
 
@@ -309,8 +317,24 @@ public class WatchMineFragment extends LazyFragment {
 
                 break;
             case R.id.watchmineSetting:  //系统设置
+//                //要调用另一个APP的activity所在的包名
+//                String packageName = "hat.bemo";
+//                Log.e("11","------IMEI="+getDeviceIMEI());
+//                //判断应用是否安装
+//                if(WatchUtils.isClientInstalled(getActivity(),packageName)){
+//                    //要调用另一个APP的activity名字
+//                    String activity = "hat.bemo.MainActivity";
+//                    ComponentName component = new ComponentName(packageName, activity);
+//                    Intent intent = new Intent();
+//                    intent.setComponent(component);
+//                    //傳送旗標
+//                    intent.setFlags(101);//傳送設備碼
+//                    intent.putExtra("data", getDeviceIMEI());
+//                    startActivity(intent);
+//                }
+//
 
-                startActivity(new Intent(getActivity(), B30SysSettingActivity.class));
+                 startActivity(new Intent(getActivity(), B30SysSettingActivity.class));
                 break;
             case R.id.card_frend://亲情互动
                 if (!userId.equals("9278cc399ab147d0ad3ef164ca156bf0")) {
@@ -321,5 +345,22 @@ public class WatchMineFragment extends LazyFragment {
 
                 break;
         }
+    }
+
+    private String getDeviceIMEI() {
+        try {
+            TelephonyManager telephonyManager = (TelephonyManager) getActivity().getSystemService(TELEPHONY_SERVICE);
+            if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
+                return telephonyManager.getImei();
+            }else{
+                requestPermissions(new String[]{Manifest.permission.READ_PHONE_STATE},1001);
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+
+
     }
 }

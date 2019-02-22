@@ -15,6 +15,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -25,7 +26,6 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
-
 import com.bozlun.health.android.R;
 import com.bozlun.health.android.b31.bpoxy.Spo2SecondDialogView;
 import com.bozlun.health.android.b31.bpoxy.markview.SPMarkerView;
@@ -42,18 +42,14 @@ import com.veepoo.protocol.util.HRVOriginUtil;
 import com.veepoo.protocol.util.HrvScoreUtil;
 import com.veepoo.protocol.view.LorenzChartView;
 import com.vp.cso.hrvreport.JNIChange;
-
-import org.litepal.crud.DataSupport;
-
+import org.litepal.LitePal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-
 import static com.bozlun.health.android.b31.bpoxy.enums.Constants.CHART_MAX_HRV;
 import static com.bozlun.health.android.b31.bpoxy.enums.Constants.CHART_MIDDLE_HRV;
 import static com.bozlun.health.android.b31.bpoxy.enums.Constants.CHART_MIN_HRV;
@@ -135,7 +131,7 @@ public class B31HrvDetailActivity extends WatchBaseActivity {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            closeLoadingDialog();
+            Log.e(TAG,"-----msg="+msg.what);
             switch (msg.what) {
                 case 1001:
                     List<HRVOriginData> resultHrv = (List<HRVOriginData>) msg.obj;
@@ -152,6 +148,7 @@ public class B31HrvDetailActivity extends WatchBaseActivity {
                     //分析报告界面
                     showResult(tmpHRVlist);
                     break;
+
             }
 
         }
@@ -253,7 +250,7 @@ public class B31HrvDetailActivity extends WatchBaseActivity {
         lorezChartView.setTextSize(80);
         lorezChartView.setTextColor(Color.RED);
         lorezChartView.setDotColor(Color.RED);
-        lorezChartView.setDotSize(5);
+        lorezChartView.setDotSize(12);
         lorezChartView.setLineWidth(8);
         lorezChartView.setLineColor(Color.RED);
 
@@ -280,22 +277,21 @@ public class B31HrvDetailActivity extends WatchBaseActivity {
         commArrowDate.setText(currDay);
         tmpHRVlist.clear();
         showLoadingDialog("Loading...");
+
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 String where = "bleMac = ? and dateStr = ?";
-                String bleMac = WatchUtils.getSherpBleMac(B31HrvDetailActivity.this);
-                List<B31HRVBean> hrvBeanList = DataSupport.where(where, bleMac,
-                        currDay).find(B31HRVBean.class);
-                if (hrvBeanList == null || hrvBeanList.isEmpty()) {
+                List<B31HRVBean> reList = LitePal.where(where, WatchUtils.getSherpBleMac(B31HrvDetailActivity.this),currDay).find(B31HRVBean.class);
+                if (reList == null || reList.isEmpty()) {
                     Message message = handler.obtainMessage();
                     message.what = 1002;
                     message.obj = tmpHRVlist;
                     handler.sendMessage(message);
                     return;
                 }
-                for (B31HRVBean hrvBean : hrvBeanList) {
-                    //Log.e(TAG,"----------hrvBean="+hrvBean.toString());
+                for (B31HRVBean hrvBean : reList) {
+                   // Log.e(TAG,"----------hrvBean="+hrvBean.toString());
                     tmpHRVlist.add(gson.fromJson(hrvBean.getHrvDataStr(), HRVOriginData.class));
                 }
 
@@ -311,6 +307,7 @@ public class B31HrvDetailActivity extends WatchBaseActivity {
     }
 
     private void initLinChartData(List<HRVOriginData> originHRVList) {
+        closeLoadingDialog();
         listMap.clear();
 
         //心脏健康指数

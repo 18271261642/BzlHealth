@@ -1,6 +1,7 @@
 package com.bozlun.health.android.b30.bean;
 
-import org.litepal.crud.DataSupport;
+
+import org.litepal.crud.LitePalSupport;
 
 import java.util.Date;
 
@@ -8,7 +9,7 @@ import java.util.Date;
  * Created by Administrator on 2018/8/17.
  */
 
-public class B30Bean extends DataSupport {
+public class B30Bean extends LitePalSupport {
     private int id;
     /**
      * 自定义参数,日期

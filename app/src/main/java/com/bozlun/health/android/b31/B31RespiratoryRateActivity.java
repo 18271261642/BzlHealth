@@ -85,7 +85,7 @@ public class B31RespiratoryRateActivity extends WatchBaseActivity {
     private void initViews() {
         commentB30TitleTv.setText(getResources().getString(R.string.vpspo2h_toptitle_breath));
         commentB30BackImg.setVisibility(View.VISIBLE);
-        commentB30ShareImg.setVisibility(View.VISIBLE);
+        commentB30ShareImg.setVisibility(View.INVISIBLE);
         b31MeaureRateProgressView.setInsideColor(Color.parseColor("#EBEBEB"));
         b31MeaureRateProgressView.setOutsideColor(Color.WHITE);
 

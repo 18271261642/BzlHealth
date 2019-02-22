@@ -15,7 +15,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import com.bozlun.health.android.R;
 import com.bozlun.health.android.b31.model.B31Spo2hBean;
 import com.bozlun.health.android.siswatch.WatchBaseActivity;
@@ -26,12 +25,11 @@ import com.veepoo.protocol.model.datas.Spo2hOriginData;
 import com.veepoo.protocol.model.enums.ESpo2hDataType;
 import com.veepoo.protocol.util.Spo2hOriginUtil;
 
-import org.litepal.crud.DataSupport;
+import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -132,7 +130,7 @@ public class ShowSpo2DetailActivity extends WatchBaseActivity {
                 //查询保存的数据
                 String whereStr = "bleMac = ? and dateStr = ?";
                 String bleMac = WatchUtils.getSherpBleMac(ShowSpo2DetailActivity.this);
-                List<B31Spo2hBean> spo2hBeanList = DataSupport.where(whereStr, bleMac, currDay).find(B31Spo2hBean.class);
+                List<B31Spo2hBean> spo2hBeanList = LitePal.where(whereStr, bleMac, currDay).find(B31Spo2hBean.class);
                 //Log.e(TAG,"---22------查询数据="+currDay+spo2hBeanList.size());
                 if (spo2hBeanList == null || spo2hBeanList.isEmpty()) {
                     Message message = handler.obtainMessage();

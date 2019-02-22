@@ -20,7 +20,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -47,14 +46,11 @@ import com.bozlun.health.android.util.VerifyUtil;
 import com.bozlun.health.android.view.PrivacyActivity;
 import com.google.gson.Gson;
 import com.umeng.analytics.MobclickAgent;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.smssdk.EventHandler;
@@ -361,39 +357,6 @@ public class RegisterActivity extends BaseActivity {
                 } catch (Exception E) {
                     E.printStackTrace();
                 }
-
-//                if(lauages){
-//                    //中文状态为手机号
-//                    String code = codeEt.getText().toString();
-//                    String passwordTxt = password.getText().toString();
-//
-//                    if(!WatchUtils.isEmpty(phoneTxt) && !WatchUtils.isEmpty(passwordTxt)){
-//                        if(passwordTxt.length() > 5){
-//                            if(!WatchUtils.isEmpty(code) && VerifyUtil.checkNumber(code)){  //验证码
-//                                registerRemote(phoneTxt, passwordTxt);
-//                            }
-//                        }else{
-//                            ToastUtil.showShort(RegisterActivity.this, getResources().getString(R.string.not_b_less));
-//                        }
-//                    }
-//
-//
-////                    if (TextUtils.isEmpty(phoneTxt) | !VerifyUtil.VerificationPhone(phoneTxt)) {
-////                        ToastUtil.showShort(RegisterActivity.this, getResources().getString(R.string.format_is_wrong));
-////                    } else if (TextUtils.isEmpty(passwordTxt) | passwordTxt.length() < 6) {
-////                        ToastUtil.showShort(RegisterActivity.this, getResources().getString(R.string.not_b_less));
-////                    } else if (TextUtils.isEmpty(code) | !VerifyUtil.checkNumber(code) | code.length() < 4 | isVal) {
-////                        SMSSDK.submitVerificationCode("86", phoneTxt, code);
-////                        ToastUtil.showShort(RegisterActivity.this, getResources().getString(R.string.yonghuzdffhej));
-////                    } else {
-////                        registerRemote(phoneTxt, passwordTxt);
-////                    }
-//
-//
-//
-//                }else{
-//
-//                }
 
                 break;
         }

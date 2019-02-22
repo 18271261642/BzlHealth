@@ -1,13 +1,13 @@
 package com.suchengkeji.android.w30sblelibrary.bean;
 
-import org.litepal.crud.DataSupport;
+import org.litepal.crud.LitePalSupport;
 
 import java.io.Serializable;
 
 /**
  * 睡眠数据信息
  */
-public class W30S_SleepData extends DataSupport implements Serializable{
+public class W30S_SleepData extends LitePalSupport implements Serializable{
 
     private String sleep_type;
     private String startTime;

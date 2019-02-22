@@ -1,15 +1,14 @@
 package com.bozlun.health.android.b30.bean;
 
 import com.lidroid.xutils.db.annotation.Column;
-
-import org.litepal.crud.DataSupport;
+import org.litepal.crud.LitePalSupport;
 
 /**
  * 数据库的实体类: B30半小时数据源
  *
  * @author XuBo 2018-09-19
  */
-public class B30HalfHourDB extends DataSupport {
+public class B30HalfHourDB extends LitePalSupport {
 
     /**
      * 手环MAC地址

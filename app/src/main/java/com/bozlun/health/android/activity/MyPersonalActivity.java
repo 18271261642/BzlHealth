@@ -1172,10 +1172,13 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
             switch (requestCode) {
                 case 1000:// 改昵称回来
                     String nickName = data.getStringExtra("name");
-                    nicknameTv.setText(nickName);
-                    mUserInfo.nickName = nickName;// 记录一下,到时提交用
-                    flag = "nickName";
-                    modifyPersonData(nickName);
+                    if(!WatchUtils.isEmpty(nickName)){
+                        nicknameTv.setText(nickName);
+                        mUserInfo.nickName = nickName;// 记录一下,到时提交用
+                        flag = "nickName";
+                        modifyPersonData(nickName);
+                    }
+
                     break;
                 case 120: //从相册图片后返回的uri
                     //启动裁剪
@@ -1231,7 +1234,7 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
         Uri imageuri;
         if (Build.VERSION.SDK_INT >= 24) {
             imageuri = FileProvider.getUriForFile(MyPersonalActivity.this,
-                    getPackageName() + ".fileprovider_racefitpro", //可以是任意字符串
+                    "com.bozlun.health.android.fileprovider_racefitpro", //可以是任意字符串
                     outputfile);
 //            imageuri = FileProvider.getUriForFile(MyPersonalActivity.this,
 //                    "com.guider.ringmiihx.fileprovider", //可以是任意字符串
@@ -1275,7 +1278,7 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
             if (Build.VERSION.SDK_INT >= 24) {
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 imageUri = FileProvider.getUriForFile(MyPersonalActivity.this,
-                        getPackageName() + ".fileprovider_racefitpro",
+                        "com.bozlun.health.android.fileprovider_racefitpro",
                         camerafile);
 //                imageUri = FileProvider.getUriForFile(MyPersonalActivity.this,
 //                        "com.guider.ringmiihx.fileprovider",

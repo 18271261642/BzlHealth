@@ -242,14 +242,15 @@
 
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/size_55">
+                    android:padding="15dp"
+                    android:layout_height="wrap_content">
 
                     <ImageView
                         android:id="@+id/img_0"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
                         android:layout_centerVertical="true"
-                        android:layout_marginLeft="@dimen/size_15"
+                        android:layout_marginLeft="@dimen/size_10"
                         android:src="@mipmap/ic_mine_frend" />
 
                     <TextView

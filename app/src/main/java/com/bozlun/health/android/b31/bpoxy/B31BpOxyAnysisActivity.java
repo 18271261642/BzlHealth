@@ -46,7 +46,7 @@ import com.veepoo.protocol.model.settings.CustomSetting;
 import com.veepoo.protocol.model.settings.CustomSettingData;
 import com.veepoo.protocol.util.Spo2hOriginUtil;
 
-import org.litepal.crud.DataSupport;
+import org.litepal.LitePal;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -55,11 +55,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-
 import static com.bozlun.health.android.b31.bpoxy.enums.EnumGlossary.BREATH;
 import static com.bozlun.health.android.b31.bpoxy.enums.EnumGlossary.BREATHBREAK;
 import static com.bozlun.health.android.b31.bpoxy.enums.EnumGlossary.HEART;
@@ -307,15 +305,13 @@ public class B31BpOxyAnysisActivity extends WatchBaseActivity {
         commArrowDate.setText(currDay);
         list.clear();
         showLoadingDialog("Loading...");
-        Thread thread = new Thread() {
+
+        new Thread(new Runnable() {
             @Override
             public void run() {
-                super.run();
-                //查询保存的数据
-                String whereStr = "bleMac = ? and dateStr = ?";
+                String where = "bleMac = ? and dateStr = ?";
                 String bleMac = WatchUtils.getSherpBleMac(B31BpOxyAnysisActivity.this);
-                List<B31Spo2hBean> spo2hBeanList = DataSupport.where(whereStr, bleMac, currDay).find(B31Spo2hBean.class);
-                //Log.e(TAG,"---22------查询数据="+currDay+spo2hBeanList.size());
+                List<B31Spo2hBean> spo2hBeanList = LitePal.where(where, bleMac, currDay).find(B31Spo2hBean.class);
                 if (spo2hBeanList == null || spo2hBeanList.isEmpty()) {
                     Message message = handler.obtainMessage();
                     message.what = 1001;
@@ -323,6 +319,7 @@ public class B31BpOxyAnysisActivity extends WatchBaseActivity {
                     handler.sendMessage(message);
                     return;
                 }
+                //Log.e(TAG,"---22------查询数据="+currDay+spo2hBeanList.size());
                 for (B31Spo2hBean hBean : spo2hBeanList) {
                     //Log.e(TAG,"---------走到这里来了="+hBean.toString());
                     list.add(gson.fromJson(hBean.getSpo2hOriginData(), Spo2hOriginData.class));
@@ -333,10 +330,9 @@ public class B31BpOxyAnysisActivity extends WatchBaseActivity {
                 message.obj = list;
                 handler.sendMessage(message);
 
-
             }
-        };
-        thread.start();
+        }).start();
+
 
     }
 
@@ -496,10 +492,7 @@ public class B31BpOxyAnysisActivity extends WatchBaseActivity {
         //OSAHS程度
         osahsStatusTv.setText(vpSpo2hUtil.getOsahs(B31BpOxyAnysisActivity.this));
         List<Map<String, Float>> tmpLt = spo2hOriginUtil.getApneaList();
-        Log.e(TAG, "----size=" + tmpLt.size());
-        for (Map<String, Float> tmp : tmpLt) {
-            Log.e(TAG, "-----tmp=" + tmp.toString());
-        }
+       // Log.e(TAG, "----size=" + tmpLt.size());
         if (tmpLt == null || tmpLt.isEmpty()) {
             tmpLt = new ArrayList<>();
             Map<String, Float> tmpMap = new HashMap<>();
@@ -618,7 +611,7 @@ public class B31BpOxyAnysisActivity extends WatchBaseActivity {
             float time = mapList.get(position).get("time");
             float value = mapList.get(position).get("value");
             int intTime = (int) time;
-            if (intTime == 0) {
+            if (intTime == 0 && value == 0) {
                 holder.timeTv.setText("--");
                 holder.timesTv.setText("--");
             } else {

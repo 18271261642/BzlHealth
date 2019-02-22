@@ -1,6 +1,8 @@
 package com.suchengkeji.android.w30sblelibrary.bean;
 
-import org.litepal.crud.DataSupport;
+
+import org.litepal.crud.LitePalSupport;
+
 import java.io.Serializable;
 import java.math.BigInteger;
 
@@ -9,7 +11,7 @@ import java.math.BigInteger;
  * 注意：闹钟最多支持五个
  * AlarmId 有效范围为：（0,1,2,3,4）
  */
-public class W30S_AlarmInfo extends DataSupport implements Serializable {
+public class W30S_AlarmInfo extends LitePalSupport implements Serializable {
 
     private int AlarmId;
     private int AlarmtHour;

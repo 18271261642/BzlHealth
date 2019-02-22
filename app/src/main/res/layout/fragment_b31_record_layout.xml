@@ -5,20 +5,26 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:background="@color/new_colorAccent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <include layout="@layout/b30_home_title_layout" />
-
-    </LinearLayout>
+    <include layout="@layout/b30_home_title_layout" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/white"/>
+
+
+    <TextView
+        android:id="@+id/syncStatusTv"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:background="@color/block_backgroud_hrv"
+        android:text="同步中"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:padding="8dp"
+        android:layout_height="wrap_content" />
+
 
     <!--4DDDFF-->
     <com.scwang.smartrefresh.layout.SmartRefreshLayout
@@ -129,6 +135,7 @@
                             android:id="@+id/b31HomeTodayImg"
                             android:layout_width="15dp"
                             android:layout_height="15dp"
+                            android:visibility="visible"
                             android:layout_gravity="center|bottom"
                             android:background="@drawable/fgm_home_move" />
 

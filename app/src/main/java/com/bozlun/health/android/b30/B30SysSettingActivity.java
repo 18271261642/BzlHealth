@@ -124,14 +124,9 @@ public class B30SysSettingActivity extends WatchBaseActivity {
 
     //更新APP
     private void updateApp(){
-        String appInfo = getPackageName();
-//        if (!WatchUtils.isEmpty(appInfo)&&!appInfo.equals("com.bozlun.bozhilun.android")) {
-//            //检查更新
-//            updateManager =
-//                    new UpdateManager(this, URLs.HTTPs + URLs.getvision);
-//            updateManager.checkForUpdate(true);
-//
-//        }
+        updateManager =
+                new UpdateManager(this, URLs.HTTPs + URLs.bozlun_health_url);
+        updateManager.checkForUpdate(true);
     }
 
 
