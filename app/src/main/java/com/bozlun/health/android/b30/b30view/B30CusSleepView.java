@@ -87,20 +87,20 @@ public class B30CusSleepView extends View {
         hightPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         hightPaint.setColor(hightSleepColor);
         hightPaint.setAntiAlias(true);
-        hightPaint.setTextAlign(Paint.Align.CENTER);
+        hightPaint.setTextAlign(Paint.Align.LEFT);
         hightPaint.setStrokeWidth(5f);
 
 
         deepPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         deepPaint.setColor(deepSleepColor);
         deepPaint.setAntiAlias(true);
-        deepPaint.setTextAlign(Paint.Align.CENTER);
+        deepPaint.setTextAlign(Paint.Align.LEFT);
         deepPaint.setStrokeWidth(5f);
 
 
         awakePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         awakePaint.setColor(awakeSleepColor);
-        awakePaint.setTextAlign(Paint.Align.CENTER);
+        awakePaint.setTextAlign(Paint.Align.LEFT);
         awakePaint.setAntiAlias(true);
         awakePaint.setStrokeWidth(5f);
 

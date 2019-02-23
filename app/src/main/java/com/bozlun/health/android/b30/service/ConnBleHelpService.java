@@ -508,48 +508,51 @@ public class ConnBleHelpService {
      */
     private void saveSleepData(SleepData sleepData) {
         if (sleepData == null) return;
-        //Log.e("-------设备睡眠数据---", gson.toJson(sleepData) + "");
+        Log.e("-------设备睡眠数据---", gson.toJson(sleepData) + "");
         if(sleepMap.get(sleepData.getDate()) == null){
             sleepMap.put(sleepData.getDate(),sleepData);
         }else {
             //sleepMap.put(sleepData.getDate(),sleepData);
-
+            Log.e(TAG,"---------sleepMap="+sleepMap.toString());
             if (sleepMap.get(sleepData.getDate()).getDate().equals(sleepData.getDate())) {  //同一天的
-                //map 中已经保存的
-                SleepData tempSleepData = sleepMap.get(sleepData.getDate());
-                SleepData resultSlee = new SleepData();
-                resultSlee.setDate(sleepData.getDate());    //日期
-                resultSlee.setCali_flag(0);
-                //睡眠质量，取最大值
-                resultSlee.setSleepQulity(tempSleepData.getSleepQulity() >= sleepData.getSleepQulity() ? tempSleepData.getSleepQulity() : sleepData.getSleepQulity());
-                //睡醒次数
-                resultSlee.setWakeCount(tempSleepData.getWakeCount() + sleepData.getWakeCount()+1);
-                //深睡时间
-                resultSlee.setDeepSleepTime(tempSleepData.getDeepSleepTime() + sleepData.getDeepSleepTime());
-                //浅睡时间
-                resultSlee.setLowSleepTime(tempSleepData.getLowSleepTime() + sleepData.getLowSleepTime());
-                //入睡时间 比较时间大小
-                String time1 = tempSleepData.getSleepDown().getDateAndClockForSleepSecond();
-                String time2 = sleepData.getSleepDown().getDateAndClockForSleepSecond();
-                resultSlee.setSleepDown(WatchUtils.comPariDateDetail(time2, time1) ? sleepData.getSleepDown() : tempSleepData.getSleepDown());
-                //清醒时间
-                String sleepUpStr1 = tempSleepData.getSleepUp().getDateAndClockForSleepSecond();
-                String sleepUpStr2 = sleepData.getSleepUp().getDateAndClockForSleepSecond();
-                resultSlee.setSleepUp(WatchUtils.comPariDateDetail(sleepUpStr2, sleepUpStr1) ? tempSleepData.getSleepUp() : sleepData.getSleepUp());
-                //计算两段时间间隔，第二段的入睡时间-第一段的清醒时间
-                int sleepLen = WatchUtils.intervalTimeStr(sleepUpStr1, time2);
-                int sleepStatus = sleepLen / 5;
-                StringBuilder stringBuffer = new StringBuilder();
-                for (int i = 1; i <= sleepStatus; i++) {
-                    stringBuffer.append("2");
+                if(!sleepMap.get(sleepData.getDate()).getSleepLine().equals(sleepData.getSleepLine())){
+                    //map 中已经保存的
+                    SleepData tempSleepData = sleepMap.get(sleepData.getDate());
+                    SleepData resultSlee = new SleepData();
+                    resultSlee.setDate(sleepData.getDate());    //日期
+                    resultSlee.setCali_flag(0);
+                    //睡眠质量，取最大值
+                    resultSlee.setSleepQulity(tempSleepData.getSleepQulity() >= sleepData.getSleepQulity() ? tempSleepData.getSleepQulity() : sleepData.getSleepQulity());
+                    //睡醒次数
+                    resultSlee.setWakeCount(tempSleepData.getWakeCount() + sleepData.getWakeCount()+1);
+                    //深睡时间
+                    resultSlee.setDeepSleepTime(tempSleepData.getDeepSleepTime() + sleepData.getDeepSleepTime());
+                    //浅睡时间
+                    resultSlee.setLowSleepTime(tempSleepData.getLowSleepTime() + sleepData.getLowSleepTime());
+                    //入睡时间 比较时间大小
+                    String time1 = tempSleepData.getSleepDown().getDateAndClockForSleepSecond();
+                    String time2 = sleepData.getSleepDown().getDateAndClockForSleepSecond();
+                    resultSlee.setSleepDown(WatchUtils.comPariDateDetail(time2, time1) ? sleepData.getSleepDown() : tempSleepData.getSleepDown());
+                    //清醒时间
+                    String sleepUpStr1 = tempSleepData.getSleepUp().getDateAndClockForSleepSecond();
+                    String sleepUpStr2 = sleepData.getSleepUp().getDateAndClockForSleepSecond();
+                    resultSlee.setSleepUp(WatchUtils.comPariDateDetail(sleepUpStr2, sleepUpStr1) ? tempSleepData.getSleepUp() : sleepData.getSleepUp());
+                    //计算两段时间间隔，第二段的入睡时间-第一段的清醒时间
+                    int sleepLen = WatchUtils.intervalTimeStr(sleepUpStr1, time2);
+                    int sleepStatus = sleepLen / 5;
+                    StringBuilder stringBuffer = new StringBuilder();
+                    for (int i = 1; i <= sleepStatus; i++) {
+                        stringBuffer.append("2");
+                    }
+                    //所有睡眠时间
+                    resultSlee.setAllSleepTime(Integer.valueOf(tempSleepData.getAllSleepTime()) + Integer.valueOf(sleepData.getAllSleepTime())+sleepStatus * 5);
+                    resultSlee.setSleepLine(WatchUtils.comPariDateDetail(time1, time2) ?
+                            (tempSleepData.getSleepLine() + stringBuffer + "" + sleepData.getSleepLine()) :
+                            (sleepData.getSleepLine() + stringBuffer + "" + tempSleepData.getSleepLine()));
+                    Log.e(TAG, "----------结果睡眠---=" + resultSlee.toString());
+                    sleepMap.put(sleepData.getDate(), resultSlee);
                 }
-                //所有睡眠时间
-                resultSlee.setAllSleepTime(Integer.valueOf(tempSleepData.getAllSleepTime()) + Integer.valueOf(sleepData.getAllSleepTime())+sleepStatus * 5);
-                resultSlee.setSleepLine(WatchUtils.comPariDateDetail(time1, time2) ?
-                        (tempSleepData.getSleepLine() + stringBuffer + "" + sleepData.getSleepLine()) :
-                        (sleepData.getSleepLine() + stringBuffer + "" + tempSleepData.getSleepLine()));
-                Log.e(TAG, "----------结果睡眠---=" + resultSlee.toString());
-                sleepMap.put(sleepData.getDate(), resultSlee);
+
             }
 
 

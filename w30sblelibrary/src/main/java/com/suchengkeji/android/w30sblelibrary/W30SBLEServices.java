@@ -130,7 +130,7 @@ public class W30SBLEServices extends Service {
         registerReceiver(bleStateReceiver, regInteFilter());
         initialize();
 
-        regeditBackService();
+        //regeditBackService();
 
     }
 

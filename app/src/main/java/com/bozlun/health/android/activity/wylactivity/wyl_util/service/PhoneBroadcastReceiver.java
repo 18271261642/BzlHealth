@@ -1,6 +1,8 @@
 package com.bozlun.health.android.activity.wylactivity.wyl_util.service;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -8,7 +10,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.ContactsContract;
+import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -429,6 +433,12 @@ public class PhoneBroadcastReceiver extends BroadcastReceiver {
             MyApp.getInstance().getVpOperateManager().offhookOrIdlePhone(iBleWriteResponse);
         }
 
+        AudioManager audioManager = (AudioManager) MyApp.getInstance().getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        if(audioManager != null){
+            audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+            audioManager.getStreamVolume(AudioManager.STREAM_RING);
+            Log.d("SilentListenerService", "RINGING 取消静音");
+        }
 
     }
 
@@ -465,6 +475,9 @@ public class PhoneBroadcastReceiver extends BroadcastReceiver {
             //手环静音提示
             @Override
             public void cliencePhone() {
+                getDoNotDisturb();
+
+
                 AudioManager audioManager = (AudioManager) MyApp.getInstance().getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
                 if (audioManager != null) {
                     audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
@@ -487,5 +500,24 @@ public class PhoneBroadcastReceiver extends BroadcastReceiver {
 
         });
     }
+
+    //获取Do not disturb权限,才可进行音量操作
+    private void getDoNotDisturb(){
+      NotificationManager notificationManager =
+                (NotificationManager) MyApp.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        if(notificationManager == null)
+            return;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
+                && !notificationManager.isNotificationPolicyAccessGranted()) {
+
+            Intent intent = new Intent(
+                    android.provider.Settings
+                            .ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+
+            MyApp.getInstance().getApplicationContext().startActivity(intent);
+        }
+
+    }
+
 
 }

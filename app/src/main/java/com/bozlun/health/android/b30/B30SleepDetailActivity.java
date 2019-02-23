@@ -2,9 +2,10 @@ package com.bozlun.health.android.b30;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RatingBar;
@@ -20,7 +21,6 @@ import com.bozlun.health.android.util.Constant;
 import com.google.gson.Gson;
 import com.veepoo.protocol.model.datas.SleepData;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +40,8 @@ public class B30SleepDetailActivity extends WatchBaseActivity {
 
     @BindView(R.id.sleepSeekBar)
     SeekBar sleepSeekBar;
+    @BindView(R.id.commB31TitleLayout)
+    Toolbar commB31TitleLayout;
 
     /**
      * 跳转到B30SleepDetailActivity,并附带参数
@@ -80,7 +82,7 @@ public class B30SleepDetailActivity extends WatchBaseActivity {
 
     private List<Integer> listValue;
 
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss",Locale.CHINA);
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA);
 
     /**
      * 当前显示的日期(数据根据日期加载)
@@ -104,6 +106,7 @@ public class B30SleepDetailActivity extends WatchBaseActivity {
         commentB30BackImg.setVisibility(View.VISIBLE);
         commentB30TitleTv.setText(getResources().getString(R.string.sleep));
 //        commentB30ShareImg.setVisibility(View.VISIBLE);
+        commB31TitleLayout.setBackgroundColor(Color.parseColor("#6174C0"));
         detailSleepQuitRatingBar.setMax(5);
         // detailSleepQuitRatingBar.setRating(100);
         listValue = new ArrayList<>();
@@ -169,28 +172,28 @@ public class B30SleepDetailActivity extends WatchBaseActivity {
             sleepSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                    if(progress == listValue.size())
+                    if (progress == listValue.size())
                         return;
-                   // Log.e(TAG,"-------progress="+progress+"--="+sleepData.getSleepDown().getColck());
+                    // Log.e(TAG,"-------progress="+progress+"--="+sleepData.getSleepDown().getColck());
 
                     int sleepHour = sleepData.getSleepDown().getHour() * 60;
                     int sleepMine = sleepData.getSleepDown().getMinute();
                     //入睡时间 分钟
                     int sleepDownT = sleepHour + sleepMine;
-                    int currD = sleepDownT+((progress==0?-1:progress-1) * 5);   //当前的分钟
+                    int currD = sleepDownT + ((progress == 0 ? -1 : progress - 1) * 5);   //当前的分钟
                     //转换成时：分
-                    int hour = (int) Math.floor(currD/60);
-                    if(hour >= 24)
-                        hour = hour-24;
+                    int hour = (int) Math.floor(currD / 60);
+                    if (hour >= 24)
+                        hour = hour - 24;
                     int mine = currD % 60;
 
-                    detailCusSleepView.setSleepDateTxt((hour==0?"00":(hour<10?"0"+hour:hour))+":"+(mine==0?"00":(mine<10?"0"+mine:mine))+"");
+                    detailCusSleepView.setSleepDateTxt((hour == 0 ? "00" : (hour < 10 ? "0" + hour : hour)) + ":" + (mine == 0 ? "00" : (mine < 10 ? "0" + mine : mine)) + "");
                     detailCusSleepView.setSeekBarSchdue(progress);
                 }
 
                 @Override
                 public void onStartTrackingTouch(SeekBar seekBar) {
-                    detailCusSleepView.setShowSeekBar(true,0);
+                    detailCusSleepView.setShowSeekBar(true, 0);
                 }
 
                 @Override
@@ -198,8 +201,6 @@ public class B30SleepDetailActivity extends WatchBaseActivity {
 
                 }
             });
-
-
 
 
         } else {

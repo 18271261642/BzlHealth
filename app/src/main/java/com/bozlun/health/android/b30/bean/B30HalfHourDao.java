@@ -3,6 +3,8 @@ package com.bozlun.health.android.b30.bean;
 
 import android.os.Handler;
 import android.util.Log;
+import android.view.animation.TranslateAnimation;
+
 import com.bozlun.health.android.b31.model.B31HRVBean;
 import com.bozlun.health.android.b31.model.B31Spo2hBean;
 import com.bozlun.health.android.b31.model.TempB31HRVBean;
@@ -100,17 +102,24 @@ public class B30HalfHourDao {
      */
     public synchronized void saveOriginData(B30HalfHourDB db) {
         boolean result;
-        B30HalfHourDB localData = getOriginData(db.getAddress(), db.getDate(), db.getType());
-        if (localData == null) {
-            result = db.save();// 本地没有,就直接新增
-            MyLogUtil.d("bobo", "saveOriginData type: " + db.getType() + ",date:"
-                    + db.getDate() + ",result:" + result + ",add:"+ db.getUpload());
-        } else {
-            localData.setOriginData(db.getOriginData());
-            result = localData.save();// 本地有,就更新本地
+        String bMac = db.getAddress();
+        String strDate = db.getDate();
+        String type = db.getType();
+        result = db.saveOrUpdate("address=? and date =? and type=?",bMac,strDate,type);
+        Log.e("DB","--------数据存储="+result);
+
+//
+//        B30HalfHourDB localData = getOriginData(db.getAddress(), db.getDate(), db.getType());
+//        if (localData == null) {
+//            result = db.save();// 本地没有,就直接新增
 //            MyLogUtil.d("bobo", "saveOriginData type: " + db.getType() + ",date:"
-//                    + db.getDate() + ",result:" + result + ",update:" + localData.getUpload());
-        }
+//                    + db.getDate() + ",result:" + result + ",add:"+ db.getUpload());
+//        } else {
+//            //localData.setOriginData(db.getOriginData());
+//            result = localData.saveOrUpdate("address=? and date =? and type=?",bMac,strDate,type);//.save();// 本地有,就更新本地
+////            MyLogUtil.d("bobo", "saveOriginData type: " + db.getType() + ",date:"
+////                    + db.getDate() + ",result:" + result + ",update:" + localData.getUpload());
+//        }
     }
 
 

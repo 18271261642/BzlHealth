@@ -335,6 +335,11 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
         if (WatchUtils.isEmpty(saveDate)) {
             SharedPreferencesUtils.setParam(getmContext(), "saveDate", System.currentTimeMillis() / 1000 + "");
         }
+
+        //保存的时间
+        String tmpSaveTime = (String) SharedPreferencesUtils.getParam(getmContext(), "save_curr_time", "");
+        if(WatchUtils.isEmpty(tmpSaveTime))
+           SharedPreferencesUtils.setParam(getmContext(),"save_curr_time",System.currentTimeMillis() / 1000 + "");
     }
 
 
@@ -639,6 +644,14 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
     //三天数据切换
     private void clearDataStyle(final int code) {
         //Log.e(TAG,"--------code="+code+"---currDay="+currDay);
+        long currentTime = System.currentTimeMillis() / 1000;   //当前时间
+        //保存的时间
+        String tmpSaveTime = (String) SharedPreferencesUtils.getParam(getmContext(), "save_curr_time", "");
+        long diffTime = (currentTime - Long.valueOf(tmpSaveTime)) ;
+        if(diffTime <2)
+            return;
+        SharedPreferencesUtils.setParam(getmContext(),"save_curr_time",System.currentTimeMillis() / 1000 + "");
+
         //if (code == currDay) return;// 防重复点击
         if (b31HomeTodayImg != null) b31HomeTodayImg.setVisibility(View.INVISIBLE);
         if (b31HomeYestdayImg != null) b31HomeYestdayImg.setVisibility(View.INVISIBLE);
@@ -812,33 +825,6 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
     //取出本地的HRV数据
     private void updateHRVData(final String mac, final String day) {
         tmpHRVlist.clear();
-//        String where = "bleMac = ? and dateStr = ?";
-//        List<B31HRVBean> reList = LitePal.where(where, mac,day).find(B31HRVBean.class);
-//        if (reList == null || reList.isEmpty()) {
-//            Message message = handler.obtainMessage();
-//            message.what = 1113;
-//            message.obj = tmpHRVlist;
-//            handler.sendMessage(message);
-//            return;
-//        }
-//        for (B31HRVBean hrvBean : reList) {
-//            //Log.e(TAG,"----------hrvBean="+hrvBean.toString());
-//            tmpHRVlist.add(gson.fromJson(hrvBean.getHrvDataStr(), HRVOriginData.class));
-//        }
-//
-//        Message message = handler.obtainMessage();
-//        message.what = 1113;
-//        message.obj = tmpHRVlist;
-//        handler.sendMessage(message);
-
-
-
-
-
-
-
-
-
 
         try {
             Thread thread = new Thread(new Runnable() {
@@ -880,28 +866,6 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
     private void updateSpo2Data(final String mac, final String date) {
         Log.e(TAG, "--------血氧=" + date);
         spo2hOriginDataList.clear();
-//        String where = "bleMac = ? and dateStr = ?";
-//        List<B31Spo2hBean> spo2hBeanList = LitePal.where(where, mac, date).find(B31Spo2hBean.class);
-//        if (spo2hBeanList == null || spo2hBeanList.isEmpty()) {
-//            Message message = handler.obtainMessage();
-//            message.what = 1112;
-//            message.obj = spo2hOriginDataList;
-//            handler.sendMessage(message);
-//            return;
-//        }
-//        Log.e(TAG,"---血氧------查询数据="+currDay+spo2hBeanList.size());
-//        for (B31Spo2hBean hBean : spo2hBeanList) {
-//            //Log.e(TAG,"---------走到这里来了="+hBean.toString());
-//            spo2hOriginDataList.add(gson.fromJson(hBean.getSpo2hOriginData(), Spo2hOriginData.class));
-//        }
-//
-//        Message message = handler.obtainMessage();
-//        message.what = 1112;
-//        message.obj = spo2hOriginDataList;
-//        handler.sendMessage(message);
-
-
-
 
         new Thread(new Runnable() {
             @Override

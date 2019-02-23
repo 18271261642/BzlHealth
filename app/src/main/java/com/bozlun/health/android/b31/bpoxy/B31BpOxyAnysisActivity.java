@@ -3,11 +3,13 @@ package com.bozlun.health.android.b31.bpoxy;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,9 +57,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+
 import static com.bozlun.health.android.b31.bpoxy.enums.EnumGlossary.BREATH;
 import static com.bozlun.health.android.b31.bpoxy.enums.EnumGlossary.BREATHBREAK;
 import static com.bozlun.health.android.b31.bpoxy.enums.EnumGlossary.HEART;
@@ -127,6 +131,8 @@ public class B31BpOxyAnysisActivity extends WatchBaseActivity {
     ToggleButton spo2DetectToggle;
     @BindView(R.id.glossary_list)
     CusExpandableListView glossaryList;
+    @BindView(R.id.commB31TitleLayout)
+    Toolbar commB31TitleLayout;
 
 
     public static void startAndParams(Context context, String date) {
@@ -282,6 +288,7 @@ public class B31BpOxyAnysisActivity extends WatchBaseActivity {
         commentB30TitleTv.setText(getResources().getString(R.string.vpspo2h_spo2h) + getResources().getString(R.string.data));
         commentB30ShareImg.setVisibility(View.VISIBLE);
         commentB30ShareImg.setImageDrawable(getResources().getDrawable(R.drawable.ic_lin_img));
+        commB31TitleLayout.setBackgroundColor(getResources().getColor(R.color.block_backgroud_spo2h));
         spo2DetectToggle.setOnCheckedChangeListener(onCheckedChangeListener);
         //≤20(安静)
         tmpClierTv.setText("≤20(" + getResources().getString(R.string.vpspo2h_state_calm) + ")");
@@ -492,7 +499,7 @@ public class B31BpOxyAnysisActivity extends WatchBaseActivity {
         //OSAHS程度
         osahsStatusTv.setText(vpSpo2hUtil.getOsahs(B31BpOxyAnysisActivity.this));
         List<Map<String, Float>> tmpLt = spo2hOriginUtil.getApneaList();
-       // Log.e(TAG, "----size=" + tmpLt.size());
+        // Log.e(TAG, "----size=" + tmpLt.size());
         if (tmpLt == null || tmpLt.isEmpty()) {
             tmpLt = new ArrayList<>();
             Map<String, Float> tmpMap = new HashMap<>();

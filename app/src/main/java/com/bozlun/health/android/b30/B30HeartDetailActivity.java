@@ -2,16 +2,18 @@ package com.bozlun.health.android.b30;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.R;
 import com.bozlun.health.android.b30.adapter.B30HeartDetailAdapter;
 import com.bozlun.health.android.b30.b30view.B30CusHeartView;
@@ -21,6 +23,7 @@ import com.bozlun.health.android.siswatch.utils.WatchUtils;
 import com.bozlun.health.android.util.Constant;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.readystatesoftware.systembartint.SystemBarTintManager;
 import com.veepoo.protocol.model.datas.HalfHourRateData;
 import com.veepoo.protocol.model.datas.HalfHourSportData;
 import com.veepoo.protocol.model.datas.TimeData;
@@ -41,6 +44,9 @@ import butterknife.OnClick;
  * B30心率详情界面
  */
 public class B30HeartDetailActivity extends WatchBaseActivity {
+
+    @BindView(R.id.commB31TitleLayout)
+    Toolbar commB31TitleLayout;
 
     /**
      * 跳转到B30HeartDetailActivity,并附带参数
@@ -89,6 +95,14 @@ public class B30HeartDetailActivity extends WatchBaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_b30_heart_detail_layout);
         ButterKnife.bind(this);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            SystemBarTintManager tintManager = new SystemBarTintManager(this);
+            tintManager.setStatusBarTintEnabled(true);
+            tintManager.setStatusBarTintResource(Color.parseColor("#FF307E"));
+        }
+
+
+
         initViews();
         initData();
     }
@@ -96,10 +110,11 @@ public class B30HeartDetailActivity extends WatchBaseActivity {
     private void initViews() {
         commentB30BackImg.setVisibility(View.VISIBLE);
         commentB30TitleTv.setText(R.string.heart_rate);
-        commentB30ShareImg.setVisibility(View.VISIBLE);
+        commentB30ShareImg.setVisibility(View.INVISIBLE);
+        commB31TitleLayout.setBackgroundColor(Color.parseColor("#FF307E"));
 
 
-        if(WatchUtils.isB36Device(B30HeartDetailActivity.this)){
+        if (WatchUtils.isB36Device(B30HeartDetailActivity.this)) {
             commentB30ShareImg.setBackground(getResources().getDrawable(R.drawable.ic_action_new));
         }
 
@@ -189,9 +204,9 @@ public class B30HeartDetailActivity extends WatchBaseActivity {
                 finish();
                 break;
             case R.id.commentB30ShareImg:
-                if(WatchUtils.isB36Device(B30HeartDetailActivity.this)){
+                if (WatchUtils.isB36Device(B30HeartDetailActivity.this)) {
                     startActivity(ManualMeaureHeartActivity.class);
-                }else{
+                } else {
                     WatchUtils.shareCommData(B30HeartDetailActivity.this);
                 }
 

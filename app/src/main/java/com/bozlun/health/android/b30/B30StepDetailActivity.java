@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -50,6 +51,9 @@ import butterknife.OnClick;
  */
 
 public class B30StepDetailActivity extends WatchBaseActivity {
+
+    @BindView(R.id.commB31TitleLayout)
+    Toolbar commB31TitleLayout;
 
     /**
      * 跳转到B30StepDetailActivity,并附带参数
@@ -122,6 +126,7 @@ public class B30StepDetailActivity extends WatchBaseActivity {
         commentB30TitleTv.setText(R.string.move_ment);
 //        commentB30ShareImg.setVisibility(View.VISIBLE);
         b30ChartTopRel.setVisibility(View.GONE);
+        commB31TitleLayout.setBackgroundColor(Color.parseColor("#2594EE"));
         b30SportChartLin1.setBackgroundColor(Color.parseColor("#2594EE"));
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager
                 .VERTICAL, true);
@@ -229,7 +234,7 @@ public class B30StepDetailActivity extends WatchBaseActivity {
      */
     private void showListData(List<HalfHourSportData> sportData) {
         dataList.clear();
-        if(sportData == null || sportData.isEmpty()){
+        if (sportData == null || sportData.isEmpty()) {
             b30StepDetailAdapter.notifyDataSetChanged();
             countKcalTv.setText("--");
             countDisTv.setText("--");
@@ -237,7 +242,7 @@ public class B30StepDetailActivity extends WatchBaseActivity {
         }
 
         for (int i = 0; i < sportData.size(); i++) {
-            if (sportData.get(i).stepValue > 0){
+            if (sportData.get(i).stepValue > 0) {
                 dataList.add(sportData.get(i));
             }
         }
@@ -252,7 +257,7 @@ public class B30StepDetailActivity extends WatchBaseActivity {
             }
         }
         calValue = (double) Math.round(calValue * 100) / 100;
-        countKcalTv.setText("" + calValue+"kcl");
+        countKcalTv.setText("" + calValue + "kcl");
         // 算一下距离,按公制英制来算
         //boolean isMetric = new LocalizeTool(this).getMetricSystem();
         boolean isMetric = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISSystem, true);

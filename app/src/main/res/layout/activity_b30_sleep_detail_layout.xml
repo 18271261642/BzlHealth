@@ -6,6 +6,10 @@
     android:orientation="vertical">
 
     <include layout="@layout/comment_b30_title_layout" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/white"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -48,6 +52,7 @@
                             android:layout_margin="@dimen/size_15"
                             app:awakeSleepColor="#fcd647"
                             app:deepSleepColor="#2D468A"
+                            android:layout_gravity="center"
                             app:lightSleepColor="#8898E6"
                             app:sleepEmptyData="@dimen/sp_8" />
 

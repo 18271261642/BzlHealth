@@ -250,7 +250,7 @@ public class B31HrvDetailActivity extends WatchBaseActivity {
         lorezChartView.setTextSize(80);
         lorezChartView.setTextColor(Color.RED);
         lorezChartView.setDotColor(Color.RED);
-        lorezChartView.setDotSize(12);
+        lorezChartView.setDotSize(9);
         lorezChartView.setLineWidth(8);
         lorezChartView.setLineColor(Color.RED);
 

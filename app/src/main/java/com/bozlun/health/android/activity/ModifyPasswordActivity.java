@@ -1,7 +1,9 @@
 package com.bozlun.health.android.activity;
 
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.animation.TranslateAnimation;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -49,6 +51,7 @@ public class ModifyPasswordActivity extends BaseActivity {
         subscriberOnNextListener = new SubscriberOnNextListener<String>() {
             @Override
             public void onNext(String result) {
+                Log.e("修改密码","-----result="+result);
                 try {
                     JSONObject jsonObject = new JSONObject(result);
                     String resultCode = jsonObject.getString("resultCode");

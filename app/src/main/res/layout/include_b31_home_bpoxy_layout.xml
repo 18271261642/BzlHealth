@@ -23,7 +23,7 @@
 
         <TextView
             android:text="今日睡眠血氧体检"
-            android:textSize="18sp"
+            android:textSize="17sp"
             android:gravity="center"
             android:layout_centerVertical="true"
             android:layout_margin="@dimen/size_5"

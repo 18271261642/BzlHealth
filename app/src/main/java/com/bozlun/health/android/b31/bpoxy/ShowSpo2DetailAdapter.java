@@ -58,7 +58,7 @@ public class ShowSpo2DetailAdapter extends RecyclerView.Adapter<ShowSpo2DetailAd
         final int hour = (int) Math.floor(countMine/60);
         //分钟
         int mine = countMine % 60;
-        holder.timeTv.setText("0"+hour+":"+(mine==0?"00":mine+""));   //展示时间
+        holder.timeTv.setText("0"+hour+":"+(mine==0?"00":(mine<10?"0"+mine:mine)+""));   //展示时间
         DecimalFormat decimalFormat = new DecimalFormat("#");    //不保留小数
         if(spo2Tag == 0){
             float breahbreakvalue = mapList.get(position).get("breahbreakvalue");

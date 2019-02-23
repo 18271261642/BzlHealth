@@ -1,11 +1,13 @@
 package com.bozlun.health.android.b30;
 
 import android.Manifest;
+import android.app.NotificationManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -109,7 +111,30 @@ public class B30MessAlertActivity extends WatchBaseActivity {
         requestPermiss();
         //读取社交消息设置
         readSocialMsg();
+
+        getDoNotDisturb();
+
     }
+
+
+    //获取Do not disturb权限,才可进行音量操作
+    private void getDoNotDisturb(){
+        NotificationManager notificationManager =
+                (NotificationManager) MyApp.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        if(notificationManager == null)
+            return;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
+                && !notificationManager.isNotificationPolicyAccessGranted()) {
+
+            Intent intent = new Intent(
+                    android.provider.Settings
+                            .ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+
+            MyApp.getInstance().getApplicationContext().startActivity(intent);
+        }
+
+    }
+
 
     //申请电话权限
     private void requestPermiss() {

@@ -21,9 +21,9 @@
             android:layout_gravity="center"
             android:layout_marginLeft="@dimen/size_10"
             android:gravity="center"
-            android:text="今日心率统计"
+            android:text="今日 心率统计"
             android:textColor="#61D9F5"
-            android:textSize="18sp" />
+            android:textSize="17sp" />
 
 
         <ImageView

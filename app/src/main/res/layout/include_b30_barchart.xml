@@ -21,10 +21,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:textSize="@dimen/sp_15"
+            android:textSize="@dimen/sp_17"
             android:layout_marginLeft="@dimen/size_10"
             android:gravity="center"
-            android:text="今日运动总量"
+            android:text="今日 运动总量"
             android:layout_centerVertical="true"
             android:textColor="#88d785" />
 

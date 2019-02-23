@@ -466,7 +466,7 @@
             android:name=".siswatch.NewSearchActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden" />
+            android:windowSoftInputMode="adjustPan|stateHidden" />
         <!-- 获取手表时间页面 -->
         <activity
             android:name=".siswatch.GetWatchTimeActivity"

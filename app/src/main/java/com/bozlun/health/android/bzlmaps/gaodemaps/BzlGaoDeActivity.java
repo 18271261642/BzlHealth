@@ -3,6 +3,7 @@ package com.bozlun.health.android.bzlmaps.gaodemaps;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -1026,7 +1027,9 @@ public class BzlGaoDeActivity extends AppCompatActivity implements AMapLocationL
                             isStart = false;
                             bzlDragView.hideDragCallView();
                             bzlDragView.setDraging(false);
-                            finish();
+                            //finish();
+                            Intent intent = new Intent();
+                            setResult(1001,intent);
                         }
 
                         dialog.dismiss();

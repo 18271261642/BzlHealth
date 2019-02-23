@@ -1,6 +1,9 @@
 package com.bozlun.health.android.b30.service;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
@@ -11,13 +14,15 @@ import android.content.IntentFilter;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Vibrator;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
-
 import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.R;
@@ -36,7 +41,6 @@ import com.veepoo.protocol.listener.base.IABleConnectStatusListener;
 import com.veepoo.protocol.listener.base.IConnectResponse;
 import com.veepoo.protocol.listener.base.INotifyResponse;
 import com.veepoo.protocol.listener.data.IFindPhonelistener;
-
 import java.io.IOException;
 
 public class B30ConnStateService extends Service {
@@ -115,6 +119,8 @@ public class B30ConnStateService extends Service {
         super.onCreate();
         registerConnState();
         initBlue();
+
+        regeditBackService();
     }
 
     private void initBlue(){
@@ -193,7 +199,7 @@ public class B30ConnStateService extends Service {
     /**
      * 验证设备的密码，此方法必须在connB30ConnBle（）方法后调用
      * @param pwd
-     * @param noData 无用的参数
+     * @param  无用的参数
      */
     public void continuteConn(String pwd,VerB30PwdListener verB30PwdListener){
         if(connBleHelpService != null)
@@ -385,4 +391,40 @@ public class B30ConnStateService extends Service {
         }
 
     };
+
+    //启动前台服务
+    private void regeditBackService() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String channelID = "11";
+            String channelName = "channel_name";
+            NotificationChannel channel = new NotificationChannel(channelID, channelName, NotificationManager.IMPORTANCE_HIGH);
+            NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            if(manager == null)
+                return;
+            manager.createNotificationChannel(channel);
+            Notification.Builder builder = new Notification.Builder(this);
+            builder.setSmallIcon(R.drawable.ic_noti_s);
+            builder.setContentText("健康天天检");
+            builder.setContentTitle("天天检");
+            //创建通知时指定channelID
+            builder.setChannelId(channelID);
+            Notification notification = builder.build();
+            NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(this);
+            notificationManagerCompat.notify(11, notification);
+            startForeground(11, notification);
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+                //Notification.Builder builder = new Notification.Builder(this,11);
+                builder.setSmallIcon(R.drawable.ic_noti_s);
+                builder.setContentText("健康天天检");
+                builder.setContentTitle("天天检");
+                // 设置通知的点击行为：自动取消/跳转等
+                builder.setAutoCancel(false);
+                startForeground(11, builder.build());
+            }
+
+
+        }
+    }
 }

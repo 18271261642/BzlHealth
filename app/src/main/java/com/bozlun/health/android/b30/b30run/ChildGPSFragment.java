@@ -155,7 +155,9 @@ public class ChildGPSFragment extends LazyFragment implements OutDoorSportAdapte
     public void onResume() {
         super.onResume();
         //findSportData(runTag);
+        Log.e(TAG,"------------onResume----");
     }
+
 
 
     @Override
@@ -307,11 +309,13 @@ public class ChildGPSFragment extends LazyFragment implements OutDoorSportAdapte
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.gpsSportRunImg:   //开始跑步
-                SharedPreferencesUtils.saveObject(getContext(), "type", "0");
-                startActivity(new Intent(getContext(), BzlGaoDeActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                if(getActivity() == null)
+                    return;
+                SharedPreferencesUtils.saveObject(getActivity(), "type", "0");
+                startActivity(new Intent(getActivity(), BzlGaoDeActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
                 break;
             case R.id.gpsSportCycleImg: //开始骑行
-                SharedPreferencesUtils.saveObject(getContext(), "type", "1");
+                SharedPreferencesUtils.saveObject(getActivity(), "type", "1");
                 startActivity(new Intent(getContext(), BzlGaoDeActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
                 break;
             case R.id.gpsSportRunTv:    //

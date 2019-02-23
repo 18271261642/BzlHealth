@@ -21,7 +21,7 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:text="今日 睡眠质量"
-            android:textSize="18sp" />
+            android:textSize="17sp" />
 
 
         <LinearLayout
