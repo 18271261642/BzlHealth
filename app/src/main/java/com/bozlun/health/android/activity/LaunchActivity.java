@@ -12,6 +12,7 @@ import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.R;
 import com.bozlun.health.android.b30.B30HomeActivity;
+import com.bozlun.health.android.b30.bean.B30HalfHourDB;
 import com.bozlun.health.android.b31.B31HomeActivity;
 import com.bozlun.health.android.h9.H9HomeActivity;
 import com.bozlun.health.android.siswatch.NewSearchActivity;
@@ -87,7 +88,7 @@ public class LaunchActivity extends WatchBaseActivity {
     }
 
     private void initData() {
-
+        B30HalfHourDB b30HalfHourDB = new B30HalfHourDB();
         //B30目标步数 默认8000
         int goalStep = (int) SharedPreferencesUtils.getParam(MyApp.getContext(),"b30Goal",0);
         if(goalStep==0){

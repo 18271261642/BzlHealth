@@ -119,13 +119,19 @@ public class B30SleepDetailActivity extends WatchBaseActivity {
     private void initData() {
         sleepCurrDateTv.setText(currDay);
         String mac = WatchUtils.getSherpBleMac(B30SleepDetailActivity.this);
+        if(WatchUtils.isEmpty(mac)){
+            detailSleepQuitRatingBar.setVisibility(View.INVISIBLE);
+            return;
+        }
+
         String sleep = B30HalfHourDao.getInstance().findOriginData(mac, currDay, B30HalfHourDao
                 .TYPE_SLEEP);
         SleepData sleepData = gson.fromJson(sleep, SleepData.class);
         showSleepChartView(sleepData);
-        int sleepQulity = sleepData == null ? 1 : sleepData.getSleepQulity();
+        int sleepQulity = sleepData == null ? 0 : sleepData.getSleepQulity();
         detailSleepQuitRatingBar.setMax(5);
         detailSleepQuitRatingBar.setNumStars(sleepQulity);
+        detailSleepQuitRatingBar.setVisibility(sleepQulity == 0? View.INVISIBLE:View.VISIBLE);
         //detailSleepQuitRatingBar.setEnabled(false);
 
         String time = sleepData == null ? "--" : (sleepData.getAllSleepTime() / 60) + "H" +
@@ -164,9 +170,7 @@ public class B30SleepDetailActivity extends WatchBaseActivity {
         if (listValue.size() > 0) {
             detailCusSleepView.setShowSeekBar(false);
             detailCusSleepView.setSleepList(listValue);
-            //Log.e(TAG,"---11----max="+sleepSeekBar.getMax()+"--="+listValue.size());
             sleepSeekBar.setMax(listValue.size());
-            //Log.e(TAG,"---22----max="+sleepSeekBar.getMax()+"--="+listValue.size());
             sleepSeekBar.setProgress(-2);
             //detailCusSleepView.invalidate();
             sleepSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {

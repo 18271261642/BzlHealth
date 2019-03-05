@@ -10,6 +10,7 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -32,8 +33,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -44,6 +47,8 @@ import butterknife.OnClick;
  * B30心率详情界面
  */
 public class B30HeartDetailActivity extends WatchBaseActivity {
+
+    private static final String TAG = "B30HeartDetailActivity";
 
     @BindView(R.id.commB31TitleLayout)
     Toolbar commB31TitleLayout;
@@ -135,6 +140,8 @@ public class B30HeartDetailActivity extends WatchBaseActivity {
     private void initData() {
         rateCurrdateTv.setText(currDay);
         String mac = WatchUtils.getSherpBleMac(B30HeartDetailActivity.this);
+        if(WatchUtils.isEmpty(mac))
+            return;
         String rate = B30HalfHourDao.getInstance().findOriginData(mac, currDay, B30HalfHourDao
                 .TYPE_RATE);
         List<HalfHourRateData> rateData = gson.fromJson(rate, new TypeToken<List<HalfHourRateData>>() {
@@ -145,7 +152,7 @@ public class B30HeartDetailActivity extends WatchBaseActivity {
         }.getType());
         halfHourRateDatasList.clear();
         halfHourSportDataList.clear();
-//        MyLogUtil.d("------------", rateData.size() + "========" + sportData.size());
+        //Log.e("------------", "-------rate="+rateData.size() + "========" + sportData.size());
 
         List<Map<String, Integer>> listMap = new ArrayList<>();
         if (rateData != null && !rateData.isEmpty()) {
@@ -180,9 +187,14 @@ public class B30HeartDetailActivity extends WatchBaseActivity {
                     return o2.getTime().getColck().compareTo(o1.getTime().getColck());
                 }
             });
+
+//            Set<HalfHourRateData> set = new HashSet<>(rateData);
+//            Log.e(TAG,"--------set="+set.toString());
+
             halfHourRateDatasList.addAll(rateData);
             halfHourSportDataList.addAll(sportData);
         }
+        b30HeartDetailAdapter.notifyDataSetChanged();
         heartList.clear();
         for (int i = 0; i < listMap.size(); i++) {
             Map<String, Integer> map = listMap.get(i);
@@ -192,7 +204,6 @@ public class B30HeartDetailActivity extends WatchBaseActivity {
 //        b30HeartDetailView.setPointRadio(5);
         b30HeartDetailView.setRateDataList(heartList);
 
-        b30HeartDetailAdapter.notifyDataSetChanged();
 
     }
 

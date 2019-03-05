@@ -1,6 +1,6 @@
 package com.bozlun.health.android.b30;
 
-import android.annotation.SuppressLint;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
@@ -21,38 +21,46 @@ import android.widget.CalendarView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
-
-import com.afa.tourism.greendao.gen.LatLonBeanDao;
+import com.afa.tourism.greendao.gen.DaoSession;
 import com.afa.tourism.greendao.gen.SportMapsDao;
 import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.R;
 import com.bozlun.health.android.activity.wylactivity.MapRecordActivity;
-import com.bozlun.health.android.bzlmaps.mapdb.LatLonBean;
 import com.bozlun.health.android.bzlmaps.mapdb.SportMaps;
 import com.bozlun.health.android.siswatch.adapter.OutDoorSportAdapterNew;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import com.google.gson.Gson;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
-public class GPSSportHisyory extends AppCompatActivity implements View.OnClickListener {
+
+public class GPSSportHisyory extends AppCompatActivity implements View.OnClickListener,
+        OutDoorSportAdapterNew.OnOutDoorSportItemClickListener {
+
+    private static final String TAG = "GPSSportHisyory";
+
     private FrameLayout frmBack;
     private ImageView imageDate;
     private RecyclerView commentRunRecyclerView;
     private ImageView imageNoData;
-    @SuppressLint("SimpleDateFormat")
-    private DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-    @SuppressLint("SimpleDateFormat")
-    private DateFormat df1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    private DateFormat df = new SimpleDateFormat("yyyy-MM-dd",Locale.CHINA);
+    private DateFormat df1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss",Locale.CHINA);
     private String selectTime;
+
+    //数据集合
+    private List<SportMaps> resultList;
+    //适配器
+    private OutDoorSportAdapterNew adapter;
 
 
     @Override
@@ -74,84 +82,48 @@ public class GPSSportHisyory extends AppCompatActivity implements View.OnClickLi
         imageNoData = findViewById(R.id.image_no_data);
         frmBack.setOnClickListener(this);
         imageDate.setOnClickListener(this);
+
+        resultList = new ArrayList<>();
+        adapter = new OutDoorSportAdapterNew(resultList,GPSSportHisyory.this);
+        commentRunRecyclerView.setAdapter(adapter);
+        adapter.setListener(this);
+
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        finHisData(df.format(new Date()));
+        //从数据库中查找数据
+        findHistoryForDB(WatchUtils.getCurrentDate());
+
     }
 
-    private List<SportMaps> sportMapsList = null;
-    private List<LatLonBean> latLonBeanList = null;
-    private OutDoorSportAdapterNew outDoorSportAdapterDB;
-
-
-    /**
-     * 从数据看查询数据
-     */
-    private void finHisData(String dateTime) {
+    //从数据库中查找数据
+    private void findHistoryForDB(String currentDate) {
+        if(resultList != null)
+            resultList.clear();
+        if (popupWindow != null && popupWindow.isShowing()) popupWindow.dismiss();
         String bm = (String) SharedPreferencesUtils.readObject(MyApp.getContext(), Commont.BLEMAC);//设备mac mylanmac
-        String userId = (String) SharedPreferencesUtils.readObject(MyApp.getContext(), "userId");//
+        String userId = (String) SharedPreferencesUtils.readObject(MyApp.getContext(), Commont.USER_ID_DATA);//
         if (WatchUtils.isEmpty(userId)) return;
         if (WatchUtils.isEmpty(bm)) return;
-        sportMapsList = MyApp.getInstance().getDBManager().getDaoSession().getSportMapsDao()
-                .queryBuilder().where(SportMapsDao.Properties.Mac.eq( bm),
-                        SportMapsDao.Properties.UserId.eq(userId), SportMapsDao.Properties.Rtc.eq(dateTime)).list();
-        if (popupWindow != null && popupWindow.isShowing()) popupWindow.dismiss();
-        if (sportMapsList == null || sportMapsList.size() <= 0) {
+        DaoSession daoSession = MyApp.getInstance().getDBManager().getDaoSession();
+        if(daoSession == null)
+            return;
+        List<SportMaps> sportMapsList = daoSession.getSportMapsDao()
+                .queryBuilder().where(SportMapsDao.Properties.Mac.eq(bm),
+                        SportMapsDao.Properties.UserId.eq(userId), SportMapsDao.Properties.Rtc.eq(currentDate)).list();
+        if(sportMapsList == null || sportMapsList.isEmpty()){
             imageNoData.setVisibility(View.VISIBLE);
             commentRunRecyclerView.setVisibility(View.GONE);
             return;
         }
         imageNoData.setVisibility(View.GONE);
         commentRunRecyclerView.setVisibility(View.VISIBLE);
-        latLonBeanList = MyApp.getInstance().getDBManager().getDaoSession().getLatLonBeanDao()
-                .queryBuilder().where(LatLonBeanDao.Properties.Mac.eq(bm),
-                        LatLonBeanDao.Properties.UserId.eq(userId), LatLonBeanDao.Properties.Rtc.eq(dateTime)).list();
-        outDoorSportAdapterDB = new OutDoorSportAdapterNew(sportMapsList, this);
-        commentRunRecyclerView.setAdapter(outDoorSportAdapterDB);
-        outDoorSportAdapterDB.notifyDataSetChanged();
-        showItemClickDB(sportMapsList, latLonBeanList);
-    }
+        resultList.addAll(sportMapsList);
+        adapter.notifyDataSetChanged();
 
-    /**
-     * list item 点击事件
-     *
-     * @param runSportListDB
-     * @param latLonBeanList
-     */
-    private void showItemClickDB(final List<SportMaps> runSportListDB, final List<LatLonBean> latLonBeanList) {
-        outDoorSportAdapterDB.setListener(new OutDoorSportAdapterNew.OnOutDoorSportItemClickListener() {
-            @Override
-            public void doItemClick(int position) {
-
-                Map<String, Object> mapb = new HashMap<>();
-                mapb.put("year", runSportListDB.get(position).getRtc());//日期
-                mapb.put("day", runSportListDB.get(position).getStartTime());//开始日期
-                mapb.put("zonggongli", runSportListDB.get(position).getDistance() + "Km");//总公里
-                if (runSportListDB.get(position).getType() == 0) {
-                    mapb.put("qixing", getResources().getString(R.string.outdoor_running));//骑行或者跑步
-                    mapb.put("image", R.mipmap.huwaipaohuan);//跑步-骑行
-                } else {
-                    mapb.put("qixing", getResources().getString(R.string.outdoor_cycling));//骑行或者跑步
-                    mapb.put("image", R.mipmap.qixinghuan);//跑步-骑行
-                }
-                mapb.put("chixugongli", runSportListDB.get(position).getDistance() + "Km");//持续公里数
-                mapb.put("chixutime", runSportListDB.get(position).getTimeLen());//持续时间
-                mapb.put("kclal", runSportListDB.get(position).getCalories() + "Kcal");//卡路里
-                mapb.put("image", runSportListDB.get(position).getImage());
-                mapb.put("temp", runSportListDB.get(position).getTemp());
-                mapb.put("description", runSportListDB.get(position).getDescription());
-                mapb.put("speed", runSportListDB.get(position).getSpeed());
-                Intent intent = new Intent(GPSSportHisyory.this, MapRecordActivity.class);
-//                Intent intent = new Intent(getActivity(), BzlMaps_HistoryActivity.class);
-                Log.d("---------", latLonBeanList.toString() + "\n" + new Gson().toJson(latLonBeanList));
-                intent.putExtra("mapdata", latLonBeanList.get(position).getLatLons().trim());
-                intent.putExtra("mapdata2", new Gson().toJson(mapb));
-                startActivity(intent);
-            }
-        });
     }
 
 
@@ -166,8 +138,6 @@ public class GPSSportHisyory extends AppCompatActivity implements View.OnClickLi
                 calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
                     @Override
                     public void onSelectedDayChange(@NonNull CalendarView calendarView, int i, int i1, int i2) {
-                        if (sportMapsList != null) sportMapsList.clear();
-                        if (latLonBeanList != null) latLonBeanList.clear();
                         String m = "";
                         String d = "";
                         if ((i1 + 1) < 10) {
@@ -181,7 +151,7 @@ public class GPSSportHisyory extends AppCompatActivity implements View.OnClickLi
                             d = "" + i2;
                         }
                         selectTime = i + "-" + m + "-" + d + " 00:00:00";
-                        finHisData(i + "-" + m + "-" + d);
+                        findHistoryForDB(i + "-" + m + "-" + d);
                     }
                 });
                 break;
@@ -227,8 +197,7 @@ public class GPSSportHisyory extends AppCompatActivity implements View.OnClickLi
     public static long dataOne(String time) {
         long ts = 0;
         try {
-            @SuppressLint("SimpleDateFormat")
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss",Locale.CHINA);
             Date date = simpleDateFormat.parse(time);
             ts = date.getTime();
 
@@ -259,4 +228,33 @@ public class GPSSportHisyory extends AppCompatActivity implements View.OnClickLi
     }
 
 
+    /**
+     * item点击
+     * @param position
+     */
+    @Override
+    public void doItemClick(int position) {
+        Map<String, Object> mapb = new HashMap<>();
+        mapb.put("year", resultList.get(position).getRtc());//日期
+        mapb.put("day", resultList.get(position).getStartTime());//开始日期
+        mapb.put("zonggongli", resultList.get(position).getDistance() + "Km");//总公里
+        if (resultList.get(position).getType() == 0) {
+            mapb.put("qixing", getResources().getString(R.string.outdoor_running));//骑行或者跑步
+            mapb.put("image", R.mipmap.huwaipaohuan);//跑步-骑行
+        } else {
+            mapb.put("qixing", getResources().getString(R.string.outdoor_cycling));//骑行或者跑步
+            mapb.put("image", R.mipmap.qixinghuan);//跑步-骑行
+        }
+        mapb.put("chixugongli", resultList.get(position).getDistance() + "Km");//持续公里数
+        mapb.put("chixutime", resultList.get(position).getTimeLen());//持续时间
+        mapb.put("kclal", resultList.get(position).getCalories() + "Kcal");//卡路里
+        mapb.put("image", resultList.get(position).getImage());
+        mapb.put("temp", resultList.get(position).getTemp());
+        mapb.put("description", resultList.get(position).getDescription());
+        mapb.put("speed", resultList.get(position).getSpeed());
+        Intent intent = new Intent(GPSSportHisyory.this, MapRecordActivity.class);
+        intent.putExtra("mapdata", resultList.get(position).getLatLons().trim());
+        intent.putExtra("mapdata2", new Gson().toJson(mapb));
+        startActivity(intent);
+    }
 }

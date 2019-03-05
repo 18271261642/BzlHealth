@@ -190,16 +190,6 @@ public class B31BpOxyAnysisActivity extends WatchBaseActivity {
 
     private BreathStopAdapter breathStopAdapter;
 
-    //血氧的平均值
-    String spo2AveV = "--";
-    //血氧的最高值
-    String spo2HeightV = "--";
-    //呼吸率的平均值
-    String heartRateAveV = "--";
-    //呼吸率的最高值
-    String heartHeightV = "--";
-    //低氧时间的平均值
-    String lowO2AvgV = "--";
 
 
     @SuppressLint("HandlerLeak")
@@ -235,6 +225,8 @@ public class B31BpOxyAnysisActivity extends WatchBaseActivity {
         initTipTv();
         initChartView();
         initSpo2hUtil();
+
+
         readSpo2Data(currDay);
         readSpo2Detect();
 
@@ -311,13 +303,16 @@ public class B31BpOxyAnysisActivity extends WatchBaseActivity {
     private void readSpo2Data(final String currDay) {
         commArrowDate.setText(currDay);
         list.clear();
+        final String bleMac = WatchUtils.getSherpBleMac(B31BpOxyAnysisActivity.this);
+        if(WatchUtils.isEmpty(bleMac))
+            return;
+
         showLoadingDialog("Loading...");
 
         new Thread(new Runnable() {
             @Override
             public void run() {
                 String where = "bleMac = ? and dateStr = ?";
-                String bleMac = WatchUtils.getSherpBleMac(B31BpOxyAnysisActivity.this);
                 List<B31Spo2hBean> spo2hBeanList = LitePal.where(where, bleMac, currDay).find(B31Spo2hBean.class);
                 if (spo2hBeanList == null || spo2hBeanList.isEmpty()) {
                     Message message = handler.obtainMessage();
@@ -466,7 +461,6 @@ public class B31BpOxyAnysisActivity extends WatchBaseActivity {
             case R.id.spo2CommTv:   //暂停呼吸常识
                 startSpo2Desc(SLEEPBREATHBREAKTIP.getValue());
                 break;
-
             case R.id.block_spo2h:  //血氧
                 startToSpo2Detail("0", getResources().getString(R.string.vpspo2h_spo2h));
                 break;
@@ -645,6 +639,9 @@ public class B31BpOxyAnysisActivity extends WatchBaseActivity {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             if (!buttonView.isPressed()) return;
+            final String bleMac = WatchUtils.getSherpBleMac(B31BpOxyAnysisActivity.this);
+            if(WatchUtils.isEmpty(bleMac))
+                return;
             if (buttonView.getId() == R.id.spo2DetectToggle) {
                 setSwitchCheck(isChecked);
                 spo2DetectToggle.setChecked(isChecked);

@@ -104,16 +104,15 @@ public class B31DeviceActivity extends WatchBaseActivity implements Rationale<Li
         }
 
 
-
         //显示运动目标和睡眠目标
         int b30SportGoal = (int) SharedPreferencesUtils.getParam(B31DeviceActivity.this, "b30Goal", 0);
-        b31DeviceSportGoalTv.setText(b30SportGoal+"");
+        b31DeviceSportGoalTv.setText(b30SportGoal + "");
         //睡眠
         String b30SleepGoal = (String) SharedPreferencesUtils.getParam(MyApp.getContext(), "b30SleepGoal", "");
-        b31DeviceSleepGoalTv.setText(b30SleepGoal+"");
+        b31DeviceSleepGoalTv.setText(b30SleepGoal + "");
         //公英制
         boolean isMeter = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), "isSystem", true);//是否为公制
-        b31DeviceUnitTv.setText(isMeter?getResources().getString(R.string.setkm):getResources().getString(R.string.setmi));
+        b31DeviceUnitTv.setText(isMeter ? getResources().getString(R.string.setkm) : getResources().getString(R.string.setmi));
     }
 
     private void initViews() {
@@ -130,7 +129,7 @@ public class B31DeviceActivity extends WatchBaseActivity implements Rationale<Li
             R.id.b31DeviceSwitchRel, R.id.b31DevicePtoRel,
             R.id.b31DeviceResetRel, R.id.b31DeviceStyleRel,
             R.id.b31DeviceDfuRel, R.id.b31DeviceClearDataRel,
-            R.id.wxSportRel, R.id.b31DisConnBtn,R.id.b31DeviceCounDownRel})
+            R.id.wxSportRel, R.id.b31DisConnBtn, R.id.b31DeviceCounDownRel})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.commentB30BackImg:    //返回
@@ -240,7 +239,7 @@ public class B31DeviceActivity extends WatchBaseActivity implements Rationale<Li
                         if (i == 0) {
                             b31DeviceUnitTv.setText(getResources().getString(R.string.setkm));
                             SharedPreferencesUtils.setParam(MyApp.getContext(), "isSystem", true);//是否为公制
-                           // changeCustomSetting(true);
+                            // changeCustomSetting(true);
                         } else {
                             //changeCustomSetting(false);
                             b31DeviceUnitTv.setText(getResources().getString(R.string.setmi));
@@ -277,7 +276,6 @@ public class B31DeviceActivity extends WatchBaseActivity implements Rationale<Li
                 .build();
         dailyumberofstepsPopWin.showPopWin(B31DeviceActivity.this);
     }
-
 
 
     //设置运动目标
@@ -359,6 +357,7 @@ public class B31DeviceActivity extends WatchBaseActivity implements Rationale<Li
                 })
                 .show();
     }
+
     /**
      * Set permissions.
      */
@@ -393,8 +392,8 @@ public class B31DeviceActivity extends WatchBaseActivity implements Rationale<Li
                                 @Override
                                 public void onResponse(int state) {
                                     if (state == -1) {
-                                        SharedPreferencesUtils.saveObject(B31DeviceActivity.this, Commont.BLENAME, "");
-                                        SharedPreferencesUtils.saveObject(B31DeviceActivity.this, Commont.BLEMAC, "");
+                                        SharedPreferencesUtils.saveObject(B31DeviceActivity.this, Commont.BLENAME, null);
+                                        SharedPreferencesUtils.saveObject(B31DeviceActivity.this, Commont.BLEMAC, null);
                                         SharedPreferencesUtils.setParam(MyApp.getContext(), Commont.DEVICESCODE, "0000");
                                         MyApp.getInstance().setMacAddress(null);// 清空全局
                                         startActivity(NewSearchActivity.class);
@@ -406,21 +405,18 @@ public class B31DeviceActivity extends WatchBaseActivity implements Rationale<Li
                         } else {
                             MyCommandManager.DEVICENAME = null;
                             MyCommandManager.ADDRESS = null;
-                            SharedPreferencesUtils.saveObject(B31DeviceActivity.this, Commont.BLENAME, "");
-                            SharedPreferencesUtils.saveObject(B31DeviceActivity.this, Commont.BLEMAC, "");
+                            SharedPreferencesUtils.saveObject(B31DeviceActivity.this, Commont.BLENAME, null);
+                            SharedPreferencesUtils.saveObject(B31DeviceActivity.this, Commont.BLEMAC, null);
                             SharedPreferencesUtils.setParam(MyApp.getContext(), Commont.DEVICESCODE, "0000");
                             MyApp.getInstance().setMacAddress(null);// 清空全局
                             startActivity(NewSearchActivity.class);
                             finish();
                         }
 
-
+                        SharedPreferencesUtils.saveObject(B31DeviceActivity.this, Commont.BLEMAC, null);
                     }
                 }).show();
     }
-
-
-
 
 
     private IBleWriteResponse iBleWriteResponse = new IBleWriteResponse() {

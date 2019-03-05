@@ -109,11 +109,35 @@ public class B30MessAlertActivity extends WatchBaseActivity {
 
         //申请权限
         requestPermiss();
+
+        getPhoneStatus();
         //读取社交消息设置
         readSocialMsg();
 
-        getDoNotDisturb();
+        //getDoNotDisturb();
 
+    }
+
+
+    private void getPhoneStatus(){
+        AudioManager audioManager = (AudioManager) MyApp.getInstance().getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        if(audioManager != null){
+            int ringMode = audioManager.getRingerMode();
+            //audioManager.getStreamVolume()
+            Log.e(TAG, "-------手环模式="+ringMode);
+            switch (ringMode) {
+                case AudioManager.RINGER_MODE_NORMAL:
+                    //普通模式
+                    break;
+                case AudioManager.RINGER_MODE_VIBRATE:
+                    //振动模式
+                    break;
+                case AudioManager.RINGER_MODE_SILENT:
+                    //静音模式
+                    break;
+            }
+
+        }
     }
 
 

@@ -124,7 +124,9 @@ public class UpdateManager {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
-                        chooseDownloadType(downurl);
+                       // chooseDownloadType(downurl);
+
+                        showDownloadDialog(downurl);
                     }
                 }).setNegativeButton("No", new DialogInterface.OnClickListener() {
                     @Override

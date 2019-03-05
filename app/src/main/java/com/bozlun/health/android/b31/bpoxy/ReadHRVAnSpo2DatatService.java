@@ -15,6 +15,7 @@ import com.bozlun.health.android.b31.model.B31HRVBean;
 import com.bozlun.health.android.b31.model.B31Spo2hBean;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
 import com.bozlun.health.android.util.LocalizeTool;
+import com.bozlun.health.android.util.ToastUtil;
 import com.google.gson.Gson;
 import com.veepoo.protocol.listener.base.IBleWriteResponse;
 import com.veepoo.protocol.listener.data.IHRVOriginDataListener;
@@ -69,6 +70,9 @@ public class ReadHRVAnSpo2DatatService extends IntentService {
                             saveSpo2Data(resultMap);
                         }
                     }).start();
+                    break;
+                case 1000:
+
                     break;
             }
 
@@ -127,6 +131,9 @@ public class ReadHRVAnSpo2DatatService extends IntentService {
         intent.setAction(WatchUtils.B31_HRV_COMPLETE);
         sendBroadcast(intent);
 
+        Thread thread1 = new MyThread2();
+        thread1.start();
+
 
     }
 
@@ -143,7 +150,7 @@ public class ReadHRVAnSpo2DatatService extends IntentService {
             //查询一下是否存在
             List<B31Spo2hBean> currList = LitePal.where(where,WatchUtils.getSherpBleMac(MyApp.getContext()),
                     WatchUtils.getCurrentDate()).find(B31Spo2hBean.class);
-            Log.e(TAG,"-----------11今天="+currList.size());
+            //Log.e(TAG,"-----------11今天="+currList.size());
             if(currList == null || currList.isEmpty()){
                 LitePal.saveAll(todayLt);
             }else{
@@ -151,11 +158,7 @@ public class ReadHRVAnSpo2DatatService extends IntentService {
                     int delCode = LitePal.deleteAll(B31Spo2hBean.class,"dateStr=? and bleMac=?",currDayStr
                             ,bleMac);
                     Log.e(TAG,"--------delCode="+delCode);
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+
                     LitePal.saveAll(todayLt);
 
                 }
@@ -195,6 +198,7 @@ public class ReadHRVAnSpo2DatatService extends IntentService {
         Intent intent = new Intent();
         intent.setAction(WatchUtils.B31_SPO2_COMPLETE);
         sendBroadcast(intent);
+
     }
 
 
@@ -223,13 +227,6 @@ public class ReadHRVAnSpo2DatatService extends IntentService {
 
     //血氧
     private List<B31Spo2hBean> b31Spo2hBeanList;
-
-    //血氧的进度
-    float spo2DataProgress = -1;
-    //血氧的数据包
-    int spo2DataCount = -1;
-    //HRV的进度
-    float hrvDataProgress = -1;
 
 
     @Override
@@ -264,8 +261,14 @@ public class ReadHRVAnSpo2DatatService extends IntentService {
         thread1.start();
 
 
-        Thread thread2 = new MyThread2();
-        thread2.start();
+//        String where = "bleMac = ? and dateStr = ?";
+//        String bleMac = WatchUtils.getSherpBleMac(MyApp.getContext());
+//        String currDayStr = WatchUtils.getCurrentDate();
+
+
+
+       // readDeviceData();
+
     }
 
 
@@ -289,6 +292,7 @@ public class ReadHRVAnSpo2DatatService extends IntentService {
 
     //读取血氧的数据
     private void readSpo2Data(){
+        final long spo2CurrTime = System.currentTimeMillis()/1000;
         Log.e(TAG,"-------isToday="+isToday);
         if(b31Spo2hBeanList == null)
             b31Spo2hBeanList = new ArrayList<>();
@@ -297,81 +301,6 @@ public class ReadHRVAnSpo2DatatService extends IntentService {
         final List<B31Spo2hBean> yesSpo2List = new ArrayList<>();
         final List<B31Spo2hBean> threeSpo2List = new ArrayList<>();
         final Map<String,List<B31Spo2hBean>> spo2Map = new HashMap<>();
-//        //读取血氧的数据
-//        MyApp.getInstance().getVpOperateManager().readSpo2hOrigin(bleWriteResponse, new ISpo2hOriginDataListener() {
-//            @Override
-//            public void onReadOriginProgress(float v) {
-//                spo2DataProgress =  v;
-//                Log.e(TAG,"-----spo2----onReadOriginProgress="+v);
-//            }
-//
-//            @Override
-//            public void onReadOriginProgressDetail(int i, String s, int i1, int i2) {
-//                Log.e(TAG,"----------血氧----="+i+"---s="+s+"--i1="+i1+"--i2="+i2);
-//                spo2DataCount = i1;
-//            }
-//
-//            @Override
-//            public void onSpo2hOriginListener(Spo2hOriginData spo2hOriginData) {
-//                if(spo2hOriginData == null)
-//                    return;
-//                if(isToday){    //只获取当天的，当天
-//                    B31Spo2hBean b31Spo2hBean = new B31Spo2hBean();
-//                    b31Spo2hBean.setBleMac(MyApp.getInstance().getMacAddress());
-//                    b31Spo2hBean.setDateStr(spo2hOriginData.getDate());
-//                    b31Spo2hBean.setSpo2hOriginData(gson.toJson(spo2hOriginData));
-//                    b31Spo2hBeanList.add(b31Spo2hBean);
-//                }else{  //今天 昨天 前天
-//                    if(spo2hOriginData.getDate().equals(WatchUtils.getCurrentDate())){  //今天
-//                        B31Spo2hBean b31Spo2hBean = new B31Spo2hBean();
-//                        b31Spo2hBean.setBleMac(MyApp.getInstance().getMacAddress());
-//                        b31Spo2hBean.setDateStr(spo2hOriginData.getDate());
-//                        b31Spo2hBean.setSpo2hOriginData(gson.toJson(spo2hOriginData));
-//                        b31Spo2hBeanList.add(b31Spo2hBean);
-//                    }else if(spo2hOriginData.getDate().equals(WatchUtils.obtainFormatDate(1))){ //昨天
-//                        B31Spo2hBean b31Spo2hBean = new B31Spo2hBean();
-//                        b31Spo2hBean.setBleMac(MyApp.getInstance().getMacAddress());
-//                        b31Spo2hBean.setDateStr(spo2hOriginData.getDate());
-//                        b31Spo2hBean.setSpo2hOriginData(gson.toJson(spo2hOriginData));
-//                        yesSpo2List.add(b31Spo2hBean);
-//                    }else if(spo2hOriginData.getDate().equals(WatchUtils.obtainFormatDate(2))){ //前天
-//                        B31Spo2hBean b31Spo2hBean = new B31Spo2hBean();
-//                        b31Spo2hBean.setBleMac(MyApp.getInstance().getMacAddress());
-//                        b31Spo2hBean.setDateStr(spo2hOriginData.getDate());
-//                        b31Spo2hBean.setSpo2hOriginData(gson.toJson(spo2hOriginData));
-//                        threeSpo2List.add(b31Spo2hBean);
-//                    }
-//
-//                }
-//
-//            }
-//
-//            @Override
-//            public void onReadOriginComplete() {
-//                Log.e(TAG,"-----------spo2-onReadOriginComplete="+spo2DataProgress+"--="+spo2DataCount+"-----size="+b31Spo2hBeanList.size());
-//                if(spo2DataProgress != -1 && String.valueOf(spo2DataProgress).equals("1.0")){
-//                    if(isToday){
-//                        spo2Map.put("today",b31Spo2hBeanList);
-//                    }else{
-//                        spo2Map.put("today",b31Spo2hBeanList);
-//                        spo2Map.put("yesToday",yesSpo2List);
-//                        spo2Map.put("threeDay",threeSpo2List);
-//                    }
-//
-//                    Message message = handler.obtainMessage();
-//                    message.what = 999;
-//                    message.obj = spo2Map;
-//                    handler.sendMessage(message);
-//                    Intent intent = new Intent();
-//                    intent.setAction(WatchUtils.B31_SPO2_COMPLETE);
-//                    sendBroadcast(intent);
-//
-//                    mLocalTool.putSpo2AdHRVUpdateDate(WatchUtils.getCurrentDate());
-//                }
-//
-//
-//            }
-//        },   isToday ? 1 : 3);
 
         /**
          * 参数:
@@ -385,7 +314,7 @@ public class ReadHRVAnSpo2DatatService extends IntentService {
         MyApp.getInstance().getVpOperateManager().readSpo2hOriginBySetting(bleWriteResponse, new ISpo2hOriginDataListener() {
             @Override
             public void onReadOriginProgress(float v) {
-                Log.e(TAG,"---------spo2---onReadOriginProgress="+v+"---value="+String.valueOf(v));
+               // Log.e(TAG,"---------spo2---onReadOriginProgress="+v+"---value="+String.valueOf(v));
                 //spo2DataProgress =  v;
                 if(String.valueOf(v).equals("1.0")){
                     if(isToday){
@@ -445,98 +374,24 @@ public class ReadHRVAnSpo2DatatService extends IntentService {
 
             @Override
             public void onReadOriginComplete() {
-                Log.e(TAG,"-----------spo2-onReadOriginComplete="+spo2DataProgress+"--="+spo2DataCount+"-----size="+b31Spo2hBeanList.size());
-
+                Log.e(TAG,"-----------spo2-onReadOriginComplete=-差值="+(System.currentTimeMillis()/1000-spo2CurrTime));
 
             }
         }, readOriginSetting);
-
-
-
-
 
     }
 
 
     //读取HRV的数据
     private void readDeviceData() {
-        if(b31HRVBeanList == null)
+
+        final long readTime = System.currentTimeMillis() / 1000;
+        if (b31HRVBeanList == null)
             b31HRVBeanList = new ArrayList<>();
         b31HRVBeanList.clear();
         final List<B31HRVBean> yesHrvList = new ArrayList<>();
         final List<B31HRVBean> threeDayHrvList = new ArrayList<>();
-        final Map<String,List<B31HRVBean>> hrvMap = new HashMap<>();
-
-//        MyApp.getInstance().getVpOperateManager().readHRVOrigin(bleWriteResponse, new IHRVOriginDataListener() {
-//            @Override
-//            public void onReadOriginProgress(float v) {
-//                Log.e(TAG,"--------hrv--onReadOriginProgress="+v);
-//                hrvDataProgress =  v;
-//            }
-//
-//            @Override
-//            public void onReadOriginProgressDetail(int i, String s, int i1, int i2) {
-//                hrvDataCount = i1;
-//            }
-//
-//            @Override
-//            public void onHRVOriginListener(HRVOriginData hrvOriginData) {
-//                //Log.e(TAG,"------------hrv--onHRVOriginListener="+hrvOriginData.toString());
-//                if(isToday){    //当天的
-//                    B31HRVBean hrvBean = new B31HRVBean();
-//                    hrvBean.setBleMac(MyApp.getInstance().getMacAddress());
-//                    hrvBean.setDateStr(hrvOriginData.getDate());
-//                    hrvBean.setHrvDataStr(gson.toJson(hrvOriginData));
-//                    b31HRVBeanList.add(hrvBean);
-//                }else{
-//                    if(hrvOriginData.getDate().equals(WatchUtils.getCurrentDate())){    //当天
-//                        B31HRVBean hrvBean = new B31HRVBean();
-//                        hrvBean.setBleMac(MyApp.getInstance().getMacAddress());
-//                        hrvBean.setDateStr(hrvOriginData.getDate());
-//                        hrvBean.setHrvDataStr(gson.toJson(hrvOriginData));
-//                        b31HRVBeanList.add(hrvBean);
-//                    }else if(hrvOriginData.getDate().equals(WatchUtils.obtainFormatDate(1))){   //昨天
-//                        B31HRVBean hrvBean = new B31HRVBean();
-//                        hrvBean.setBleMac(MyApp.getInstance().getMacAddress());
-//                        hrvBean.setDateStr(hrvOriginData.getDate());
-//                        hrvBean.setHrvDataStr(gson.toJson(hrvOriginData));
-//                        yesHrvList.add(hrvBean);
-//                    }else if(hrvOriginData.getDate().equals(WatchUtils.obtainFormatDate(2))){   //前天
-//                        B31HRVBean hrvBean = new B31HRVBean();
-//                        hrvBean.setBleMac(MyApp.getInstance().getMacAddress());
-//                        hrvBean.setDateStr(hrvOriginData.getDate());
-//                        hrvBean.setHrvDataStr(gson.toJson(hrvOriginData));
-//                        threeDayHrvList.add(hrvBean);
-//                    }
-//                }
-//
-//            }
-//
-//            @Override
-//            public void onDayHrvScore(int i, String s, int i1) {
-//                Log.e(TAG,"------------hrv--onDayHrvScore="+i+"---s="+s+"---i1=="+i1);
-//            }
-//
-//            @Override
-//            public void onReadOriginComplete() {
-//                Log.e(TAG,"--------hrv-onReadOriginComplete="+hrvDataProgress+"---hrvDataCount="+hrvDataCount+"---=size="+b31HRVBeanList.size());
-//                if(hrvDataProgress != -1 && String.valueOf(hrvDataProgress).equals("1.0") ){
-//                    if(isToday){
-//                        hrvMap.put("today",b31HRVBeanList);
-//                    }else{
-//                        hrvMap.put("today",b31HRVBeanList);
-//                        hrvMap.put("yesDay",yesHrvList);
-//                        hrvMap.put("threeDay",threeDayHrvList);
-//                    }
-//                    Message message = handler.obtainMessage();
-//                    message.what = 888;
-//                    message.obj = hrvMap;
-//                    handler.sendMessage(message);
-//                }
-//
-//            }
-//        }, 3);
-
+        final Map<String, List<B31HRVBean>> hrvMap = new HashMap<>();
 
         /**
          * 参数:
@@ -545,20 +400,18 @@ public class ReadHRVAnSpo2DatatService extends IntentService {
          * onlyReadOneDay - true表示只读今天，false表示按顺序读取
          * watchday - 手表存储的天数
          */
-
-
-        ReadOriginSetting readOriginSetting = new ReadOriginSetting(0,1,isToday,isToday?1:3);
+        ReadOriginSetting readOriginSetting = new ReadOriginSetting(0, 1, isToday, isToday ? 1 : 3);
         MyApp.getInstance().getVpOperateManager().readHRVOriginBySetting(bleWriteResponse, new IHRVOriginDataListener() {
             @Override
             public void onReadOriginProgress(float v) {
-                Log.e(TAG,"--------hrv--onReadOriginProgress="+v+"--value="+String.valueOf(v));
-                if(String.valueOf(v).equals("1.0") ){
-                    if(isToday){
-                        hrvMap.put("today",b31HRVBeanList);
-                    }else{
-                        hrvMap.put("today",b31HRVBeanList);
-                        hrvMap.put("yesDay",yesHrvList);
-                        hrvMap.put("threeDay",threeDayHrvList);
+                Log.e(TAG, "--------hrv--onReadOriginProgress=" + v + "--value=" + String.valueOf(v));
+                if (String.valueOf(v).equals("1.0")) {
+                    if (isToday) {
+                        hrvMap.put("today", b31HRVBeanList);
+                    } else {
+                        hrvMap.put("today", b31HRVBeanList);
+                        hrvMap.put("yesDay", yesHrvList);
+                        hrvMap.put("threeDay", threeDayHrvList);
                     }
                     Message message = handler.obtainMessage();
                     message.what = 888;
@@ -569,32 +422,32 @@ public class ReadHRVAnSpo2DatatService extends IntentService {
 
             @Override
             public void onReadOriginProgressDetail(int i, String s, int i1, int i2) {
-                Log.e(TAG,"--------hrv--onReadOriginProgressDetail="+i+"-----s="+s+"---i1="+i1+"---i2="+i2);
+                Log.e(TAG, "--------hrv--onReadOriginProgressDetail=" + i + "-----s=" + s + "---i1=" + i1 + "---i2=" + i2);
             }
 
             @Override
             public void onHRVOriginListener(HRVOriginData hrvOriginData) {
-                Log.e(TAG,"--------hrv--hrvOriginData="+hrvOriginData.toString());
-                if(isToday){    //当天的
+                Log.e(TAG, "--------hrv--hrvOriginData=" + hrvOriginData.toString());
+                if (isToday) {    //当天的
                     B31HRVBean hrvBean = new B31HRVBean();
                     hrvBean.setBleMac(MyApp.getInstance().getMacAddress());
                     hrvBean.setDateStr(hrvOriginData.getDate());
                     hrvBean.setHrvDataStr(gson.toJson(hrvOriginData));
                     b31HRVBeanList.add(hrvBean);
-                }else{
-                    if(hrvOriginData.getDate().equals(WatchUtils.getCurrentDate())){    //当天
+                } else {
+                    if (hrvOriginData.getDate().equals(WatchUtils.getCurrentDate())) {    //当天
                         B31HRVBean hrvBean = new B31HRVBean();
                         hrvBean.setBleMac(MyApp.getInstance().getMacAddress());
                         hrvBean.setDateStr(hrvOriginData.getDate());
                         hrvBean.setHrvDataStr(gson.toJson(hrvOriginData));
                         b31HRVBeanList.add(hrvBean);
-                    }else if(hrvOriginData.getDate().equals(WatchUtils.obtainFormatDate(1))){   //昨天
+                    } else if (hrvOriginData.getDate().equals(WatchUtils.obtainFormatDate(1))) {   //昨天
                         B31HRVBean hrvBean = new B31HRVBean();
                         hrvBean.setBleMac(MyApp.getInstance().getMacAddress());
                         hrvBean.setDateStr(hrvOriginData.getDate());
                         hrvBean.setHrvDataStr(gson.toJson(hrvOriginData));
                         yesHrvList.add(hrvBean);
-                    }else if(hrvOriginData.getDate().equals(WatchUtils.obtainFormatDate(2))){   //前天
+                    } else if (hrvOriginData.getDate().equals(WatchUtils.obtainFormatDate(2))) {   //前天
                         B31HRVBean hrvBean = new B31HRVBean();
                         hrvBean.setBleMac(MyApp.getInstance().getMacAddress());
                         hrvBean.setDateStr(hrvOriginData.getDate());
@@ -606,18 +459,20 @@ public class ReadHRVAnSpo2DatatService extends IntentService {
 
             @Override
             public void onDayHrvScore(int i, String s, int i1) {
-                Log.e(TAG,"-----------hrv=----onDayHrvScore="+i+"--s="+s+"---i1="+i1);
+                //Log.e(TAG, "-----------hrv=----onDayHrvScore=" + i + "--s=" + s + "---i1=" + i1);
             }
 
             @Override
             public void onReadOriginComplete() {
-                Log.e(TAG,"-----------hrv=----onReadOriginComplete="+hrvDataProgress);
-
+                //Log.e(TAG, "-----------hrv=----onReadOriginComplete=" + System.currentTimeMillis() / 1000 + "------hrv差=" + (System.currentTimeMillis() / 1000 - readTime));
 
             }
         }, readOriginSetting);
 
+
     }
+
+
 
     private IBleWriteResponse bleWriteResponse = new IBleWriteResponse() {
         @Override

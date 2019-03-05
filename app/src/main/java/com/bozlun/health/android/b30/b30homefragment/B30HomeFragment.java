@@ -1095,6 +1095,8 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
     Runnable runnable;
 
     private void getBleMsgData() {
+        if(MyCommandManager.DEVICENAME == null)
+            return;
         if (runnable == null)
             mHandler.removeCallbacks(runnable);
         runnable = new Runnable() {

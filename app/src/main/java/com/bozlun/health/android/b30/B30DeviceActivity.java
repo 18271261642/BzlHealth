@@ -461,8 +461,8 @@ public class B30DeviceActivity extends WatchBaseActivity implements Rationale<Li
                                 public void onResponse(int state) {
                                     Log.e(TAG, "----state=" + state);
                                     if (state == -1) {
-                                        SharedPreferencesUtils.saveObject(B30DeviceActivity.this, Commont.BLENAME, "");
-                                        SharedPreferencesUtils.saveObject(B30DeviceActivity.this, Commont.BLEMAC, "");
+                                        SharedPreferencesUtils.saveObject(B30DeviceActivity.this, Commont.BLENAME, null);
+                                        SharedPreferencesUtils.saveObject(B30DeviceActivity.this, Commont.BLEMAC, null);
                                         SharedPreferencesUtils.setParam(MyApp.getContext(), Commont.DEVICESCODE, "0000");
                                         MyApp.getInstance().setMacAddress(null);// 清空全局
                                         startActivity(NewSearchActivity.class);
@@ -474,14 +474,15 @@ public class B30DeviceActivity extends WatchBaseActivity implements Rationale<Li
                         } else {
                             MyCommandManager.DEVICENAME = null;
                             MyCommandManager.ADDRESS = null;
-                            SharedPreferencesUtils.saveObject(B30DeviceActivity.this, Commont.BLENAME, "");
-                            SharedPreferencesUtils.saveObject(B30DeviceActivity.this, Commont.BLEMAC, "");
+                            SharedPreferencesUtils.saveObject(B30DeviceActivity.this, Commont.BLENAME, null);
+                            SharedPreferencesUtils.saveObject(B30DeviceActivity.this, Commont.BLEMAC, null);
                             SharedPreferencesUtils.setParam(MyApp.getContext(), Commont.DEVICESCODE, "0000");
                             MyApp.getInstance().setMacAddress(null);// 清空全局
                             startActivity(NewSearchActivity.class);
                             finish();
                         }
-
+                        SharedPreferencesUtils.saveObject(B30DeviceActivity.this, Commont.BLENAME, null);
+                        SharedPreferencesUtils.saveObject(B30DeviceActivity.this, Commont.BLEMAC, null);
 
                     }
                 }).show();

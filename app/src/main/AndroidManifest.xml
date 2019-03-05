@@ -111,7 +111,7 @@
         android:debuggable="false"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/beraceiocn"
-        android:label="健康天天检"
+        android:label="天天检"
         android:largeHeap="true"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar"

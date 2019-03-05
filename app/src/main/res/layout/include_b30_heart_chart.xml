@@ -47,14 +47,14 @@
                 android:id="@+id/lastTimeTv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="最近 15"
+                android:text="最近 --:--"
                 android:textColor="#61D9F5" />
 
             <TextView
                 android:id="@+id/b30HeartValueTv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="77"
+                android:text="--"
                 android:textColor="#61D9F5" />
 
         </LinearLayout>

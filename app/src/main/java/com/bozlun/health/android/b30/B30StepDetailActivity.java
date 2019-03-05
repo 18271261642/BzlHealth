@@ -144,6 +144,8 @@ public class B30StepDetailActivity extends WatchBaseActivity {
     private void initData() {
         stepCurrDateTv.setText(currDay);
         String mac = WatchUtils.getSherpBleMac(B30StepDetailActivity.this);
+        if(WatchUtils.isEmpty(mac))
+            return;
         String sport = B30HalfHourDao.getInstance().findOriginData(mac, currDay, B30HalfHourDao
                 .TYPE_SPORT);
 

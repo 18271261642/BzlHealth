@@ -410,6 +410,7 @@ public class ConnBleHelpService {
         MyApp.getInstance().getVpOperateManager().readSportStep(bleWriteResponse, new ISportDataListener() {
             @Override
             public void onSportDataChange(SportData sportData) {
+                Log.e(TAG,"----------总步数="+sportData.toString());
                 if (connBleMsgDataListener != null) {
                     connBleMsgDataListener.getBleSportData(sportData.getStep());
                 }
@@ -442,6 +443,7 @@ public class ConnBleHelpService {
      * @param today true_只加载今天数据 false_加载三天
      */
     public void readAllHealthData(boolean today) {
+        final long currTime = System.currentTimeMillis()/1000;
         sleepMap.clear();
         MyApp.getInstance().getVpOperateManager().readAllHealthData(
                 new IAllHealthDataListener() {
@@ -489,6 +491,7 @@ public class ConnBleHelpService {
 
                     @Override
                     public void onReadOriginComplete() {
+                        //Log.e(TAG,"----------读取运动数据结束--------="+System.currentTimeMillis()/1000+"---差值="+(System.currentTimeMillis()/1000-currTime));
                         // 读取取运动,心率,血压数据结束
                         new LocalizeTool(MyApp.getContext()).putUpdateDate(WatchUtils
                                 .obtainFormatDate(0));// 更新最后更新数据的时间
@@ -572,7 +575,7 @@ public class ConnBleHelpService {
         MyLogUtil.e("------sport -time" + dateSport);
         saveStepData(mac, dateSport, data.getAllStep());
         saveRateData(mac, data.getHalfHourRateDatas());
-        Log.d("-------xue", data.getHalfHourBps().toString());
+        Log.d(TAG, "------------心率="+data.getHalfHourBps().toString());
         saveBpData(mac, data.getHalfHourBps());
     }
 

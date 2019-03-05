@@ -218,6 +218,7 @@
         <!--修改默认大小-->
         <item name="android:minHeight">18dp</item>
         <item name="android:maxHeight">50dp</item>
+        <item name="android:defaultValue">0</item>
 
     </style>
     <!--睡眠星星的style-->
@@ -268,15 +269,17 @@
         <item name="android:gravity">left</item>
         <item name="android:singleLine">true</item>
         <item name="android:textSize">17sp</item>
+        <item name="android:layout_centerVertical">true</item>
         <item name="android:textColor">@android:color/white</item>
     </style>
 
     <!--块内容中头部标题中最右边的图片样式-->
     <style name="style_block_toptitle_img">
         <item name="android:layout_alignParentRight">true</item>
-        <item name="android:layout_width">20dp</item>
-        <item name="android:layout_height">20dp</item>
-        <item name="android:src">@drawable/vpspo2h_list_img</item>
+        <item name="android:layout_width">@dimen/size_150</item>
+        <item name="android:layout_height">@dimen/sp_25</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:src">@drawable/icon_click_into</item>
     </style>
 
     <!--块内容中底部左侧状态样式，对应(轻度，安静....)-->

@@ -29,6 +29,7 @@ import com.bozlun.health.android.friend.mutilbind.FrendAdapter;
 import com.bozlun.health.android.friend.mutilbind.TodayRankAdapter;
 import com.bozlun.health.android.siswatch.WatchBaseActivity;
 import com.bozlun.health.android.util.RecycleViewDivider;
+import com.bozlun.health.android.util.ToastUtil;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import com.bozlun.health.android.util.URLs;
 import com.bozlun.health.android.w30s.utils.httputils.RequestPressent;
@@ -61,6 +62,7 @@ public class FriendActivity
     RecyclerView recyclerViewUnFrend;
     @BindView(R.id.m_tablayout)
     TabLayout mTabLayout;
+
     //    @BindView(R.id.un_frend_smartrefresh)
 //    SmartRefreshLayout un_frend_smartrefresh;
     private int pageNumber = 0;//记录当前页码
@@ -81,8 +83,13 @@ public class FriendActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fredens);
         ButterKnife.bind(this);
+
+
         inEdit();
     }
+
+
+
 
     @Override
     protected void onResume() {
@@ -124,8 +131,10 @@ public class FriendActivity
         mTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
         mTabLayout.addOnTabSelectedListener(this);
 
+
         //替换三个点
         mNormalToolbar.setOverflowIcon(getResources().getDrawable(R.mipmap.image_add));
+        mNormalToolbar.setNavigationIcon(R.mipmap.backs);
         setSupportActionBar(mNormalToolbar);
 
         //LayoutAnimationController layoutAnimationController = AnimationUtils.loadLayoutAnimation(FriendActivity.this,R.anim.layout_animation_fall_down);
@@ -193,6 +202,7 @@ public class FriendActivity
             startActivity(new Intent(this, FriendApplyActivity.class));
             return true;
         }
+        finish();
         return super.onOptionsItemSelected(item);
     }
 

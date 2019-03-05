@@ -92,6 +92,8 @@ public class W30sAlbumActivity extends WatchBaseActivity implements OnAlbumItemC
                     return name.endsWith(".jpg");
                 }
             });
+            if(photos == null || photos.length==0)
+                return;
             tempList.clear();
             for (int i = 0; i < photos.length; i++) {
                 tempList.add(photos[i].getAbsolutePath());

@@ -53,7 +53,7 @@ public class HrvListDataAdapter extends RecyclerView.Adapter<HrvListDataAdapter.
         //分钟
         int mine = countMine % 60;
         float hrvValue = list.get(position).get("value");
-        holder.dateTv.setText("0"+hour+":"+(mine==0?"00":mine));
+        holder.dateTv.setText("0"+hour+":"+(mine==0?"00":(mine<10?"0"+mine:mine)+""));
         holder.valueTv.setText((int)hrvValue+"ms");
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {

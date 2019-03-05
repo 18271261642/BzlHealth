@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.animation.TranslateAnimation;
 
+import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.b31.model.B31HRVBean;
 import com.bozlun.health.android.b31.model.B31Spo2hBean;
 import com.bozlun.health.android.b31.model.TempB31HRVBean;
@@ -94,6 +95,30 @@ public class B30HalfHourDao {
         B30HalfHourDB result = getOriginData(address, date, type);
         return result == null ? null : result.getOriginData();
     }
+
+
+    public void findBetweenStep(String address, String date, String type){
+
+        String startDate = "2019-03-01";
+        String endDate = "2019-03-04";
+        String mac = MyApp.getInstance().getMacAddress();
+        //List<B30HalfHourDB> ltH = LitePal.where("date  between  ? and ?"+startDate+endDate).find(B30HalfHourDB.class);
+        String where = "dateStr = ? ";
+        List<B31HRVBean> resultList = LitePal.where(where,date).find(B31HRVBean.class);
+
+        if (resultList == null) {
+            for(B31HRVBean bd : resultList){
+                Log.e("DB","--------bd="+bd.toString());
+            }
+        } else {
+            Log.e("DB","------------数据查询为null---");
+        }
+
+
+
+    }
+
+
 
     /**
      * 保存(更新)单条数据源

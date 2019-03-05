@@ -1,7 +1,6 @@
 package com.bozlun.health.android.activity.wylactivity.wyl_util.service;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -12,14 +11,11 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.ContactsContract;
-import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
-
 import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.MyApp;
-import com.bozlun.health.android.activity.GuideActivity;
 import com.bozlun.health.android.bleutil.MyCommandManager;
 import com.bozlun.health.android.siswatch.utils.PhoneUtils;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
@@ -35,9 +31,7 @@ import com.veepoo.protocol.model.enums.ESocailMsg;
 import com.veepoo.protocol.model.settings.ContentPhoneSetting;
 import com.veepoo.protocol.model.settings.ContentSetting;
 import com.yanzhenjie.permission.AndPermission;
-
 import java.util.ArrayList;
-
 import static android.content.Context.TELEPHONY_SERVICE;
 
 /**
@@ -189,6 +183,7 @@ public class PhoneBroadcastReceiver extends BroadcastReceiver {
     private void sendH8PhoneAlert() {
         MyApp.getInstance().h8BleManagerInstance().setPhoneAlert();
     }
+
 
 
     //挂断电话
@@ -432,13 +427,16 @@ public class PhoneBroadcastReceiver extends BroadcastReceiver {
         if(MyCommandManager.DEVICENAME != null){
             MyApp.getInstance().getVpOperateManager().offhookOrIdlePhone(iBleWriteResponse);
         }
-
-        AudioManager audioManager = (AudioManager) MyApp.getInstance().getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-        if(audioManager != null){
-            audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-            audioManager.getStreamVolume(AudioManager.STREAM_RING);
-            Log.d("SilentListenerService", "RINGING 取消静音");
+        boolean isTrue = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(),"phone_status",false);
+        if(isTrue){
+            AudioManager audioManager = (AudioManager) MyApp.getInstance().getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+            if(audioManager != null){
+                audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                // audioManager.getStreamVolume(AudioManager.STREAM_RING);
+                Log.d("SilentListenerService", "RINGING 取消静音");
+            }
         }
+
 
     }
 
@@ -476,14 +474,17 @@ public class PhoneBroadcastReceiver extends BroadcastReceiver {
             @Override
             public void cliencePhone() {
                 getDoNotDisturb();
-
-
-                AudioManager audioManager = (AudioManager) MyApp.getInstance().getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-                if (audioManager != null) {
-                    audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
-                    audioManager.getStreamVolume(AudioManager.STREAM_RING);
-                    Log.d("call---", "RINGING 已被静音");
+                //正常模式静音
+                if(WatchUtils.getPhoneStatus() == AudioManager.RINGER_MODE_NORMAL){
+                    SharedPreferencesUtils.setParam(MyApp.getContext(),"phone_status",true);
+                    AudioManager audioManager = (AudioManager) MyApp.getInstance().getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                    if (audioManager != null) {
+                        audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                        audioManager.getStreamVolume(AudioManager.STREAM_RING);
+                        Log.d("call---", "RINGING 已被静音");
+                    }
                 }
+
             }
 
             //手环敲击提醒

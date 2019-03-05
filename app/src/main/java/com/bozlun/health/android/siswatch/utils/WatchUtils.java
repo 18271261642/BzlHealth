@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Environment;
 import android.telephony.TelephonyManager;
@@ -1418,6 +1419,35 @@ public class WatchUtils {
         else
             retStr = "" + i;
         return retStr;
+    }
+
+
+
+    //获取手机的状态信息正常，震动，静音
+    public static int getPhoneStatus(){
+        int PHONE_STATUS =  AudioManager.RINGER_MODE_NORMAL;
+        AudioManager audioManager = (AudioManager) MyApp.getInstance().getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        if(audioManager != null){
+            int ringMode = audioManager.getRingerMode();
+            //audioManager.getStreamVolume()
+            Log.e(TAG, "-------手环模式="+ringMode);
+            switch (ringMode) {
+                case AudioManager.RINGER_MODE_NORMAL:
+                    //普通模式
+                     PHONE_STATUS =  AudioManager.RINGER_MODE_NORMAL;
+                    break;
+                case AudioManager.RINGER_MODE_VIBRATE:
+                    //振动模式
+                    PHONE_STATUS =  AudioManager.RINGER_MODE_VIBRATE;
+                    break;
+                case AudioManager.RINGER_MODE_SILENT:
+                    //静音模式
+                    PHONE_STATUS =  AudioManager.RINGER_MODE_SILENT;
+                    break;
+            }
+
+        }
+        return PHONE_STATUS;
     }
 
 

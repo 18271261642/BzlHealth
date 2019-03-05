@@ -105,7 +105,7 @@ public class B30CusSleepView extends View {
         awakePaint.setStrokeWidth(5f);
 
         emptyPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        emptyPaint.setColor(Color.parseColor("#6074BF"));
+        emptyPaint.setColor(Color.WHITE);
         emptyPaint.setStrokeWidth(5);
         emptyPaint.setTextSize(sleepEmptyData);
 
@@ -135,7 +135,6 @@ public class B30CusSleepView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        drawEmptyTxt(canvas);
         //坐标点平移
         canvas.translate(0,getHeight());
        // canvas.rotate(270);
@@ -180,6 +179,8 @@ public class B30CusSleepView extends View {
                         -dp2px(140),linPaint);
             }
 
+        }else{
+            drawEmptyTxt(canvas);
         }
 
 

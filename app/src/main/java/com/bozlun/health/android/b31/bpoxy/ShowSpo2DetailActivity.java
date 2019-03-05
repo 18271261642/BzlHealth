@@ -24,9 +24,7 @@ import com.google.gson.Gson;
 import com.veepoo.protocol.model.datas.Spo2hOriginData;
 import com.veepoo.protocol.model.enums.ESpo2hDataType;
 import com.veepoo.protocol.util.Spo2hOriginUtil;
-
 import org.litepal.LitePal;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -121,15 +119,17 @@ public class ShowSpo2DetailActivity extends WatchBaseActivity {
     //查询本地保存的数据
     private void readLocalDeviceData(final String currDay) {
         commArrowDate.setText(currDay);
-        showLoadingDialog("Loading...");
         list.clear();
+        final String bleMac = WatchUtils.getSherpBleMac(ShowSpo2DetailActivity.this);
+        if(WatchUtils.isEmpty(bleMac))
+            return;
+        showLoadingDialog("Loading...");
         Thread thread = new Thread() {
             @Override
             public void run() {
                 super.run();
                 //查询保存的数据
                 String whereStr = "bleMac = ? and dateStr = ?";
-                String bleMac = WatchUtils.getSherpBleMac(ShowSpo2DetailActivity.this);
                 List<B31Spo2hBean> spo2hBeanList = LitePal.where(whereStr, bleMac, currDay).find(B31Spo2hBean.class);
                 //Log.e(TAG,"---22------查询数据="+currDay+spo2hBeanList.size());
                 if (spo2hBeanList == null || spo2hBeanList.isEmpty()) {
@@ -289,7 +289,7 @@ public class ShowSpo2DetailActivity extends WatchBaseActivity {
             spo2SecondDialogView.show();
             spo2SecondDialogView.setSpo2Type(spo2Int);
             spo2SecondDialogView.setMapList(lt);
-            spo2SecondDialogView.setSporUtils(spo2hOriginUtil);
+            //spo2SecondDialogView.setSporUtils(spo2hOriginUtil);
 
 
         }

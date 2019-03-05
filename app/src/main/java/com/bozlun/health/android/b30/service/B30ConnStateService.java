@@ -70,12 +70,11 @@ public class B30ConnStateService extends Service {
                 case AUTO_CONN_REQUEST_CODE:  //非手动断开消息
                     handler.removeMessages(AUTO_CONN_REQUEST_CODE);
                     String bleMacs = (String) SharedPreferencesUtils.readObject(MyApp.getContext(), Commont.BLEMAC);
-                    if(WatchUtils.isEmpty(bleMacs))
-                        return;
-//                    Log.e(TAG, "-----读取的地址=" + bleMacs + "--=" + MyCommandManager.DEVICENAME);
+//                    if(WatchUtils.isEmpty(bleMacs))
+//                        return;
+                    Log.e(TAG, "-----读取的地址=" + bleMacs + "--=" + MyCommandManager.DEVICENAME);
                     //非手动断开
-                    if (MyCommandManager.DEVICENAME != null && MyCommandManager.deviceAddress != null
-                            && !WatchUtils.isEmpty(bleMacs.trim())) {
+                    if (!WatchUtils.isEmpty(bleMacs)) {
                         MyLogUtil.e(TAG, "----非手动断开----");
                         connectAutoConn(true);
                     }else {  //手动断开
@@ -279,8 +278,9 @@ public class B30ConnStateService extends Service {
 //                    if(b30ConnStateListener != null){
 //                        b30ConnStateListener.onB30Disconn();
 //                    }
-                    handler.sendEmptyMessage(AUTO_CONN_REQUEST_CODE);
                     MyCommandManager.ADDRESS = null;// 断开连接了就设置为null
+                    MyCommandManager.DEVICENAME = null;
+                    handler.sendEmptyMessage(AUTO_CONN_REQUEST_CODE);
                     break;
             }
         }
@@ -355,6 +355,9 @@ public class B30ConnStateService extends Service {
         }
     }
 
+    /**
+     * 监听蓝牙打开和关闭的广播
+     */
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -365,6 +368,9 @@ public class B30ConnStateService extends Service {
                 int bleState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
                 Log.e(TAG,"------bleState="+bleState);
                 String b30Name = (String) SharedPreferencesUtils.readObject(MyApp.getInstance().getApplicationContext(),Commont.BLENAME);
+                String bMac = (String) SharedPreferencesUtils.readObject(MyApp.getContext(),Commont.BLEMAC);
+                if(WatchUtils.isEmpty(bMac))
+                    return;
                 switch (bleState) {
                     case BluetoothAdapter.STATE_TURNING_ON: //蓝牙打开 11
                         if(!WatchUtils.isEmpty(b30Name) && WatchUtils.isVPBleDevice(b30Name)){

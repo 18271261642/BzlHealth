@@ -119,8 +119,11 @@ public class WatchMineFragment extends LazyFragment {
     private void initViews() {
         if (bleName == null)
             return;
-        if (MyCommandManager.DEVICENAME == null)
+        if (MyCommandManager.DEVICENAME == null){
+            showBleNameTv.setText("未连接");
             return;
+        }
+
         String bleMac = (String) SharedPreferencesUtils.readObject(MyApp.getContext(), Commont.BLEMAC);
         if (!WatchUtils.isEmpty(bleMac) && bleName.equals("bozlun")) {
             showBleNameTv.setText("H8" + " " + bleMac);
@@ -134,8 +137,8 @@ public class WatchMineFragment extends LazyFragment {
     @Override
     protected void onFragmentVisibleChange(boolean isVisible) {
         super.onFragmentVisibleChange(isVisible);
-        if (getActivity() == null || getActivity().isFinishing())
-            return;
+//        if (getActivity() == null || getActivity().isFinishing())
+//            return;
 //        if (isVisible) {
 //            updateManager = new UpdateManager(getActivity(), URLs.HTTPs + URLs.getvision);
 //            updateManager.checkForUpdate(true);
@@ -163,6 +166,8 @@ public class WatchMineFragment extends LazyFragment {
     @Override
     public void onResume() {
         super.onResume();
+
+
         getUserInfoData();  //获取用户信息
 
     }
@@ -317,23 +322,6 @@ public class WatchMineFragment extends LazyFragment {
 
                 break;
             case R.id.watchmineSetting:  //系统设置
-//                //要调用另一个APP的activity所在的包名
-//                String packageName = "hat.bemo";
-//                Log.e("11","------IMEI="+getDeviceIMEI());
-//                //判断应用是否安装
-//                if(WatchUtils.isClientInstalled(getActivity(),packageName)){
-//                    //要调用另一个APP的activity名字
-//                    String activity = "hat.bemo.MainActivity";
-//                    ComponentName component = new ComponentName(packageName, activity);
-//                    Intent intent = new Intent();
-//                    intent.setComponent(component);
-//                    //傳送旗標
-//                    intent.setFlags(101);//傳送設備碼
-//                    intent.putExtra("data", getDeviceIMEI());
-//                    startActivity(intent);
-//                }
-//
-
                  startActivity(new Intent(getActivity(), B30SysSettingActivity.class));
                 break;
             case R.id.card_frend://亲情互动
@@ -347,20 +335,4 @@ public class WatchMineFragment extends LazyFragment {
         }
     }
 
-    private String getDeviceIMEI() {
-        try {
-            TelephonyManager telephonyManager = (TelephonyManager) getActivity().getSystemService(TELEPHONY_SERVICE);
-            if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
-                return telephonyManager.getImei();
-            }else{
-                requestPermissions(new String[]{Manifest.permission.READ_PHONE_STATE},1001);
-            }
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return null;
-
-
-    }
 }

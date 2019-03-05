@@ -167,6 +167,7 @@ public class B31HrvDetailActivity extends WatchBaseActivity {
         initAdapter();
         currDay = getIntent().getStringExtra(Constant.DETAIL_DATE);
         updateList(new int[]{0, 11, 32, 23, 14, 0});
+
         findDataFromDb(currDay);
 
 
@@ -250,7 +251,7 @@ public class B31HrvDetailActivity extends WatchBaseActivity {
         lorezChartView.setTextSize(80);
         lorezChartView.setTextColor(Color.RED);
         lorezChartView.setDotColor(Color.RED);
-        lorezChartView.setDotSize(9);
+        lorezChartView.setDotSize(5);
         lorezChartView.setLineWidth(8);
         lorezChartView.setLineColor(Color.RED);
 
@@ -276,13 +277,16 @@ public class B31HrvDetailActivity extends WatchBaseActivity {
     private void findDataFromDb(final String currDay) {
         commArrowDate.setText(currDay);
         tmpHRVlist.clear();
+        final String mac = WatchUtils.getSherpBleMac(B31HrvDetailActivity.this);
+        if(WatchUtils.isEmpty(mac))
+            return;
         showLoadingDialog("Loading...");
 
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 String where = "bleMac = ? and dateStr = ?";
-                List<B31HRVBean> reList = LitePal.where(where, WatchUtils.getSherpBleMac(B31HrvDetailActivity.this),currDay).find(B31HRVBean.class);
+                List<B31HRVBean> reList = LitePal.where(where, mac,currDay).find(B31HRVBean.class);
                 if (reList == null || reList.isEmpty()) {
                     Message message = handler.obtainMessage();
                     message.what = 1002;
@@ -307,9 +311,8 @@ public class B31HrvDetailActivity extends WatchBaseActivity {
     }
 
     private void initLinChartData(List<HRVOriginData> originHRVList) {
-        closeLoadingDialog();
-        listMap.clear();
 
+        listMap.clear();
         //心脏健康指数
         HrvScoreUtil hrvScoreUtil = new HrvScoreUtil();
         int heartSocre = hrvScoreUtil.getSocre(originHRVList);
@@ -325,7 +328,7 @@ public class B31HrvDetailActivity extends WatchBaseActivity {
                 CHART_MAX_HRV, CHART_MIN_HRV, "No Data", TYPE_HRV);
         chartViewUtil.updateChartView(tenMinuteData);
         mMarkviewHrv.setData(tenMinuteData);
-
+        closeLoadingDialog();
         listMap.addAll(tenMinuteData);
         hrvListDataAdapter.notifyDataSetChanged();
 
@@ -522,7 +525,7 @@ public class B31HrvDetailActivity extends WatchBaseActivity {
             spo2SecondDialogView.show();
             spo2SecondDialogView.setSpo2Type(555);
             spo2SecondDialogView.setMapList(lt);
-            spo2SecondDialogView.setHRVUtils(mHrvOriginUtil,listMap.size()-position-1);
+            //spo2SecondDialogView.setHRVUtils(mHrvOriginUtil,listMap.size()-position-1);
         }
     };
 

@@ -16,8 +16,10 @@ import com.veepoo.protocol.model.enums.ESpo2hDataType;
 import com.veepoo.protocol.util.HRVOriginUtil;
 import com.veepoo.protocol.util.Spo2hOriginUtil;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +39,9 @@ public class Spo2SecondDialogView extends AlertDialog {
     private TextView maxVTv;
 
     private int spo2Type;
+
+    //用于计算最大值最小值和平均值的list
+    private List<Float> calList = new ArrayList<>();
 
 
     public Spo2SecondDialogView(@NonNull Context context) {
@@ -78,11 +83,23 @@ public class Spo2SecondDialogView extends AlertDialog {
     }
 
     //设置显示列表数据
+    @SuppressLint("SetTextI18n")
     public void setMapList(List<Map<String, Float>> list) {
         mapList.clear();
         mapList.addAll(list);
+        calList.clear();
         showSpo2DetailAdapter.setSpowTag(spo2Type);
         showSpo2DetailAdapter.notifyDataSetChanged();
+
+        float hrvSum = 0;
+        for(Map<String,Float> calMap : list){
+            calList.add(calMap.get("value"));
+            hrvSum = hrvSum + calMap.get("value");
+        }
+        DecimalFormat decimalFormat = new DecimalFormat("#");    //不保留小数
+        maxVTv.setText(context.getResources().getString(R.string.max_value)+"="+decimalFormat.format(Collections.max(calList))
+                +","+context.getResources().getString(R.string.min_value)+"="+decimalFormat.format(Collections.min(calList))+","+
+                context.getResources().getString(R.string.ave_value)+"="+decimalFormat.format(hrvSum/calList.size()));
     }
 
     //设置显示最大值，最小值和平均值数据

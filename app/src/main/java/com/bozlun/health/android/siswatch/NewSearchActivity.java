@@ -769,23 +769,23 @@ public class NewSearchActivity extends GetUserInfoActivity implements CustomBlue
                 /**
                  * W30S链接监听
                  */
-                if (W30SBLEServices.ACTION_GATT_CONNECTED.equals(action)) {
-                    closeLoadingDialog();
-                    MyCommandManager.DEVICENAME = "W30";
-                    MyApp.getInstance().getmW30SBLEManage().SendAnddroidLanguage(0x01);
-                    SharedPreferencesUtils.saveObject(NewSearchActivity.this, Commont.BLENAME, "W30");
-                    startActivity(new Intent(NewSearchActivity.this, W30SHomeActivity.class));
-                    finish();
-                }
+//                if (W30SBLEServices.ACTION_GATT_CONNECTED.equals(action)) {
+//                    closeLoadingDialog();
+//                    MyCommandManager.DEVICENAME = "W30";
+//                    MyApp.getInstance().getmW30SBLEManage().SendAnddroidLanguage(0x01);
+//                    SharedPreferencesUtils.saveObject(NewSearchActivity.this, Commont.BLENAME, "W30");
+//                    startActivity(new Intent(NewSearchActivity.this, W30SHomeActivity.class));
+//                    finish();
+//                }
 
                 //B30手环连接成功
-                if (action.equals(WatchUtils.B30_CONNECTED_ACTION)) { //B30连接成功
-                    closeLoadingDialog();
-                    isScanConn = true;
-                    startActivity(B30HomeActivity.class);
-                    NewSearchActivity.this.finish();
-
-                }
+//                if (action.equals(WatchUtils.B30_CONNECTED_ACTION)) { //B30连接成功
+//                    closeLoadingDialog();
+//                    isScanConn = true;
+//                    startActivity(B30HomeActivity.class);
+//                    NewSearchActivity.this.finish();
+//
+//                }
 
                 //B31连接成功
                 if(action.equals(WatchUtils.B31_CONNECTED_ACTION)){
@@ -812,26 +812,26 @@ public class NewSearchActivity extends GetUserInfoActivity implements CustomBlue
                 }
 
                 //H9链接成功失败监听
-                if (action.equals("com.example.bozhilun.android.h9.connstate")) {
-                    String h9Redata = intent.getStringExtra("h9constate");
-                    if (!WatchUtils.isEmpty(h9Redata)) {
-                        if (h9Redata.equals("conn")) {    //已链接
-                            AppsBluetoothManager.getInstance(MyApp.getInstance()).clearBluetoothManagerScanListeners();
-                            AppsBluetoothManager.getInstance(MyApp.getInstance()).clearBluetoothManagerDeviceConnectListeners();
-                            MyCommandManager.DEVICENAME = "H9";
-                            closeLoadingDialog();
-                            startActivity(new Intent(NewSearchActivity.this, H9HomeActivity.class));
-                            finish();
-                        } else {
-                            MyCommandManager.DEVICENAME = null;
-                            BluetoothConfig.setDefaultMac(NewSearchActivity.this, "");
-                            SharedPreferencesUtils.saveObject(NewSearchActivity.this, Commont.BLENAME, "");
-                            SharedPreferencesUtils.saveObject(NewSearchActivity.this, Commont.BLEMAC, "");
-                            MyApp.getInstance().setMacAddress(null);// 清空全局
-                            closeLoadingDialog();
-                        }
-                    }
-                }
+//                if (action.equals("com.example.bozhilun.android.h9.connstate")) {
+//                    String h9Redata = intent.getStringExtra("h9constate");
+//                    if (!WatchUtils.isEmpty(h9Redata)) {
+//                        if (h9Redata.equals("conn")) {    //已链接
+//                            AppsBluetoothManager.getInstance(MyApp.getInstance()).clearBluetoothManagerScanListeners();
+//                            AppsBluetoothManager.getInstance(MyApp.getInstance()).clearBluetoothManagerDeviceConnectListeners();
+//                            MyCommandManager.DEVICENAME = "H9";
+//                            closeLoadingDialog();
+//                            startActivity(new Intent(NewSearchActivity.this, H9HomeActivity.class));
+//                            finish();
+//                        } else {
+//                            MyCommandManager.DEVICENAME = null;
+//                            BluetoothConfig.setDefaultMac(NewSearchActivity.this, "");
+//                            SharedPreferencesUtils.saveObject(NewSearchActivity.this, Commont.BLENAME, "");
+//                            SharedPreferencesUtils.saveObject(NewSearchActivity.this, Commont.BLEMAC, "");
+//                            MyApp.getInstance().setMacAddress(null);// 清空全局
+//                            closeLoadingDialog();
+//                        }
+//                    }
+//                }
             }
         }
     };
@@ -888,9 +888,7 @@ public class NewSearchActivity extends GetUserInfoActivity implements CustomBlue
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         if (event.getKeyCode() == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
-//            startActivity(LoginActivity.class);
-            startActivity(NewLoginActivity.class);
-//            startActivity(B30HomeActivity.class);
+            startActivity(B31HomeActivity.class);
             finish();
             return true;
         }
@@ -901,7 +899,7 @@ public class NewSearchActivity extends GetUserInfoActivity implements CustomBlue
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.newSearchTitleLeft:   //返回
-                startActivity(NewLoginActivity.class);
+                startActivity(B31HomeActivity.class);
                 finish();
                 break;
             case R.id.newSearchRightImg1: //帮助

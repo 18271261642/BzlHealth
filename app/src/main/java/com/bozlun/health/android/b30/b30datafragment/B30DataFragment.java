@@ -189,6 +189,8 @@ public class B30DataFragment extends LazyFragment implements B30DataServer.B30Da
         commentB30TitleTv.setText(getResources().getString(R.string.data));
         if(getActivity() == null || getActivity().isFinishing())
             return;
+        if(WatchUtils.getSherpBleName(getActivity()) == null)
+            return;
         if(WatchUtils.isB36Device(getActivity()) || WatchUtils.getSherpBleName(getActivity()).equals("B31")){
             b30BloadChartLin.setVisibility(View.GONE);
         }else{

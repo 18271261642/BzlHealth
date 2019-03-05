@@ -305,6 +305,8 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
                 case 555:
                     if(getActivity() != null && !getActivity().isFinishing()){
                         syncStatusTv.setVisibility(View.GONE);
+                        B31HomeActivity activity = (B31HomeActivity) getActivity();
+                        if (activity != null) activity.startUploadDate();// 上传数据
                     }
                     break;
 
@@ -389,7 +391,8 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
                 }
             });
         }
-
+        if(WatchUtils.isEmpty(WatchUtils.getSherpBleMac(getmContext())))
+            return;
         if (b31HomeSwipeRefreshLayout != null)
             b31HomeSwipeRefreshLayout.setOnRefreshListener(new OnRefreshListener() {
                 @Override
@@ -445,6 +448,10 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
     protected void onFragmentVisibleChange(boolean isVisible) {
         super.onFragmentVisibleChange(isVisible);
         if (isVisible) {  //判断是否读取数据
+            if(WatchUtils.isEmpty(WatchUtils.getSherpBleMac(getmContext())))
+                return;
+            int currCode = (int) SharedPreferencesUtils.getParam(getmContext(),"code_status",0);
+            clearDataStyle(currCode);//设置每次回主界面，返回数据不清空的
             //updatePageData();
             if (connBleHelpService != null && MyCommandManager.DEVICENAME != null) {
                 long currentTime = System.currentTimeMillis() / 1000;
@@ -477,8 +484,8 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
             int param = (int) SharedPreferencesUtils.getParam(getmContext(), Commont.BATTERNUMBER, 0);
             if (param > 0) {
                 showBatterStute(param);
-                int currCode = (int) SharedPreferencesUtils.getParam(getmContext(),"code_status",0);
-                clearDataStyle(currCode);//设置每次回主界面，返回数据不清空的
+//                int currCode = (int) SharedPreferencesUtils.getParam(getmContext(),"code_status",0);
+//                clearDataStyle(currCode);//设置每次回主界面，返回数据不清空的
             }
         } else {  //未连接
             if (getActivity() != null && !getActivity().isFinishing()) {
@@ -588,6 +595,8 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
 
     //读取手环的数据
     private void getBleMsgData() {
+        if(WatchUtils.isEmpty(WatchUtils.getSherpBleMac(getmContext())))
+            return;
         SharedPreferencesUtils.setParam(getmContext(), "saveDate", System.currentTimeMillis() / 1000 + "");
         connBleHelpService.getDeviceMsgData();
         /**
@@ -625,18 +634,17 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
 
         String mac = WatchUtils.getSherpBleMac(getmContext());
         String date = WatchUtils.obtainFormatDate(currDay);
-
+        if(WatchUtils.isEmpty(mac))
+            return;
         Log.e(TAG,"-------mac="+mac+"--date="+date);
-
-        updateStepData(mac, date);  //更新步数
-        updateSportData(mac, date); //更新运动图表数据
-        updateRateData(mac, date);  //更新心率数据
-
-        updateSleepData(mac, WatchUtils.obtainFormatDate(currDay)); //睡眠数据
+//        updateStepData(mac, date);  //更新步数
+//        updateSportData(mac, date); //更新运动图表数据
+//        updateRateData(mac, date);  //更新心率数据
+//        updateSleepData(mac, WatchUtils.obtainFormatDate(currDay)); //睡眠数据
         //HRV
         updateHRVData(mac, date);
         //血氧
-        updateSpo2Data(mac, date);
+//        updateSpo2Data(mac, date);
 
     }
 
@@ -715,8 +723,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
     public void onOriginData() {
         handler.sendEmptyMessage(1000);// 步数和健康数据都取到了,就关闭刷新条
         updatePageData();
-        B31HomeActivity activity = (B31HomeActivity) getActivity();
-        if (activity != null) activity.startUploadDate();// 上传数据
+
     }
 
 
@@ -825,12 +832,11 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
     //取出本地的HRV数据
     private void updateHRVData(final String mac, final String day) {
         tmpHRVlist.clear();
-
         try {
             Thread thread = new Thread(new Runnable() {
                 @Override
-                public void run() {
-                    String where = "bleMac = ? and dateStr = ?";
+                public void run() {//bleMac = ? and
+                    String where = "bleMac = ? and dateStr = ？";
                     List<B31HRVBean> reList = LitePal.where(where, mac,day).find(B31HRVBean.class);
                     if (reList == null || reList.isEmpty()) {
                         Message message = handler.obtainMessage();
@@ -1158,7 +1164,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            // Log.e(TAG,"-----------action-="+action);
+             Log.e(TAG,"-----------action-="+action);
             if (action == null)
                 return;
             if (action.equals(WatchUtils.B31_CONNECTED_ACTION)) { //连接
@@ -1257,6 +1263,8 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
     @NonNull
     private List<HRVOriginData> getMoringData(List<HRVOriginData> originSpo2hList) {
         List<HRVOriginData> moringData = new ArrayList<>();
+        if(originSpo2hList == null || originSpo2hList.size()==0)
+            return moringData;
         for (HRVOriginData HRVOriginData : originSpo2hList) {
             if (HRVOriginData.getmTime().getHMValue() < 8 * 60) {
                 moringData.add(HRVOriginData);
@@ -1274,6 +1282,8 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
     @NonNull
     private List<Spo2hOriginData> getSpo2MoringData(List<Spo2hOriginData> originSpo2hList) {
         List<Spo2hOriginData> spo2Data = new ArrayList<>();
+        if(originSpo2hList == null || originSpo2hList.isEmpty())
+            return spo2Data;
         for (Spo2hOriginData spo2hOriginData : originSpo2hList) {
             if (spo2hOriginData.getmTime().getHMValue() < 8 * 60) {
                 spo2Data.add(spo2hOriginData);

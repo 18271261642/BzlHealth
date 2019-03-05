@@ -229,30 +229,30 @@ public class MapRecordActivity extends BaseActivity {
                 String value2 = _intent.getStringExtra("mapdata2");//这里是其他数据
                 JSONObject JSONO = new JSONObject(value2);
                 Starttime.setText(JSONO.optString("day").toString());
-                if ("良".equals(JSONO.optString("description").toString().trim())) {
+                if ("良".equals(JSONO.optString("description").trim())) {
                     Kongqi.setText(getResources().getString(R.string.good));
-                } else if ("轻度污染".equals(JSONO.optString("description").toString().trim())) {
+                } else if ("轻度污染".equals(JSONO.optString("description").trim())) {
                     Kongqi.setText(getResources().getString(R.string.mild_pollution));
-                } else if ("中度污染".equals(JSONO.optString("description").toString().trim())) {
+                } else if ("中度污染".equals(JSONO.optString("description").trim())) {
                     Kongqi.setText(getResources().getString(R.string.moderate_pollution));
-                } else if ("重度污染".equals(JSONO.optString("description").toString().trim())) {
+                } else if ("重度污染".equals(JSONO.optString("description").trim())) {
                     Kongqi.setText(getResources().getString(R.string.heavy_pollution));
-                } else if ("严重污染".equals(JSONO.optString("description").toString().trim())) {
+                } else if ("严重污染".equals(JSONO.optString("description").trim())) {
                     Kongqi.setText(getResources().getString(R.string.serious_pollution));
                 }
-                Wendu.setText(JSONO.optString("temp").toString());
-                BIAOTI.setText(JSONO.optString("qixing").toString());
-                Duration.setText(JSONO.optString("chixutime").toString());
-                Fullkilometer.setText(JSONO.optString("zonggongli").toString());
-                Pace.setText(getResources().getString(R.string.paces) + JSONO.optString("speed").toString());
-                Consume.setText(getResources().getString(R.string.XIAOHAO) + JSONO.optString("kclal").toString());
-                System.out.print("inmage" + JSONO.optString("image").toString());
+                Wendu.setText(JSONO.optString("temp"));
+                BIAOTI.setText(JSONO.optString("qixing"));
+                Duration.setText(JSONO.optString("chixutime"));
+                Fullkilometer.setText(JSONO.optString("zonggongli"));
+                Pace.setText(getResources().getString(R.string.paces) + JSONO.optString("speed"));
+                Consume.setText(getResources().getString(R.string.XIAOHAO) + JSONO.optString("kclal"));
+                System.out.print("inmage" + JSONO.optString("image"));
                 BitmapUtils bitmapUtils = new BitmapUtils(MapRecordActivity.this);
                 BitmapDisplayConfig config = new BitmapDisplayConfig();
                 // 设置图片的分辨率
                 BitmapSize size = new BitmapSize(500, 500);
                 config.setBitmapMaxSize(size);
-                bitmapUtils.display(TianqiImage, JSONO.optString("image").toString());
+                bitmapUtils.display(TianqiImage, JSONO.optString("image"));
 
 
                 //解析地图轨迹

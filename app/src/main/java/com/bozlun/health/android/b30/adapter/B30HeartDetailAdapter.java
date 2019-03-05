@@ -3,9 +3,11 @@ package com.bozlun.health.android.b30.adapter;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -41,27 +43,14 @@ public class B30HeartDetailAdapter extends RecyclerView.Adapter<B30HeartDetailAd
 
     @Override
     public void onBindViewHolder(@NonNull B30ViewHolder holder, int position) {
-
-        HalfHourRateData halfHourRateData = null;
-        HalfHourSportData halfHourSportDatas = null;
-        int sportValue = 0;
-        int rateValue = 0;
-        String colck = "0";
         if (position < halfHourSportData.size()) {
-            halfHourRateData = list.get(position);
-            colck = halfHourRateData.getTime().getColck();
-            rateValue = list.get(position).getRateValue();
-
-            halfHourSportDatas = halfHourSportData.get(position);
-            sportValue = halfHourSportDatas.getSportValue();
-
-
-            holder.dateTv.setText(String.format(colck));
-            if (rateValue == 0) {
-                holder.valueTv.setText("--");
-            } else {
-                holder.valueTv.setText(halfHourRateData.getRateValue() + "");
-            }
+            HalfHourRateData halfHourRateData = list.get(position);
+            String colck = halfHourRateData.getTime().getColck();
+            int rateValue = halfHourRateData.getRateValue();
+            holder.dateTv.setText(colck);
+            holder.valueTv.setText(rateValue==0?"--":rateValue+"");
+            HalfHourSportData halfHourSportDatas = halfHourSportData.get(position);
+            int sportValue = halfHourSportDatas.getSportValue();
 
             if (sportValue <= 220) {//静止
                 holder.img.setImageResource(R.drawable.history_heart_rest);
@@ -74,6 +63,13 @@ public class B30HeartDetailAdapter extends RecyclerView.Adapter<B30HeartDetailAd
             } else if (sportValue > 3200) {//剧烈
                 holder.img.setImageResource(R.drawable.history_heart_strenuous);
             }
+        }else{
+            HalfHourRateData halfHourRateData = list.get(position);
+            String colck = halfHourRateData.getTime().getColck();
+            int rateValue = halfHourRateData.getRateValue();
+            holder.dateTv.setText(colck);
+            holder.valueTv.setText(rateValue==0?"--":rateValue+"");
+            holder.img.setImageResource(R.drawable.history_heart_move);
         }
 
     }
