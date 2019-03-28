@@ -548,7 +548,7 @@ public class ConnBleHelpService {
                         stringBuffer.append("2");
                     }
                     //所有睡眠时间
-                    resultSlee.setAllSleepTime(Integer.valueOf(tempSleepData.getAllSleepTime()) + Integer.valueOf(sleepData.getAllSleepTime())+sleepStatus * 5);
+                    resultSlee.setAllSleepTime(Integer.valueOf(tempSleepData.getAllSleepTime()) + Integer.valueOf(sleepData.getAllSleepTime())+(sleepStatus * 5));
                     resultSlee.setSleepLine(WatchUtils.comPariDateDetail(time1, time2) ?
                             (tempSleepData.getSleepLine() + stringBuffer + "" + sleepData.getSleepLine()) :
                             (sleepData.getSleepLine() + stringBuffer + "" + tempSleepData.getSleepLine()));

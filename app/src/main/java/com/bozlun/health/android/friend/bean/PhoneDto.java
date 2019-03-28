@@ -24,4 +24,12 @@ public class PhoneDto {
     public void setTelPhone(String telPhone) {
         this.telPhone = telPhone;
     }
+
+    @Override
+    public String toString() {
+        return "PhoneDto{" +
+                "name='" + name + '\'' +
+                ", telPhone='" + telPhone + '\'' +
+                '}';
+    }
 }

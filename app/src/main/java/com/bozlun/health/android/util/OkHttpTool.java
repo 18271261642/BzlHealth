@@ -88,6 +88,15 @@ public class OkHttpTool {
         httpRequest(builder.build(), callBack);
     }
 
+    public void doRequest(String path, String json, HttpResult callBack) {
+        Request.Builder builder = new Request.Builder();
+        if (!TextUtils.isEmpty(mSession)) builder.addHeader("cookie", mSession);
+        RequestBody body = RequestBody.create(CONTENT_TYPE_JSON, json);
+        builder.post(body);
+        builder.url(path);
+        httpRequest(builder.build(), callBack);
+    }
+
     /**
      * 网络数据异步请求
      *

@@ -37,14 +37,13 @@ import com.bozlun.health.android.b31.B31ManSpO2Activity;
 import com.bozlun.health.android.b31.B31RespiratoryRateActivity;
 import com.bozlun.health.android.b31.bpoxy.B31BpOxyAnysisActivity;
 import com.bozlun.health.android.b31.bpoxy.ReadHRVAnSpo2DatatService;
-import com.bozlun.health.android.b31.bpoxy.ShowB31SingleDescActivity;
 import com.bozlun.health.android.b31.bpoxy.ShowSpo2DetailActivity;
 import com.bozlun.health.android.b31.bpoxy.util.ChartViewUtil;
 import com.bozlun.health.android.b31.bpoxy.util.VpSpo2hUtil;
 import com.bozlun.health.android.b31.hrv.B31HrvDetailActivity;
 import com.bozlun.health.android.b31.model.B31HRVBean;
 import com.bozlun.health.android.b31.model.B31Spo2hBean;
-import com.bozlun.health.android.bleutil.MyCommandManager;
+import com.bozlun.health.android.bleutil.MyCommandManager;;
 import com.bozlun.health.android.h9.settingactivity.SharePosterActivity;
 import com.bozlun.health.android.siswatch.LazyFragment;
 import com.bozlun.health.android.siswatch.utils.WatchConstants;
@@ -93,7 +92,6 @@ import static com.bozlun.health.android.b31.bpoxy.enums.Constants.CHART_MAX_HRV;
 import static com.bozlun.health.android.b31.bpoxy.enums.Constants.CHART_MAX_SPO2H;
 import static com.bozlun.health.android.b31.bpoxy.enums.Constants.CHART_MIN_HRV;
 import static com.bozlun.health.android.b31.bpoxy.enums.Constants.CHART_MIN_SPO2H;
-import static com.bozlun.health.android.b31.bpoxy.enums.EnumGlossary.BREATH;
 import static com.veepoo.protocol.model.enums.ESpo2hDataType.TYPE_BEATH_BREAK;
 import static com.veepoo.protocol.model.enums.ESpo2hDataType.TYPE_HRV;
 import static com.veepoo.protocol.model.enums.ESpo2hDataType.TYPE_SPO2H;
@@ -516,7 +514,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
             R.id.homeB31ManBloadOxImg, R.id.homeB31ManFatigueImg,
             R.id.homeB31ManRespRateImg, R.id.battery_watchRecordShareImg,
             R.id.b31BpOxyLin, R.id.b31HrvView,R.id.block_spo2h, R.id.block_heart,
-            R.id.block_sleep, R.id.block_breath, R.id.block_lowspo2h})
+            R.id.block_sleep, R.id.block_breath, R.id.block_lowspo2h,R.id.b30_top_dateTv})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.battery_watchRecordShareImg:  //分享
@@ -578,6 +576,12 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
             case R.id.block_lowspo2h:   //低氧时间
                 startToSpo2Detail("4",getResources().getString(R.string.vpspo2h_toptitle_lowspo2h));
                 break;
+            case R.id.b30_top_dateTv:
+
+                break;
+            case R.id.b31GoalStepTv:
+
+                break;
         }
     }
 
@@ -637,14 +641,14 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
         if(WatchUtils.isEmpty(mac))
             return;
         Log.e(TAG,"-------mac="+mac+"--date="+date);
-//        updateStepData(mac, date);  //更新步数
-//        updateSportData(mac, date); //更新运动图表数据
-//        updateRateData(mac, date);  //更新心率数据
-//        updateSleepData(mac, WatchUtils.obtainFormatDate(currDay)); //睡眠数据
+        updateStepData(mac, date);  //更新步数
+        updateSportData(mac, date); //更新运动图表数据
+        updateRateData(mac, date);  //更新心率数据
+        updateSleepData(mac, WatchUtils.obtainFormatDate(currDay)); //睡眠数据
         //HRV
         updateHRVData(mac, date);
         //血氧
-//        updateSpo2Data(mac, date);
+        updateSpo2Data(mac, date);
 
     }
 
@@ -836,7 +840,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {//bleMac = ? and
-                    String where = "bleMac = ? and dateStr = ？";
+                    String where = "bleMac = ? and dateStr = ?";
                     List<B31HRVBean> reList = LitePal.where(where, mac,day).find(B31HRVBean.class);
                     if (reList == null || reList.isEmpty()) {
                         Message message = handler.obtainMessage();

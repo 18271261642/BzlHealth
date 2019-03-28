@@ -11,6 +11,8 @@ import com.bozlun.health.android.LogTestUtil;
 import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.b30.bean.B30HalfHourDB;
 import com.bozlun.health.android.b30.bean.B30HalfHourDao;
+import com.bozlun.health.android.commdbserver.CommDBManager;
+import com.bozlun.health.android.commdbserver.CommStepCountDb;
 import com.bozlun.health.android.h9.utils.H9TimeUtil;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
 import com.bozlun.health.android.util.MyLogUtil;
@@ -107,12 +109,19 @@ public class CommVpDateUploadService extends IntentService {
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
+        Log.e(TAG,"-----------服务开启了-------");
         MyApp.getInstance().setUploadDate(true);// 正在上传数据,写到全局,保证同时只有一个本服务在运行
         gson = new Gson();
         deviceCode = (String) SharedPreferencesUtils.readObject(this, Commont.BLEMAC);
         userId = (String) SharedPreferencesUtils.readObject(this, "userId");
         if (TextUtils.isEmpty(deviceCode) || TextUtils.isEmpty(userId)) return;
         findNotUploadData();// 1.找出要上传的所有数据
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.e(TAG,"-----------服务销毁了-------");
     }
 
     /**
@@ -436,6 +445,8 @@ public class CommVpDateUploadService extends IntentService {
         if (bpData == null || bpData.isEmpty() || position >= bpData.size()) {
             // 血压数据上传完了,到此结束
             Log.d(TAG, "全部数据上传完成,改变上传状态，没在上传数据------此处设置设备语言");
+            //开始上传保存本地的数据
+            //startLocalDBData();
             //数据上传完咯，改变设备语言
             //判断设置语言
             boolean zh = VerifyUtil.isZh(MyApp.getInstance());
@@ -445,6 +456,11 @@ public class CommVpDateUploadService extends IntentService {
                 MyApp.getInstance().getVpOperateManager().settingDeviceLanguage(iBleWriteResponse, iLanguageDataListener, ELanguage.ENGLISH);
             }
             MyApp.getInstance().setUploadDate(false);
+
+
+
+
+
             return;
         }
         B30HalfHourDB b30HalfHourDB = bpData.get(position);
@@ -462,6 +478,7 @@ public class CommVpDateUploadService extends IntentService {
             requestBp(bpData, STATE_BP, position);
         }
     }
+
 
 
 
@@ -736,5 +753,7 @@ public class CommVpDateUploadService extends IntentService {
          */
         String status;
     }
+
+
 
 }

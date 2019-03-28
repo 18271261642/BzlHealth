@@ -173,6 +173,11 @@ public class AddNewFriendActivity
         return json;
     }
 
+
+    List<PhoneitemBean> phoneitemBeans = null;
+    List<String> stringsNumber = null;
+    List<PhoneBean.CheckRegisterBean> tmpList = null;
+
     private void initViews() {
         PhoneUtil phoneUtil = new PhoneUtil(this);
         phoneDtos = phoneUtil.getPhone();
@@ -181,11 +186,20 @@ public class AddNewFriendActivity
 //        for (int i = 0; i < phoneDtos.size(); i++) {
 //            phoneUser += phoneDtos.get(i).getTelPhone() + ",";
 //        }
-        List<PhoneitemBean> phoneitemBeans = new ArrayList<>();
+        Log.e("====返回=====", phoneDtos.toString() + "==" + phoneDtos.size());
+        if (phoneitemBeans == null) phoneitemBeans = new ArrayList<>();
+        else phoneitemBeans.clear();
+        if (stringsNumber == null) stringsNumber = new ArrayList<>();
+        else stringsNumber.clear();
         for (int i = 0; i < phoneDtos.size(); i++) {
-            PhoneitemBean phoneitemBean = new PhoneitemBean(phoneDtos.get(i).getTelPhone(), phoneDtos.get(i).getName());
-            phoneitemBeans.add(phoneitemBean);
+            if (!stringsNumber.contains(phoneDtos.get(i).getTelPhone())) {
+                PhoneitemBean phoneitemBean = new PhoneitemBean(phoneDtos.get(i).getTelPhone(), phoneDtos.get(i).getName());
+                phoneitemBeans.add(phoneitemBean);
+                stringsNumber.add(phoneDtos.get(i).getTelPhone());
+                Log.e("====好友=====", i + "==" + phoneDtos.get(i).getTelPhone() + "==" + phoneDtos.get(i).getName());
+            }
         }
+        Log.e("====返回2=====", phoneitemBeans.toString() + "==" + phoneitemBeans.size());
         JSONArray jsonArray = ProLogListJson(phoneitemBeans);
         checkExitRegister(jsonArray);
 //        MyAdapter myAdapter = new MyAdapter(phoneDtos);
@@ -428,7 +442,7 @@ public class AddNewFriendActivity
         try {
             sleepJson.put("userId", userId);
             sleepJson.put("contactsList", jsonArray);
-            Log.d("-----------朋友--", " 检查手机号是否注册--" + sleepJson.toString());
+            Log.e("-----------朋友--", " 检查手机号是否注册--" + sleepJson.toString());
         } catch (JSONException e1) {
             e1.printStackTrace();
         }
@@ -525,7 +539,8 @@ public class AddNewFriendActivity
     @Override
     public void successData(int what, Object object, int daystag) {
         closeLoadingDialog();
-        if (object == null || TextUtils.isEmpty(object.toString().trim())||object.toString().contains("<html>")) return;
+        if (object == null || TextUtils.isEmpty(object.toString().trim()) || object.toString().contains("<html>"))
+            return;
         switch (what) {
             case 0x01:
                 Log.d("-----------搜索朋友返回--", object.toString());
@@ -621,6 +636,10 @@ public class AddNewFriendActivity
                 }
                 break;
             case 0x03:
+
+                if (tmpList == null) tmpList = new ArrayList<>();
+                else tmpList.clear();
+
                 Log.d("-----------手机号检测返回--", object.toString());
                 PhoneBean phoneBean = new Gson().fromJson(object.toString(), PhoneBean.class);
                 if (phoneBean != null) {
@@ -631,19 +650,24 @@ public class AddNewFriendActivity
                             PhoneBean.CheckRegisterBean checkRegisterBean = checkRegister.get(i);
                             if (checkRegisterBean != null) {
                                 if (checkRegisterBean.getUser() != null) {
-                                    if (checkRegisterBean.getIsFriend() != 0) {
-                                        //已经添加的好友删除
-                                        checkRegister.remove(i);
+                                    if (checkRegisterBean.getIsFriend() == 0) {
+                                        tmpList.add(checkRegisterBean);
                                     }
-                                } else {
-                                    //未注册用户删除
-                                    checkRegister.remove(i);
+//                                    if (checkRegisterBean.getIsFriend() != 0) {
+//                                        //已经添加的好友删除
+//                                        checkRegister.remove(i);
+//                                    }
                                 }
+//                                else {
+//                                    //未注册用户删除
+//                                    checkRegister.remove(i);
+//
+//                                }
                             }
                         }
 
-                        MyAdapter myAdapter = new MyAdapter(checkRegister);
-                        frendListPhone.setAdapter(myAdapter);
+//                        MyAdapter myAdapter = new MyAdapter(tmpList);
+//                        frendListPhone.setAdapter(myAdapter);
                         //给listview增加点击事件
 //                        frendListPhone.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 //                            @Override
@@ -663,6 +687,9 @@ public class AddNewFriendActivity
 //                        });
                     }
                 }
+
+                MyAdapter myAdapter = new MyAdapter(tmpList);
+                frendListPhone.setAdapter(myAdapter);
                 break;
         }
 
@@ -706,7 +733,8 @@ public class AddNewFriendActivity
 
         @Override
         public int getCount() {
-            return checkRegister.size();
+            if (checkRegister == null) return 0;
+            else return checkRegister.size();
         }
 
         @Override

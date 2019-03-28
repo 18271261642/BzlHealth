@@ -414,6 +414,9 @@ public class PhoneBroadcastReceiver extends BroadcastReceiver {
     //发送来电指令
     private void setB30PhoneMsg(String peopleName) {
         if(MyCommandManager.DEVICENAME != null){
+            boolean callPhone = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISCallPhone, true);//来电
+            if(!callPhone)
+                return;
             ContentSetting contentSetting = new ContentPhoneSetting(ESocailMsg.PHONE,peopleName, phoneNumber);
             MyApp.getInstance().getVpOperateManager().sendSocialMsgContent(iBleWriteResponse, contentSetting);
         }

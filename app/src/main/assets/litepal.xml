@@ -4,7 +4,7 @@
 
     <!--2018-09-19 XuBo 增加B30HalfHourDB类,版本号:2-->
     <!--2018-12-21 新增HRV和血氧的bean,版本号3-->
-    <version value="1" />
+    <version value="3" />
 
     <list>
         <mapping class="com.bozlun.health.android.event.AlarmClock" />
@@ -16,5 +16,6 @@
         <mapping class="com.bozlun.health.android.b31.model.B31Spo2hBean"/>
         <mapping class="com.bozlun.health.android.b31.model.ManfatiBean"/>
         <mapping class="com.bozlun.health.android.b31.model.TempB31HRVBean"/>
+        <mapping class="com.bozlun.health.android.commdbserver.CommStepCountDb"/>
     </list>
 </litepal>  
