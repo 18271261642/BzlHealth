@@ -10,7 +10,6 @@ import org.litepal.crud.LitePalSupport;
  */
 public class CommStepCountDb extends LitePalSupport {
 
-
     /**
      * userId
      */
@@ -38,6 +37,12 @@ public class CommStepCountDb extends LitePalSupport {
      * @return
      */
     private String bleName;
+
+    /**
+     * 是否已经上传
+     * @return
+     */
+    private boolean isUpload;
 
 
     public String getUserid() {
@@ -88,6 +93,14 @@ public class CommStepCountDb extends LitePalSupport {
         this.bleName = bleName;
     }
 
+    public boolean isUpload() {
+        return isUpload;
+    }
+
+    public void setUpload(boolean upload) {
+        isUpload = upload;
+    }
+
     @Override
     public String toString() {
         return "CommStepCountDb{" +
@@ -97,6 +110,7 @@ public class CommStepCountDb extends LitePalSupport {
                 ", count=" + count +
                 ", devicecode='" + devicecode + '\'' +
                 ", bleName='" + bleName + '\'' +
+                ", isUpload=" + isUpload +
                 '}';
     }
 }

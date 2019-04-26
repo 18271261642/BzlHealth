@@ -24,6 +24,7 @@ import com.veepoo.protocol.listener.data.ILanguageDataListener;
 import com.veepoo.protocol.listener.data.IPersonInfoDataListener;
 import com.veepoo.protocol.listener.data.IPwdDataListener;
 import com.veepoo.protocol.listener.data.IScreenStyleListener;
+import com.veepoo.protocol.listener.data.ISleepDataListener;
 import com.veepoo.protocol.listener.data.ISocialMsgDataListener;
 import com.veepoo.protocol.listener.data.ISportDataListener;
 import com.veepoo.protocol.model.datas.AlarmData2;
@@ -47,6 +48,8 @@ import com.veepoo.protocol.model.enums.ELanguage;
 import com.veepoo.protocol.model.enums.EOprateStauts;
 import com.veepoo.protocol.model.enums.EPwdStatus;
 import com.veepoo.protocol.model.settings.CustomSettingData;
+import com.veepoo.protocol.model.settings.ReadSleepSetting;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -67,21 +70,11 @@ public class ConnBleHelpService {
 
     //设备数据
     private ConnBleMsgDataListener connBleMsgDataListener;
-    //HRV数据
-    private ConnHRVBackDataListener connHRVBackDataListener;
 
-
-
-    private List<Map<String,String>> listMap = new ArrayList<>();
-    private HashMap<String,List<Map<String,String>>> countMap = new HashMap<>();
-
-
-    //HRV返回的数据保存的集合
-    private List<HRVOriginData> backHRVList = new ArrayList<>();
 
     //睡眠处理map
     private Map<String,SleepData> sleepMap = new HashMap<>();
-    private List<SleepData> sleepDataList = new ArrayList<>();
+
 
     /**
      * 转换工具
@@ -116,65 +109,12 @@ public class ConnBleHelpService {
     }
 
 
-    private  EFunctionStatus isFindePhone = EFunctionStatus.SUPPORT_CLOSE;//控制查找手机UI
-    private  EFunctionStatus isStopwatch = EFunctionStatus.SUPPORT_CLOSE;////秒表
-    private  EFunctionStatus isWear = EFunctionStatus.SUPPORT_CLOSE;//佩戴检测
-    private  EFunctionStatus isCallPhone = EFunctionStatus.SUPPORT_CLOSE;//来电
-    private  EFunctionStatus isHelper = EFunctionStatus.SUPPORT_CLOSE;//SOS 求救
-    private  EFunctionStatus isDisAlert = EFunctionStatus.SUPPORT_CLOSE;//断开
-
 
     public void doConnOperater(final String bMac) {
         String b30Pwd = (String) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.DEVICESCODE, "0000");
-
-        final boolean isSystem = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISSystem, true);//是否为公制
+        if(WatchUtils.isEmpty(b30Pwd))
+            b30Pwd = "0000";
         final boolean is24Hour = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.IS24Hour, true);//是否为24小时制
-        final boolean isAutomaticHeart = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISAutoHeart, true);//自动测量心率
-        final boolean isAutomaticBoold = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISAutoBp, true);//自动测量血压
-        final boolean isSecondwatch = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISSecondwatch, false);//秒表
-        final boolean isWearCheck = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISWearcheck, true);//佩戴
-        final boolean isFindPhone = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISFindPhone, false);//查找手机
-        final boolean CallPhone = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISCallPhone, false);//来电
-        final boolean isDisconn = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISDisAlert, false);//断开连接提醒
-        final boolean isSos = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISHelpe, false);//sos
-        //查找手机
-        if (isFindPhone) {
-            isFindePhone = EFunctionStatus.SUPPORT_OPEN;
-        } else {
-            isFindePhone = EFunctionStatus.SUPPORT_CLOSE;
-        }
-
-        //秒表
-        if (isSecondwatch) {
-            isStopwatch = EFunctionStatus.SUPPORT_OPEN;
-        } else {
-            isStopwatch = EFunctionStatus.SUPPORT_CLOSE;
-        }
-
-        //佩戴检测
-        if (isWearCheck) {
-            isWear = EFunctionStatus.SUPPORT_OPEN;
-        } else {
-            isWear = EFunctionStatus.SUPPORT_CLOSE;
-        }
-        //来电
-        if (CallPhone) {
-            isCallPhone = EFunctionStatus.SUPPORT_OPEN;
-        } else {
-            isCallPhone = EFunctionStatus.SUPPORT_CLOSE;
-        }
-        //断开
-        if (isDisconn) {
-            isDisAlert = EFunctionStatus.SUPPORT_OPEN;
-        } else {
-            isDisAlert = EFunctionStatus.SUPPORT_CLOSE;
-        }
-        //sos
-        if (isSos) {
-            isHelper = EFunctionStatus.SUPPORT_CLOSE;
-        } else {
-            isHelper = EFunctionStatus.SUPPORT_CLOSE;
-        }
 
         VPOperateManager.getMangerInstance(MyApp.getContext()).confirmDevicePwd(new IBleWriteResponse() {
             @Override
@@ -191,11 +131,17 @@ public class ConnBleHelpService {
                 }
 
             }
-        }, new IDeviceFuctionDataListener() {
+        }, new IDeviceFuctionDataListener() {    //设备所支持的功能
             @Override
             public void onFunctionSupportDataChange(FunctionDeviceSupportData functionDeviceSupportData) {
                 Log.e(TAG, "--111---functionDeviceSupportData--=" + functionDeviceSupportData.toString());
 //                Log.e(TAG, "-----contactMsgLength=" + functionDeviceSupportData.getContactMsgLength() + "--all=" + functionDeviceSupportData.getAllMsgLength());
+
+                //判断是否支持血压功能 目前只针对B31
+                MyApp.getInstance().setB31HasBP(functionDeviceSupportData.getBp() == EFunctionStatus.SUPPORT);
+                //B31带血压功能的标识
+                SharedPreferencesUtils.setParam(MyApp.getContext(),Commont.IS_B31_HAS_BP_KEY,functionDeviceSupportData.getBp() == EFunctionStatus.SUPPORT);
+
             }
         }, new ISocialMsgDataListener() {
             @Override
@@ -207,30 +153,10 @@ public class ConnBleHelpService {
             public void OnSettingDataChange(CustomSettingData customSettingData) {
                 Log.e(TAG, "----111-CustomSettingData-=" + customSettingData.toString());
 
-
-
             }
         }, b30Pwd.trim(), is24Hour);
 
-        //设置语言，根据系统的语言设置
-        ELanguage languageData ;
-        String localelLanguage = Locale.getDefault().getLanguage();
-        if(WatchUtils.isEmpty(localelLanguage) && localelLanguage.equals("zh")){    //中文
-            languageData = ELanguage.CHINA;
-        }else{
-            languageData = ELanguage.ENGLISH;
-        }
-        MyApp.getInstance().getVpOperateManager().settingDeviceLanguage(bleWriteResponse, new ILanguageDataListener() {
-            @Override
-            public void onLanguageDataChange(LanguageData languageData) {
-
-            }
-        }, languageData);
-
-
-        SharedPreferencesUtils.setParam(MyApp.getContext(), Commont.BATTERNUMBER, 0);//每次连接清空电量
-        //同步用户信息，设置目标步数
-        setDeviceUserData();
+        setCommDevice();
 
 
     }
@@ -238,56 +164,7 @@ public class ConnBleHelpService {
     //验证设备密码
     public void doConnOperater(final String blePwd, final VerB30PwdListener verB30PwdListener) {
         // String b30Pwd = (String) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.DEVICESCODE, "0000");
-
-        final boolean isSystem = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISSystem, true);//是否为公制
         final boolean is24Hour = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.IS24Hour, true);//是否为24小时制
-        final boolean isAutomaticHeart = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISAutoHeart, false);//自动测量心率
-        final boolean isAutomaticBoold = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISAutoBp, false);//自动测量血压
-        final boolean isSecondwatch = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISSecondwatch, false);//秒表
-        final boolean isWearCheck = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISWearcheck, true);//佩戴
-        final boolean isFindPhone = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISFindPhone, false);//查找手机
-        final boolean CallPhone = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISCallPhone, false);//来电
-        final boolean isDisconn = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISDisAlert, false);//断开连接提醒
-        final boolean isSos = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISHelpe, false);//sos
-        //查找手机
-        if (isFindPhone) {
-            isFindePhone = EFunctionStatus.SUPPORT_OPEN;
-        } else {
-            isFindePhone = EFunctionStatus.SUPPORT_CLOSE;
-        }
-
-        //秒表
-        if (isSecondwatch) {
-            isStopwatch = EFunctionStatus.SUPPORT_OPEN;
-        } else {
-            isStopwatch = EFunctionStatus.SUPPORT_CLOSE;
-        }
-
-        //佩戴检测
-        if (isWearCheck) {
-            isWear = EFunctionStatus.SUPPORT_OPEN;
-        } else {
-            isWear = EFunctionStatus.SUPPORT_CLOSE;
-        }
-        //来电
-        if (CallPhone) {
-            isCallPhone = EFunctionStatus.SUPPORT_OPEN;
-        } else {
-            isCallPhone = EFunctionStatus.SUPPORT_CLOSE;
-        }
-        //断开
-        if (isDisconn) {
-            isDisAlert = EFunctionStatus.SUPPORT_OPEN;
-        } else {
-            isDisAlert = EFunctionStatus.SUPPORT_CLOSE;
-        }
-        //sos
-        if (isSos) {
-            isHelper = EFunctionStatus.SUPPORT_CLOSE;
-        } else {
-            isHelper = EFunctionStatus.SUPPORT_CLOSE;
-        }
-
         VPOperateManager.getMangerInstance(MyApp.getContext()).confirmDevicePwd(new IBleWriteResponse() {
             @Override
             public void onResponse(int i) {
@@ -317,6 +194,10 @@ public class ConnBleHelpService {
             public void onFunctionSupportDataChange(FunctionDeviceSupportData functionDeviceSupportData) {
 //                Log.e(TAG, "-----functionDeviceSupportData--=" + functionDeviceSupportData.toString());
 //                Log.e(TAG, "-----contactMsgLength=" + functionDeviceSupportData.getContactMsgLength() + "--all=" + functionDeviceSupportData.getAllMsgLength());
+                //B31带血压功能的标识
+                SharedPreferencesUtils.setParam(MyApp.getContext(),Commont.IS_B31_HAS_BP_KEY,functionDeviceSupportData.getBp() == EFunctionStatus.SUPPORT);
+
+
             }
         }, new ISocialMsgDataListener() {
             @Override
@@ -333,33 +214,65 @@ public class ConnBleHelpService {
         }, blePwd, is24Hour);
 
 
-        //设置语言，根据系统的语言设置
-        ELanguage languageData ;
-        String localelLanguage = Locale.getDefault().getLanguage();
-        if(WatchUtils.isEmpty(localelLanguage) && localelLanguage.equals("zh")){    //中文
-            languageData = ELanguage.CHINA;
-        }else{
-            languageData = ELanguage.ENGLISH;
-        }
-        MyApp.getInstance().getVpOperateManager().settingDeviceLanguage(bleWriteResponse, new ILanguageDataListener() {
-            @Override
-            public void onLanguageDataChange(LanguageData languageData) {
+        setCommDevice();
 
-            }
-        }, languageData);
 
+    }
+
+
+    //设置共同的属性
+    private void setCommDevice(){
+
+        WatchUtils.setCommSocailMsgSetting(MyApp.getContext());
+
+        //设置开关，佩戴检测、自动心率 血氧测量打开，带血压功能的默认打开血压
+        WatchUtils.setSwitchCheck();
 
         SharedPreferencesUtils.setParam(MyApp.getContext(), Commont.BATTERNUMBER, 0);//每次连接清空电量
         //同步用户信息，设置目标步数
         setDeviceUserData();
 
 
+
+        //设置语言，根据系统的语言设置
+        ELanguage languageData ;
+        String localelLanguage = Locale.getDefault().getLanguage();
+        Log.e(TAG,"----------localelLanguage="+localelLanguage);
+        if(!WatchUtils.isEmpty(localelLanguage) && localelLanguage.equals("zh")){    //中文
+            Locale locales = MyApp.getInstance().getApplicationContext().getResources().getConfiguration().locale;
+            String localCountry = locales.getCountry();
+            if(localCountry.equals("TW")){  //繁体
+                languageData = ELanguage.CHINA_TRADITIONAL;
+            }else{
+                languageData = ELanguage.CHINA;
+            }
+
+        }else{
+            languageData = ELanguage.ENGLISH;
+        }
+        MyApp.getInstance().getVpOperateManager().settingDeviceLanguage(bleWriteResponse, new ILanguageDataListener() {
+            @Override
+            public void onLanguageDataChange(LanguageData languageData) {
+                if (connBleHelpListener != null) {
+                    connBleHelpListener.connSuccState();
+                }
+            }
+        }, languageData);
+        //设置消息提醒的开关状态
+
+
     }
+
+
+
+
+
 
     /**
      * 同步用户信息设置设备的目标步数，
      */
     public  void setDeviceUserData(){
+
         //目标步数
         int sportGoal = (int) SharedPreferencesUtils.getParam(MyApp.getContext(), "b30Goal", 0);
         PersonInfoData personInfoData = WatchUtils.getUserPerson(sportGoal);
@@ -373,30 +286,24 @@ public class ConnBleHelpService {
             @Override
             public void OnPersoninfoDataChange(EOprateStauts eOprateStauts) {
                 //同步用户信息成功
-                if (eOprateStauts == EOprateStauts.OPRATE_SUCCESS) {
-                    if (connBleHelpListener != null) {
-                        connBleHelpListener.connSuccState();
-                    }
-                }
+//                if (eOprateStauts == EOprateStauts.OPRATE_SUCCESS) {
+//                    if (connBleHelpListener != null) {
+//                        connBleHelpListener.connSuccState();
+//                    }
+//                }
             }
         }, personInfoData);
 
 
-
-
         //设置主界面默认风格为1
-        MyApp.getInstance().getVpOperateManager().settingScreenStyle(bleWriteResponse, new IScreenStyleListener() {
-            @Override
-            public void onScreenStyleDataChange(ScreenStyleData screenStyleData) {
+//        MyApp.getInstance().getVpOperateManager().settingScreenStyle(bleWriteResponse, new IScreenStyleListener() {
+//            @Override
+//            public void onScreenStyleDataChange(ScreenStyleData screenStyleData) {
+//
+//            }
+//        },1 );
 
-            }
-        },1 );
 
-        //设置消息提醒的开关状态
-        WatchUtils.setCommSocailMsgSetting(MyApp.getContext());
-
-        //设置开关，佩戴检测、自动心率 血氧测量打开
-        WatchUtils.setSwitchCheck();
 
     }
 
@@ -442,9 +349,92 @@ public class ConnBleHelpService {
      *
      * @param today true_只加载今天数据 false_加载三天
      */
-    public void readAllHealthData(boolean today) {
+    public void readAllHealthData(final boolean today) {
         final long currTime = System.currentTimeMillis()/1000;
         sleepMap.clear();
+
+//        /**
+//         * dayInt - 读取位置，0表示今天，1表示昨天，2表示前天，以此类推。 读取顺序为 今天-昨天- 前天，
+//         * onlyReadOneDay - true表示只读今天，false表示按顺序读取
+//         */
+//        ReadSleepSetting readSleepSetting = new ReadSleepSetting(today ? 3:0,false,2);
+//
+//        MyApp.getInstance().getVpOperateManager().readSleepDataBySetting(bleWriteResponse, new ISleepDataListener() {
+//            @Override
+//            public void onSleepDataChange(SleepData sleepData) {
+//
+//            }
+//
+//            @Override
+//            public void onSleepProgress(float v) {
+//
+//            }
+//
+//            @Override
+//            public void onSleepProgressDetail(String s, int i) {
+//
+//            }
+//
+//            @Override
+//            public void onReadSleepComplete() {
+//
+//            }
+//        }, readSleepSetting);
+
+
+
+
+
+
+
+
+        //读取睡眠
+        MyApp.getInstance().getVpOperateManager().readSleepData(bleWriteResponse, new ISleepDataListener() {
+            @Override
+            public void onSleepDataChange(SleepData sleepData) {
+                Log.e(TAG, "---------睡眠原始返回数据="+sleepData.toString());
+                // 睡眠数据返回,会有多条数据
+                saveSleepData(sleepData);
+            }
+
+            @Override
+            public void onSleepProgress(float v) {
+
+            }
+
+            @Override
+            public void onSleepProgressDetail(String s, int i) {
+
+            }
+
+            @Override
+            public void onReadSleepComplete() {
+                // 读取睡眠数据结束
+                Log.e(TAG,"----------睡眠数据读取结束------="+sleepMap.size());
+                if(sleepMap != null && !sleepMap.isEmpty()){
+                    for(Map.Entry<String,SleepData> mp : sleepMap.entrySet()){
+                        B30HalfHourDB db = new B30HalfHourDB();
+                        db.setAddress(MyApp.getInstance().getMacAddress());
+                        db.setDate(WatchUtils.obtainAroundDate(mp.getValue().getDate(),false));
+                        db.setType(B30HalfHourDao.TYPE_SLEEP);
+                        db.setOriginData(gson.toJson(mp.getValue()));
+                        db.setUpload(0);
+                        B30HalfHourDao.getInstance().saveOriginData(db);
+                    }
+                }
+
+                readAllDeviceData(today);
+
+            }
+
+
+        }, today ? 2 : 4);
+
+
+    }
+
+    //读取所有的健康数据，
+    private void readAllDeviceData(boolean today) {
         MyApp.getInstance().getVpOperateManager().readAllHealthData(
                 new IAllHealthDataListener() {
                     @Override
@@ -454,26 +444,13 @@ public class ConnBleHelpService {
 
                     @Override
                     public void onSleepDataChange(SleepData sleepData) {
-                        Log.e(TAG, "---------睡眠原始返回数据="+sleepData.toString());
-                        // 睡眠数据返回,会有多条数据
-                        saveSleepData(sleepData);
+
                     }
 
                     @Override
                     public void onReadSleepComplete() {
                         // 读取睡眠数据结束
-                        Log.e(TAG,"----------睡眠数据读取结束------="+sleepMap.size());
-                        if(sleepMap != null && !sleepMap.isEmpty()){
-                            for(Map.Entry<String,SleepData> mp : sleepMap.entrySet()){
-                                B30HalfHourDB db = new B30HalfHourDB();
-                                db.setAddress(MyApp.getInstance().getMacAddress());
-                                db.setDate(WatchUtils.obtainAroundDate(mp.getValue().getDate(),false));
-                                db.setType(B30HalfHourDao.TYPE_SLEEP);
-                                db.setOriginData(gson.toJson(mp.getValue()));
-                                db.setUpload(0);
-                                B30HalfHourDao.getInstance().saveOriginData(db);
-                            }
-                       }
+
                     }
 
                     @Override
@@ -491,7 +468,6 @@ public class ConnBleHelpService {
 
                     @Override
                     public void onReadOriginComplete() {
-                        //Log.e(TAG,"----------读取运动数据结束--------="+System.currentTimeMillis()/1000+"---差值="+(System.currentTimeMillis()/1000-currTime));
                         // 读取取运动,心率,血压数据结束
                         new LocalizeTool(MyApp.getContext()).putUpdateDate(WatchUtils
                                 .obtainFormatDate(0));// 更新最后更新数据的时间
@@ -501,8 +477,10 @@ public class ConnBleHelpService {
                     }
                 }
 //                , today ? 1 : 3);// 读取天数的数据
-                ,  today ? 2 : 4);// 读取天数的数据
+                , today ? 2 : 4);// 读取天数的数据
     }
+
+
 
     /**
      * 保存手环返回的睡眠数据到本地数据库
@@ -518,7 +496,7 @@ public class ConnBleHelpService {
             //sleepMap.put(sleepData.getDate(),sleepData);
             Log.e(TAG,"---------sleepMap="+sleepMap.toString());
             if (sleepMap.get(sleepData.getDate()).getDate().equals(sleepData.getDate())) {  //同一天的
-                if(!sleepMap.get(sleepData.getDate()).getSleepLine().equals(sleepData.getSleepLine())){
+                if(sleepMap.get(sleepData.getDate()).getSleepQulity()!=sleepData.getSleepQulity()){
                     //map 中已经保存的
                     SleepData tempSleepData = sleepMap.get(sleepData.getDate());
                     SleepData resultSlee = new SleepData();
@@ -691,13 +669,6 @@ public class ConnBleHelpService {
     }
 
 
-    public interface ConnHRVBackDataListener{
-        void backHRVListData(List<HRVOriginData> dataList);
-    }
-
-    public void setConnHRVBackDataListener(ConnHRVBackDataListener connHRVBackDataListener) {
-        this.connHRVBackDataListener = connHRVBackDataListener;
-    }
 
     public void setConnBleMsgDataListener(ConnBleMsgDataListener connBleMsgDataListener) {
         this.connBleMsgDataListener = connBleMsgDataListener;

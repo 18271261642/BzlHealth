@@ -44,7 +44,7 @@
             android:id="@+id/hightBloadView"
             android:layout_width="80dp"
             android:layout_height="200dp"
-            app:spv_center_item_background="#22888888"
+
             app:spv_disallow_intercept_touch="true"
             app:spv_max_text_size="30dp"
             app:spv_min_text_size="24dp"
@@ -63,11 +63,12 @@
             android:id="@+id/lowBloadView"
             android:layout_width="80dp"
             android:layout_height="200dp"
-            app:spv_center_item_background="#22888888"
             app:spv_disallow_intercept_touch="true"
             app:spv_max_text_size="30dp"
             app:spv_min_text_size="24dp"
             app:spv_visible_item_count="5"/>
+
+
         <View
             android:layout_width="0dp"
             android:layout_weight="1"

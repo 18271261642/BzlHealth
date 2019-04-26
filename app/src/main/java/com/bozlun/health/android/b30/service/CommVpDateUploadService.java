@@ -153,14 +153,14 @@ public class CommVpDateUploadService extends IntentService {
     private void uploadSportData(int position) {
         Log.e(TAG,"---------运动数据position="+position);
         if (sportData == null || sportData.isEmpty() || position >= sportData.size()) {
-            Log.d(TAG, "步数上传完成，开始上传睡眠");
+            //Log.d(TAG, "步数上传完成，开始上传睡眠");
             uploadSleepData(0);// 运动数据上传完了,换着上传睡眠数据
             return;
         }
         B30HalfHourDB dbData = sportData.get(position);
         String date = dbData.getDate();
         String originData = dbData.getOriginData();
-        LogTestUtil.e(TAG, "---------步数数据" + originData);
+       // LogTestUtil.e(TAG, "---------步数数据" + originData);
         SportVo sportVo = totalSportByDay(date, originData);
         submitSportData(sportVo, position);
     }
@@ -249,7 +249,7 @@ public class CommVpDateUploadService extends IntentService {
         params.put("timeLen", sportVo.timeLen);
         params.put("date", sportVo.date);
         params.put("status", sportVo.status);
-        Log.d(TAG, "------AAA-步数上传参数" + params.toString());
+        //Log.d(TAG, "------AAA-步数上传参数" + params.toString());
         requestStep(URLs.HTTPs + URLs.upSportData, params, STATE_SPORT, position);
     }
 
@@ -258,7 +258,7 @@ public class CommVpDateUploadService extends IntentService {
      */
     private void uploadSleepData(int position) {
         if (sleepData == null || sleepData.isEmpty() || position >= sleepData.size()) {
-            Log.d(TAG, "睡眠数据上传完成，开始上传心率数据");
+            //Log.d(TAG, "睡眠数据上传完成，开始上传心率数据");
             uploadRateData(0);// 睡眠数据上传完了,换着上传心率数据
             return;
         }
@@ -268,7 +268,12 @@ public class CommVpDateUploadService extends IntentService {
             if (TextUtils.isEmpty(originData)) return;
             LogTestUtil.e(TAG, "数据库睡眠" + originData);
             SleepData sleepData = gson.fromJson(originData, SleepData.class);
-            submitSleepData(sleepData, position);
+//            if(sleepData != null){
+//                Log.e(TAG,"--------sleepData="+sleepData.toString());
+//
+//                submitSleepData(sleepData, position);
+//            }
+
         }
     }
 
@@ -303,13 +308,14 @@ public class CommVpDateUploadService extends IntentService {
         Map<String, String> params = new HashMap<>();
         params.put("userId", userId);
         params.put("deviceCode", deviceCode);
+        //Log.e(TAG,"-----------submitSleepData="+sleepData.toString());
         String dateAndClockForSleep = sleepData.getSleepDown().getDateAndClockForSleep();
         String dateAndClockForSleep1 = sleepData.getSleepUp().getDateAndClockForSleep();
-        Log.d(TAG, "------AAA-----睡眠数据" + "uploadSleepData==4=="
-                + dateAndClockForSleep + "==" + dateAndClockForSleep);
+//        Log.d(TAG, "------AAA-----睡眠数据" + "uploadSleepData==4=="
+//                + dateAndClockForSleep + "==" + dateAndClockForSleep);
         String s = dateToStamp(dateAndClockForSleep);
         String s1 = dateToStamp(dateAndClockForSleep1);
-        Log.d(TAG, "------AAA--睡眠数据--时间戳" + s + "===" + s1);
+       // Log.d(TAG, "------AAA--睡眠数据--时间戳" + s + "===" + s1);
 
         try {
             //时间戳转化为Sting或Date
@@ -327,7 +333,7 @@ public class CommVpDateUploadService extends IntentService {
             String nextDayddd = H9TimeUtil.getValidDateStr3(dateBeforessddd);
             Date dateBeforessaaa = H9TimeUtil.getDateBefore(date1, 0);
             String nextDayaaa = H9TimeUtil.getValidDateStr3(dateBeforessaaa);
-            Log.d(TAG, "times--startTime" + nextDayddd + "===endTime" + nextDayaaa);
+            //Log.d(TAG, "times--startTime" + nextDayddd + "===endTime" + nextDayaaa);
             params.put("startTime", nextDayddd);
             params.put("endTime", nextDayaaa);
             int deepSleepTime = sleepData.getDeepSleepTime();
@@ -343,7 +349,7 @@ public class CommVpDateUploadService extends IntentService {
             params.put("sleepCurveP", "" + sleepData.getSleepLine());
             params.put("sleepCurveS", "8");
 
-            MyLogUtil.d(TAG, "------AAA--睡眠数据---上传参数---" + params.toString());
+            //MyLogUtil.d(TAG, "------AAA--睡眠数据---上传参数---" + params.toString());
             request(URLs.HTTPs + URLs.upSleep, params, STATE_SLEEP, position);
         } catch (ParseException e) {
             e.printStackTrace();
@@ -374,7 +380,7 @@ public class CommVpDateUploadService extends IntentService {
      */
     private void uploadRateData(int position) {
         if (rateData == null || rateData.isEmpty() || position >= rateData.size()) {
-            MyLogUtil.d("----------心率--", "上传心率");
+            //MyLogUtil.d("----------心率--", "上传心率");
             uploadBpData(0);// 心率数据上传完了,换着上传血压数据
             return;
         }
@@ -444,7 +450,7 @@ public class CommVpDateUploadService extends IntentService {
     private void uploadBpData(int position) {
         if (bpData == null || bpData.isEmpty() || position >= bpData.size()) {
             // 血压数据上传完了,到此结束
-            Log.d(TAG, "全部数据上传完成,改变上传状态，没在上传数据------此处设置设备语言");
+            //Log.d(TAG, "全部数据上传完成,改变上传状态，没在上传数据------此处设置设备语言");
             //开始上传保存本地的数据
             //startLocalDBData();
             //数据上传完咯，改变设备语言
@@ -458,9 +464,6 @@ public class CommVpDateUploadService extends IntentService {
             MyApp.getInstance().setUploadDate(false);
 
 
-
-
-
             return;
         }
         B30HalfHourDB b30HalfHourDB = bpData.get(position);
@@ -469,12 +472,12 @@ public class CommVpDateUploadService extends IntentService {
             if (TextUtils.isEmpty(originData)) return;
             List<HalfHourBpData> dataList = gson.fromJson(originData, new TypeToken<List<HalfHourBpData>>() {
             }.getType());
-            LogTestUtil.e(TAG, "血压数据原始" + dataList.size() + "\n" + dataList.toString());
+            //LogTestUtil.e(TAG, "血压数据原始" + dataList.size() + "\n" + dataList.toString());
 
             HealthParamVo paramVo = new HealthParamVo();
             paramVo.data = submitBpData(userId, deviceCode, dataList);
             String bpData = gson.toJson(paramVo);
-            LogTestUtil.e(TAG, "血压数据" + bpData);
+            //LogTestUtil.e(TAG, "血压数据" + bpData);
             requestBp(bpData, STATE_BP, position);
         }
     }
@@ -528,7 +531,7 @@ public class CommVpDateUploadService extends IntentService {
             public void onResult(String result) {
                 if (WatchUtils.isEmpty(result))
                     return;
-                Log.d(TAG, "------AAA-睡眠上传返回" + result);
+                //Log.d(TAG, "------AAA-睡眠上传返回" + result);
                 handlerResult(result, type, position);
             }
         }, false);
@@ -549,7 +552,7 @@ public class CommVpDateUploadService extends IntentService {
             public void onResult(String result) {
                 if (WatchUtils.isEmpty(result))
                     return;
-                Log.d(TAG, "------AAA-步数上传返回" + result);
+                //Log.d(TAG, "------AAA-步数上传返回" + result);
                 handlerResult(result, type, position);
             }
         }, false);

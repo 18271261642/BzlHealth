@@ -317,7 +317,7 @@
 
         <meta-data
             android:name="UMENG_APPKEY"
-            android:value="59eea72f07fe6503d8000020" />
+            android:value="5cbd136761f56430e80002b0" />
         <meta-data
             android:name="UMENG_CHANNEL"
             android:value="yyb" />
@@ -1225,6 +1225,16 @@
         <activity android:name=".b31.bpoxy.ShowB31SingleDescActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
+
+        <!--sos编辑页面-->
+        <activity android:name=".bzlmaps.HellpEditActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <!--内部测试页面-->
+        <activity android:name=".b31.InternalTestActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+
 
         <!-- 下载的serveir -->
         <service android:name=".siswatch.utils.DownloadService" />

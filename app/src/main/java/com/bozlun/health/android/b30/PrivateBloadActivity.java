@@ -67,7 +67,7 @@ public class PrivateBloadActivity extends WatchBaseActivity implements ScrollPic
     //读取私人血压
     private void readBloodState() {
         if (MyCommandManager.DEVICENAME != null) {
-            MyApp.getInstance().getInstance().getVpOperateManager().readDetectBP(iBleWriteResponse, new IBPSettingDataListener() {
+            MyApp.getInstance().getVpOperateManager().readDetectBP(iBleWriteResponse, new IBPSettingDataListener() {
                 @Override
                 public void onDataChange(BpSettingData bpSettingData) {
                     handlerBloodState(bpSettingData);

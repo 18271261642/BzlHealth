@@ -1,6 +1,7 @@
 package com.bozlun.health.android.b30.b30view;
 
 import android.content.Context;
+import android.graphics.Paint;
 
 /**
  *
@@ -26,5 +27,16 @@ public class DimenUtil {
      */
     public static int sp2px(Context context, float sp) {
         return (int) (sp * context.getResources().getDisplayMetrics().scaledDensity + 0.5f);
+    }
+
+    /**
+     * 获取文字的宽度
+     *
+     * @param paint
+     * @param text
+     * @return
+     */
+    public static int getTextWidth(Paint paint, String text) {
+        return (int) paint.measureText(text);
     }
 }

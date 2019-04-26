@@ -174,9 +174,17 @@ public class B30ConnStateService extends Service {
                             SharedPreferencesUtils.saveObject(MyApp.getContext(), Commont.BLENAME, nameStr);
                             SharedPreferencesUtils.saveObject(MyApp.getContext(), Commont.BLEMAC, mac);
                             Intent intent = new Intent();
-                            if(nameStr.equals("B31")){  //B31的连接
+//                            if(nameStr.equals("B31")){  //B31的连接
+//                                intent.setAction(WatchUtils.B31_CONNECTED_ACTION);
+//                            }else{  //B30、B36、盖德
+//                                intent.setAction(WatchUtils.B30_CONNECTED_ACTION);
+//                            }
+
+                            if (nameStr.equals("B31")
+                                    || nameStr.equals("B31S")
+                                    || nameStr.equals("500S")) {  //B31的连接
                                 intent.setAction(WatchUtils.B31_CONNECTED_ACTION);
-                            }else{  //B30、B36、盖德
+                            } else {  //B30、B36、盖德
                                 intent.setAction(WatchUtils.B30_CONNECTED_ACTION);
                             }
 
@@ -369,7 +377,9 @@ public class B30ConnStateService extends Service {
                 Log.e(TAG,"------bleState="+bleState);
                 String b30Name = (String) SharedPreferencesUtils.readObject(MyApp.getInstance().getApplicationContext(),Commont.BLENAME);
                 String bMac = (String) SharedPreferencesUtils.readObject(MyApp.getContext(),Commont.BLEMAC);
-                if(WatchUtils.isEmpty(bMac))
+                if(WatchUtils.isEmpty(bMac) || WatchUtils.isEmpty(b30Name))
+                    return;
+                if(!WatchUtils.isVPBleDevice(b30Name))
                     return;
                 switch (bleState) {
                     case BluetoothAdapter.STATE_TURNING_ON: //蓝牙打开 11

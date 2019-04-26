@@ -101,6 +101,8 @@ public class WatchUtils {
     public static final String RINGMII_NAME = "Ringmii";   //盖德蓝牙名称
     public static final String H8_NAME = "H8";
     public static final String B31_NAME = "B31";        //B31手环
+    public static final String B31S_NAME = "B31S";        //B31S手环
+    public static final String S500_NAME = "500S";        //500S手环
 
     /**
      * 搜索 ，根据蓝牙名字过滤
@@ -110,7 +112,9 @@ public class WatchUtils {
     public static boolean verBleNameForSearch(String bleName) {
         if (bleName.substring(0, 2).equals(H8_NAME) ||
                 bleName.substring(0, 2).equals(H9_BLENAME) || bleName.substring(0, 3).equals(W30_NAME) ||
-                bleName.equals(RINGMII_NAME) || bleName.equals(B30_NAME) || bleName.equals(B36_NAME) || bleName.equals(B31_NAME) || bleName.length() > 4 && bleName.substring(0, 4).equals("W06X")) {
+                bleName.equals(RINGMII_NAME) || bleName.equals(B30_NAME) || bleName.equals(B36_NAME) ||
+                bleName.equals(B31_NAME) || bleName.length() > 4 && bleName.substring(0, 4).equals("W06X")|| (bleName.length() >= 4 && bleName.substring(0, 4).equals(B31S_NAME))
+                || (bleName.length() >= 4 && bleName.substring(0, 4).equals(S500_NAME))) {
             return true;
         } else {
             return false;
@@ -124,7 +128,7 @@ public class WatchUtils {
      * @return
      */
     public static boolean isVPBleDevice(String bName){
-        String[] bleArray = new String[]{B30_NAME,B31_NAME,B36_NAME};
+        String[] bleArray = new String[]{B30_NAME,B31_NAME,B36_NAME,B31S_NAME,S500_NAME};
         Set<String> set = new HashSet<>(Arrays.asList(bleArray));
         return set.contains(bName);
     }
@@ -1269,10 +1273,14 @@ public class WatchUtils {
      * @param context
      * @return
      */
-    public static boolean isB36Device(Context context,String bName) {
+    public static boolean isB36Device(Context context, String bName) {
         //蓝牙名字
         String bleName = (String) SharedPreferencesUtils.readObject(context, Commont.BLENAME);
-        if (!WatchUtils.isEmpty(bleName) && (bleName.equals("B36") || bleName.equals(bName))) {
+        if (!WatchUtils.isEmpty(bleName) &&
+                (bleName.equals("B36")
+                        || bleName.equals("500S")
+                        || bleName.equals("B31S")
+                        || bleName.equals(bName))) {
             return true;
         } else {
             return false;
@@ -1468,7 +1476,7 @@ public class WatchUtils {
         boolean isWhats = (boolean) SharedPreferencesUtils.getParam(context,Commont.ISWhatsApp,false);
         boolean isLine = (boolean) SharedPreferencesUtils.getParam(context,Commont.ISLINE,false);
         boolean isSkype = (boolean) SharedPreferencesUtils.getParam(context,Commont.ISSkype,false);
-
+        boolean isOther = (boolean) SharedPreferencesUtils.getParam(context,Commont.ISOther,false);
 
         FunctionSocailMsgData socailMsgData = new FunctionSocailMsgData();
         //电话提醒
@@ -1540,6 +1548,8 @@ public class WatchUtils {
         //gmail
         socailMsgData.setGmail(EFunctionStatus.SUPPORT_OPEN);
 
+        //isOther
+        socailMsgData.setOther(isOther?EFunctionStatus.SUPPORT_OPEN:EFunctionStatus.SUPPORT_CLOSE);
 
 
         Log.e(TAG,"-------------socailMsgData="+socailMsgData.toString());
@@ -1562,7 +1572,7 @@ public class WatchUtils {
         //血压/心率播报 B31不支持
         EFunctionStatus isOpenVoiceBpHeart = EFunctionStatus.UNSUPPORT;
         //查找手表  B31不支持
-        EFunctionStatus isOpenFindPhoneUI = EFunctionStatus.UNSUPPORT;
+        EFunctionStatus isOpenFindPhoneUI ;
         //秒表功能  支持
         EFunctionStatus isOpenStopWatch;
         //低压报警 支持
@@ -1577,12 +1587,12 @@ public class WatchUtils {
         //断连提醒 支持
         EFunctionStatus isOpenDisconnectRemind;
         //SOS  不支持
-        EFunctionStatus isOpenSOS = EFunctionStatus.UNSUPPORT;
+        EFunctionStatus isOpenSOS ;// = EFunctionStatus.UNSUPPORT;
 
 
         //保存的状态
         boolean isSystem = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISSystem, true);//是否为公制
-        boolean is24Hour = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.IS24Hour, true);//是否为24小时制
+        boolean is24Hour = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.IS24Hour, false);//是否为24小时制
         boolean isAutomaticHeart = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISAutoHeart, true);//自动测量心率
         boolean isAutomaticBoold = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISAutoBp, true);//自动测量血压
         boolean isSecondwatch = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISSecondwatch, false);//秒表
@@ -1606,9 +1616,22 @@ public class WatchUtils {
             isOpenDisconnectRemind = EFunctionStatus.SUPPORT_CLOSE;
         }
 
+        //查找手机
+        if(isFindPhone){
+            isOpenFindPhoneUI = EFunctionStatus.SUPPORT_OPEN;
+        }else{
+            isOpenFindPhoneUI = EFunctionStatus.SUPPORT_CLOSE;
+        }
+
+        //sos
+        if(isSos){
+            isOpenSOS = EFunctionStatus.SUPPORT_OPEN;
+        }else{
+            isOpenSOS = EFunctionStatus.SUPPORT_CLOSE;
+        }
 
         CustomSetting customSetting = new CustomSetting(true,isSystem,is24Hour,isAutomaticHeart,
-                false,isOpenSportRemain,isOpenVoiceBpHeart,isOpenFindPhoneUI,isOpenStopWatch,isOpenSpo2hLowRemind,
+                isAutomaticBoold,isOpenSportRemain,isOpenVoiceBpHeart,isOpenFindPhoneUI,isOpenStopWatch,isOpenSpo2hLowRemind,
                 isOpenWearDetectSkin,isOpenAutoInCall,isOpenAutoHRV,isOpenDisconnectRemind,isOpenSOS);
         Log.e(TAG,"--------customSetting="+customSetting.toString());
 

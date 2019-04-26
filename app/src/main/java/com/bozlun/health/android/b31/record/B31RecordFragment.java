@@ -19,13 +19,17 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
 import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.R;
+import com.bozlun.health.android.b30.B30BloadDetailActivity;
 import com.bozlun.health.android.b30.B30HeartDetailActivity;
 import com.bozlun.health.android.b30.B30SleepDetailActivity;
 import com.bozlun.health.android.b30.B30StepDetailActivity;
+import com.bozlun.health.android.b30.ManualMeaureBloadActivity;
 import com.bozlun.health.android.b30.ManualMeaureHeartActivity;
+import com.bozlun.health.android.b30.b30view.B30CusBloadView;
 import com.bozlun.health.android.b30.b30view.B30CusHeartView;
 import com.bozlun.health.android.b30.b30view.B30CusSleepView;
 import com.bozlun.health.android.b30.bean.B30HalfHourDB;
@@ -35,6 +39,7 @@ import com.bozlun.health.android.b31.B31HomeActivity;
 import com.bozlun.health.android.b31.B31ManFatigueActivity;
 import com.bozlun.health.android.b31.B31ManSpO2Activity;
 import com.bozlun.health.android.b31.B31RespiratoryRateActivity;
+import com.bozlun.health.android.b31.InternalTestActivity;
 import com.bozlun.health.android.b31.bpoxy.B31BpOxyAnysisActivity;
 import com.bozlun.health.android.b31.bpoxy.ReadHRVAnSpo2DatatService;
 import com.bozlun.health.android.b31.bpoxy.ShowSpo2DetailActivity;
@@ -43,7 +48,7 @@ import com.bozlun.health.android.b31.bpoxy.util.VpSpo2hUtil;
 import com.bozlun.health.android.b31.hrv.B31HrvDetailActivity;
 import com.bozlun.health.android.b31.model.B31HRVBean;
 import com.bozlun.health.android.b31.model.B31Spo2hBean;
-import com.bozlun.health.android.bleutil.MyCommandManager;;
+import com.bozlun.health.android.bleutil.MyCommandManager;
 import com.bozlun.health.android.h9.settingactivity.SharePosterActivity;
 import com.bozlun.health.android.siswatch.LazyFragment;
 import com.bozlun.health.android.siswatch.utils.WatchConstants;
@@ -69,6 +74,7 @@ import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import com.veepoo.protocol.listener.base.IBleWriteResponse;
 import com.veepoo.protocol.model.datas.HRVOriginData;
+import com.veepoo.protocol.model.datas.HalfHourBpData;
 import com.veepoo.protocol.model.datas.HalfHourRateData;
 import com.veepoo.protocol.model.datas.HalfHourSportData;
 import com.veepoo.protocol.model.datas.SleepData;
@@ -78,16 +84,20 @@ import com.veepoo.protocol.model.enums.ESpo2hDataType;
 import com.veepoo.protocol.util.HRVOriginUtil;
 import com.veepoo.protocol.util.HrvScoreUtil;
 import com.veepoo.protocol.util.Spo2hOriginUtil;
+
 import org.litepal.LitePal;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+
 import static com.bozlun.health.android.b31.bpoxy.enums.Constants.CHART_MAX_HRV;
 import static com.bozlun.health.android.b31.bpoxy.enums.Constants.CHART_MAX_SPO2H;
 import static com.bozlun.health.android.b31.bpoxy.enums.Constants.CHART_MIN_HRV;
@@ -95,6 +105,8 @@ import static com.bozlun.health.android.b31.bpoxy.enums.Constants.CHART_MIN_SPO2
 import static com.veepoo.protocol.model.enums.ESpo2hDataType.TYPE_BEATH_BREAK;
 import static com.veepoo.protocol.model.enums.ESpo2hDataType.TYPE_HRV;
 import static com.veepoo.protocol.model.enums.ESpo2hDataType.TYPE_SPO2H;
+
+;
 
 /**
  * B31的记录页面
@@ -118,6 +130,10 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
     //心脏健康指数
     @BindView(R.id.hrvHeartSocreTv)
     TextView hrvHeartSocreTv;
+
+    //手动血氧测量
+    @BindView(R.id.homeBPLin)
+    LinearLayout homeBPLin;
 
     private View b31View;
 
@@ -186,10 +202,40 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
     TextView syncStatusTv;
 
 
+    //血压是否显示的布局
+    @BindView(R.id.b30CusBloadLin)
+    LinearLayout b30CusBloadLin;
+
+    /**
+     * 血压图表
+     */
+    @BindView(R.id.b30HomeBloadChart)
+    B30CusBloadView b30HomeBloadChart;
+
+    //血压
+    @BindView(R.id.bloadLastTimeTv)
+    TextView bloadLastTimeTv;
+    @BindView(R.id.b30BloadValueTv)
+    TextView b30BloadValueTv;
+
+
+    /**
+     * 日期的集合
+     */
+    private List<String> b30BloadList;
+    /**
+     * 一对高低血压集合
+     */
+    private List<Map<Integer, Integer>> bloadListMap;
+
+    //血压的集合map，key : 时间；value : 血压值map
+    private List<Map<String, Map<Integer, Integer>>> resultBpMapList;
+
+
     /**
      * 当前显示哪天的数据(0_今天 1_昨天 2_前天)
      */
-    private int currDay= 0;
+    private int currDay = 0;
     //默认步数
     int defaultSteps = 0;
     /**
@@ -236,8 +282,6 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
     LineChart mChartViewLowspo2h;   //低氧时间图表
 
 
-
-
     @SuppressLint("HandlerLeak")
     Handler handler = new Handler() {
         @Override
@@ -251,7 +295,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
             }
             switch (msg.what) {
                 case 1000:
-                    if(getActivity() != null && !getActivity().isFinishing()){
+                    if (getActivity() != null && !getActivity().isFinishing()) {
                         handler.removeMessages(1001);// 正常关闭就移除延时口令
                         syncStatusTv.setVisibility(View.VISIBLE);
                         startReadDeviceService();
@@ -288,6 +332,18 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
                         showSleepData(sleepData);//展示睡眠的图表
                     }
                     break;
+                case 1005:  //血压
+                    if (getActivity() != null && !getActivity().isFinishing()) {
+                        if (bloadLastTimeTv != null)
+                            bloadLastTimeTv.setText(getResources().getString(R.string.string_recent) + " --:--" );
+                        //最近时间的血压高低值
+                        if (b30BloadValueTv != null)
+                            b30BloadValueTv.setText("--:--");
+                        List<HalfHourBpData> bpData = (List<HalfHourBpData>) msg.obj;
+                        showMineBloodData(bpData);//展示血压的图表
+                    }
+
+                    break;
                 case 1112:  //血氧
                     if (getActivity() != null && !getActivity().isFinishing()) {
                         List<Spo2hOriginData> tmpLt = (List<Spo2hOriginData>) msg.obj;
@@ -301,7 +357,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
                     }
                     break;
                 case 555:
-                    if(getActivity() != null && !getActivity().isFinishing()){
+                    if (getActivity() != null && !getActivity().isFinishing()) {
                         syncStatusTv.setVisibility(View.GONE);
                         B31HomeActivity activity = (B31HomeActivity) getActivity();
                         if (activity != null) activity.startUploadDate();// 上传数据
@@ -338,8 +394,8 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
 
         //保存的时间
         String tmpSaveTime = (String) SharedPreferencesUtils.getParam(getmContext(), "save_curr_time", "");
-        if(WatchUtils.isEmpty(tmpSaveTime))
-           SharedPreferencesUtils.setParam(getmContext(),"save_curr_time",System.currentTimeMillis() / 1000 + "");
+        if (WatchUtils.isEmpty(tmpSaveTime))
+            SharedPreferencesUtils.setParam(getmContext(), "save_curr_time", System.currentTimeMillis() / 1000 + "");
     }
 
 
@@ -350,10 +406,24 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
         unbinder = ButterKnife.bind(this, b31View);
 
         initViews();
+
+        verticalDevice();
         initData();
 
 
         return b31View;
+    }
+
+
+    //判断设备，显示和隐藏
+    private void verticalDevice() {
+
+        boolean isB31HasBp = (boolean) SharedPreferencesUtils.getParam(getmContext(),Commont.IS_B31_HAS_BP_KEY,false);
+        Log.e(TAG,"----------isB31HasBp="+isB31HasBp);
+        b30CusBloadLin.setVisibility(isB31HasBp?View.VISIBLE:View.GONE);
+        homeBPLin.setVisibility(isB31HasBp?View.VISIBLE:View.GONE);
+
+
     }
 
     private void initData() {
@@ -363,6 +433,13 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
         b30ChartList = new ArrayList<>();
         tmpB30StepList = new ArrayList<>();
         tmpIntegerList = new ArrayList<>();
+        //血压图表
+        resultBpMapList = new ArrayList<>();
+
+        b30BloadList = new ArrayList<>();
+        bloadListMap = new ArrayList<>();
+
+
         initSpo2hUtil();
 
         //updatePageData();
@@ -389,8 +466,15 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
                 }
             });
         }
-        if(WatchUtils.isEmpty(WatchUtils.getSherpBleMac(getmContext())))
+        if (WatchUtils.isEmpty(WatchUtils.getSherpBleMac(getmContext())))
             return;
+        showDeviceIcon();
+
+        if (MyCommandManager.DEVICENAME == null) {
+            if (b31HomeSwipeRefreshLayout != null)
+                b31HomeSwipeRefreshLayout.setEnableRefresh(false);
+        }
+
         if (b31HomeSwipeRefreshLayout != null)
             b31HomeSwipeRefreshLayout.setOnRefreshListener(new OnRefreshListener() {
                 @Override
@@ -399,6 +483,31 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
                 }
             });
 
+
+        b30TopDateTv.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                startActivity(new Intent(getmContext(), InternalTestActivity.class));
+                return true;
+            }
+        });
+
+    }
+
+
+    //判断显示的设备图标
+    private void showDeviceIcon() {
+        if (ivTop != null) {
+            if (!WatchUtils.isEmpty(MyCommandManager.DEVICENAME)) {
+                if (MyCommandManager.DEVICENAME.equals(WatchUtils.B31_NAME)) {
+                    ivTop.setImageResource(R.mipmap.ic_home_top_b31);
+                } else if (MyCommandManager.DEVICENAME.equals(WatchUtils.S500_NAME)) {
+                    ivTop.setImageResource(R.mipmap.ic_500s);
+                } else {
+                    ivTop.setImageResource(R.mipmap.ic_home_top_b31);//b31s
+                }
+            }
+        }
     }
 
 
@@ -446,9 +555,9 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
     protected void onFragmentVisibleChange(boolean isVisible) {
         super.onFragmentVisibleChange(isVisible);
         if (isVisible) {  //判断是否读取数据
-            if(WatchUtils.isEmpty(WatchUtils.getSherpBleMac(getmContext())))
+            if (WatchUtils.isEmpty(WatchUtils.getSherpBleMac(getmContext())))
                 return;
-            int currCode = (int) SharedPreferencesUtils.getParam(getmContext(),"code_status",0);
+            int currCode = (int) SharedPreferencesUtils.getParam(getmContext(), "code_status", 0);
             clearDataStyle(currCode);//设置每次回主界面，返回数据不清空的
             //updatePageData();
             if (connBleHelpService != null && MyCommandManager.DEVICENAME != null) {
@@ -513,8 +622,9 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
             R.id.b30SleepLin, R.id.b30CusHeartLin, R.id.homeB31ManHeartImg,
             R.id.homeB31ManBloadOxImg, R.id.homeB31ManFatigueImg,
             R.id.homeB31ManRespRateImg, R.id.battery_watchRecordShareImg,
-            R.id.b31BpOxyLin, R.id.b31HrvView,R.id.block_spo2h, R.id.block_heart,
-            R.id.block_sleep, R.id.block_breath, R.id.block_lowspo2h,R.id.b30_top_dateTv})
+            R.id.b31BpOxyLin, R.id.b31HrvView, R.id.block_spo2h, R.id.block_heart,
+            R.id.block_sleep, R.id.block_breath, R.id.block_lowspo2h,
+            R.id.b30_top_dateTv, R.id.b30CusBloadLin,R.id.homeBPLin})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.battery_watchRecordShareImg:  //分享
@@ -543,6 +653,9 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
             case R.id.b30CusHeartLin:   //心率图表的点击
                 B30HeartDetailActivity.startAndParams(getActivity(), WatchUtils.obtainFormatDate(currDay));
                 break;
+            case R.id.b30CusBloadLin:   //血压图表
+                B30BloadDetailActivity.startAndParams(getActivity(), WatchUtils.obtainFormatDate(currDay));
+                break;
             case R.id.homeB31ManHeartImg:   //手动心率测量
                 startActivity(new Intent(getmContext(), ManualMeaureHeartActivity.class));
                 break;
@@ -555,26 +668,29 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
             case R.id.homeB31ManRespRateImg:    //呼吸率测量
                 startActivity(new Intent(getmContext(), B31RespiratoryRateActivity.class));
                 break;
+            case R.id.homeBPLin:            //血压测量
+                startActivity(new Intent(getmContext(),ManualMeaureBloadActivity.class));
+                break;
             case R.id.b31BpOxyLin:  //血氧分析
-                B31BpOxyAnysisActivity.startAndParams(getmContext(),WatchUtils.obtainFormatDate(currDay));
+                B31BpOxyAnysisActivity.startAndParams(getmContext(), WatchUtils.obtainFormatDate(currDay));
                 break;
             case R.id.b31HrvView:    //HRV
                 B31HrvDetailActivity.startAndParams(getmContext(), WatchUtils.obtainFormatDate(currDay));
                 break;
             case R.id.block_spo2h:  //血氧
-                startToSpo2Detail("0",getResources().getString(R.string.vpspo2h_spo2h));
+                startToSpo2Detail("0", getResources().getString(R.string.vpspo2h_spo2h));
                 break;
             case R.id.block_heart:  //心脏负荷
-                startToSpo2Detail("1",getResources().getString(R.string.vpspo2h_toptitle_heart));
+                startToSpo2Detail("1", getResources().getString(R.string.vpspo2h_toptitle_heart));
                 break;
             case R.id.block_sleep:      //睡眠活动
-                startToSpo2Detail("2",getResources().getString(R.string.vpspo2h_toptitle_sleep));
+                startToSpo2Detail("2", getResources().getString(R.string.vpspo2h_toptitle_sleep));
                 break;
             case R.id.block_breath:     //呼吸率
-                startToSpo2Detail("3",getResources().getString(R.string.vpspo2h_toptitle_breath));
+                startToSpo2Detail("3", getResources().getString(R.string.vpspo2h_toptitle_breath));
                 break;
             case R.id.block_lowspo2h:   //低氧时间
-                startToSpo2Detail("4",getResources().getString(R.string.vpspo2h_toptitle_lowspo2h));
+                startToSpo2Detail("4", getResources().getString(R.string.vpspo2h_toptitle_lowspo2h));
                 break;
             case R.id.b30_top_dateTv:
 
@@ -587,11 +703,11 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
 
 
     //跳转至详情页面
-    private void startToSpo2Detail(String tag,String titleTxt){
-        Intent intent = new Intent(getmContext(),ShowSpo2DetailActivity.class);
-        intent.putExtra("spo2_tag",tag);
-        intent.putExtra("title",titleTxt);
-        intent.putExtra(Constant.DETAIL_DATE,WatchUtils.obtainFormatDate(currDay));
+    private void startToSpo2Detail(String tag, String titleTxt) {
+        Intent intent = new Intent(getmContext(), ShowSpo2DetailActivity.class);
+        intent.putExtra("spo2_tag", tag);
+        intent.putExtra("title", titleTxt);
+        intent.putExtra(Constant.DETAIL_DATE, WatchUtils.obtainFormatDate(currDay));
         getmContext().startActivity(intent);
 
     }
@@ -599,7 +715,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
 
     //读取手环的数据
     private void getBleMsgData() {
-        if(WatchUtils.isEmpty(WatchUtils.getSherpBleMac(getmContext())))
+        if (WatchUtils.isEmpty(WatchUtils.getSherpBleMac(getmContext())))
             return;
         SharedPreferencesUtils.setParam(getmContext(), "saveDate", System.currentTimeMillis() / 1000 + "");
         connBleHelpService.getDeviceMsgData();
@@ -621,7 +737,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
     }
 
     private void startReadDeviceService() {
-        if(getActivity() != null && !getActivity().isFinishing()){
+        if (getActivity() != null && !getActivity().isFinishing()) {
             Intent intent = new Intent(getActivity(), ReadHRVAnSpo2DatatService.class);
             getmContext().startService(intent);
 
@@ -638,13 +754,15 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
 
         String mac = WatchUtils.getSherpBleMac(getmContext());
         String date = WatchUtils.obtainFormatDate(currDay);
-        if(WatchUtils.isEmpty(mac))
+        if (WatchUtils.isEmpty(mac))
             return;
-        Log.e(TAG,"-------mac="+mac+"--date="+date);
+        Log.e(TAG, "-------mac=" + mac + "--date=" + date);
         updateStepData(mac, date);  //更新步数
         updateSportData(mac, date); //更新运动图表数据
         updateRateData(mac, date);  //更新心率数据
         updateSleepData(mac, WatchUtils.obtainFormatDate(currDay)); //睡眠数据
+        //血压
+        updateBpData(mac, date);//更新血压数据
         //HRV
         updateHRVData(mac, date);
         //血氧
@@ -659,10 +777,10 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
         long currentTime = System.currentTimeMillis() / 1000;   //当前时间
         //保存的时间
         String tmpSaveTime = (String) SharedPreferencesUtils.getParam(getmContext(), "save_curr_time", "");
-        long diffTime = (currentTime - Long.valueOf(tmpSaveTime)) ;
-        if(diffTime <2)
+        long diffTime = (currentTime - Long.valueOf(tmpSaveTime));
+        if (diffTime < 2)
             return;
-        SharedPreferencesUtils.setParam(getmContext(),"save_curr_time",System.currentTimeMillis() / 1000 + "");
+        SharedPreferencesUtils.setParam(getmContext(), "save_curr_time", System.currentTimeMillis() / 1000 + "");
 
         //if (code == currDay) return;// 防重复点击
         if (b31HomeTodayImg != null) b31HomeTodayImg.setVisibility(View.INVISIBLE);
@@ -680,7 +798,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
                 break;
         }
         currDay = code;
-        SharedPreferencesUtils.setParam(getmContext(),"code_status",code);
+        SharedPreferencesUtils.setParam(getmContext(), "code_status", code);
         updatePageData();
 
 
@@ -831,6 +949,62 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
         handler.sendMessage(message);//发送消息，展示睡眠的图表
     }
 
+
+    /**
+     * 取出本地血压数据
+     */
+    private void updateBpData(String mac, String date) {
+        String bp = B30HalfHourDao.getInstance().findOriginData(mac, date, B30HalfHourDao.TYPE_BP);
+        List<HalfHourBpData> bpData = gson.fromJson(bp, new TypeToken<List<HalfHourBpData>>() {
+        }.getType());
+        Message message = new Message();
+        message.what = 1005;
+        message.obj = bpData;
+        handler.sendMessage(message);//发送消息，展示血压的图表
+
+    }
+
+
+    /**
+     * 展示血压图表
+     */
+    @SuppressLint("SetTextI18n")
+    private void showMineBloodData(List<HalfHourBpData> bpData) {
+        if (getActivity() == null || getActivity().isFinishing()) return;
+        b30BloadList.clear();
+        bloadListMap.clear();
+        resultBpMapList.clear();
+        if (bpData != null && !bpData.isEmpty()) {
+            //获取日期
+            for (HalfHourBpData halfHourBpData : bpData) {
+                Map<String, Map<Integer, Integer>> mapMap = new HashMap<>();
+                if (halfHourBpData == null) return;
+                b30BloadList.add(halfHourBpData.getTime().getColck());// 时:分
+                Map<Integer, Integer> mp = new HashMap<>();
+                mp.put(halfHourBpData.getLowValue(), halfHourBpData.getHighValue());
+                bloadListMap.add(mp);
+
+                mapMap.put(halfHourBpData.getTime().getColck(), mp);
+                resultBpMapList.add(mapMap);
+
+            }
+            //最近一次的血压数据
+            HalfHourBpData lastHalfHourBpData = bpData.get(bpData.size() - 1);
+            if (lastHalfHourBpData != null) {
+                if (bloadLastTimeTv != null)
+                    bloadLastTimeTv.setText(getResources().getString(R.string.string_recent) + " " + lastHalfHourBpData.getTime().getColck());
+                //最近时间的血压高低值
+                if (b30BloadValueTv != null)
+                    b30BloadValueTv.setText(lastHalfHourBpData.getHighValue() + "/" + lastHalfHourBpData.getLowValue() + "mmhg");
+            }
+        }
+
+
+        b30HomeBloadChart.setBpVerticalMap(resultBpMapList);
+
+    }
+
+
     List<HRVOriginData> tmpHRVlist = new ArrayList<>();
 
     //取出本地的HRV数据
@@ -841,7 +1015,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
                 @Override
                 public void run() {//bleMac = ? and
                     String where = "bleMac = ? and dateStr = ?";
-                    List<B31HRVBean> reList = LitePal.where(where, mac,day).find(B31HRVBean.class);
+                    List<B31HRVBean> reList = LitePal.where(where, mac, day).find(B31HRVBean.class);
                     if (reList == null || reList.isEmpty()) {
                         Message message = handler.obtainMessage();
                         message.what = 1113;
@@ -864,7 +1038,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
             thread.start();
 
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -889,7 +1063,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
                     handler.sendMessage(message);
                     return;
                 }
-                Log.e(TAG,"---血氧------查询数据="+currDay+spo2hBeanList.size());
+                Log.e(TAG, "---血氧------查询数据=" + currDay + spo2hBeanList.size());
                 for (B31Spo2hBean hBean : spo2hBeanList) {
                     //Log.e(TAG,"---------走到这里来了="+hBean.toString());
                     spo2hOriginDataList.add(gson.fromJson(hBean.getSpo2hOriginData(), Spo2hOriginData.class));
@@ -902,8 +1076,6 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
 
             }
         }).start();
-
-
 
 
     }
@@ -951,33 +1123,6 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
         }
 
 
-//        getActivity().runOnUiThread(new Runnable() {
-//            @Override
-//            public void run() {
-//                ChartViewUtil spo2ChartViewUtilHomes = new ChartViewUtil(homeSpo2LinChartView, null, true,
-//                        CHART_MAX_SPO2H, CHART_MIN_SPO2H, "No Data", TYPE_SPO2H);
-//                spo2ChartViewUtilHomes.setxColor(R.color.head_text);
-//                spo2ChartViewUtilHomes.setNoDataColor(R.color.head_text);
-//                //更新血氧数据的图表
-//                spo2ChartViewUtilHomes.setBeathBreakData(tenMinuteDataBreathBreak);
-//                spo2ChartViewUtilHomes.updateChartView(tenMinuteDataSpo2h);
-//                spo2ChartViewUtilHomes.setBeathBreakData(tenMinuteDataBreathBreak);
-//
-//                homeSpo2LinChartView.getAxisLeft().removeAllLimitLines();
-//                homeSpo2LinChartView.getAxisLeft().setDrawLabels(false);
-//
-//                LineData data = homeSpo2LinChartView.getData();
-//                if (data == null)
-//                    return;
-//                LineDataSet dataSetByIndex = (LineDataSet) data.getDataSetByIndex(0);
-//                if (dataSetByIndex != null) {
-//                    dataSetByIndex.setDrawFilled(false);
-//                    dataSetByIndex.setColor(Color.parseColor("#17AAE2"));
-//                }
-//            }
-//       });
-
-
     }
 
 
@@ -989,7 +1134,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
         sleepList.clear();
 
         if (sleepData != null) {
-            Log.e(TAG,"-------sleepData="+sleepData.toString());
+            Log.e(TAG, "-------sleepData=" + sleepData.toString());
             if (b30StartEndTimeTv != null)
                 b30StartEndTimeTv.setText(sleepData.getSleepDown().getColck() + "-" + sleepData.getSleepUp().getColck());
             String sleepLin = sleepData.getSleepLine();
@@ -1008,15 +1153,15 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
             sleepList.add(0);
             sleepList.add(2);
         } else {
-            if (b30StartEndTimeTv != null)  b30StartEndTimeTv.setText("--:--");
+            if (b30StartEndTimeTv != null) b30StartEndTimeTv.setText("--:--");
         }
         if (sleepList != null && !sleepList.isEmpty()) {
-            if (b30CusSleepView != null){
+            if (b30CusSleepView != null) {
                 b30CusSleepView.setShowSeekBar(false);
                 b30CusSleepView.setSleepList(sleepList);
             }
         } else {
-            if (b30CusSleepView != null){
+            if (b30CusSleepView != null) {
                 b30CusSleepView.setShowSeekBar(false);
                 b30CusSleepView.setSleepList(new ArrayList<Integer>());
             }
@@ -1168,7 +1313,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-             Log.e(TAG,"-----------action-="+action);
+            Log.e(TAG, "-----------action-=" + action);
             if (action == null)
                 return;
             if (action.equals(WatchUtils.B31_CONNECTED_ACTION)) { //连接
@@ -1176,6 +1321,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
                     String textConn = getResources().getString(R.string.connted);
                     if (b30connectStateTv != null) b30connectStateTv.setText(textConn);
                     if (connBleHelpService != null && MyCommandManager.DEVICENAME != null) {
+                        showDeviceIcon();
                         if (b31HomeSwipeRefreshLayout != null) {
                             b31HomeSwipeRefreshLayout.setEnableRefresh(true);
                             b31HomeSwipeRefreshLayout.autoRefresh();
@@ -1220,9 +1366,9 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
         HRVOriginUtil mHrvOriginUtil = new HRVOriginUtil(data0to8);
         HrvScoreUtil hrvScoreUtil = new HrvScoreUtil();
         int heartSocre = hrvScoreUtil.getSocre(dataList);
-        hrvHeartSocreTv.setText(getResources().getString(R.string.heart_health_sorce)+" "+heartSocre);
+        hrvHeartSocreTv.setText(getResources().getString(R.string.heart_health_sorce) + " " + heartSocre);
         final List<Map<String, Float>> tenMinuteData = mHrvOriginUtil.getTenMinuteData();
-        if(getActivity() == null)
+        if (getActivity() == null)
             return;
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -1243,7 +1389,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
         b31HomeHrvChart.getAxisLeft().setDrawLabels(false);
         chartViewUtilHome.setxColor(R.color.head_text);
         chartViewUtilHome.setNoDataColor(R.color.head_text);
-        chartViewUtilHome.drawYLable(false,1);
+        chartViewUtilHome.drawYLable(false, 1);
         chartViewUtilHome.updateChartView(tenMinuteData);
         LineData data = b31HomeHrvChart.getData();
         if (data == null)
@@ -1267,14 +1413,21 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
     @NonNull
     private List<HRVOriginData> getMoringData(List<HRVOriginData> originSpo2hList) {
         List<HRVOriginData> moringData = new ArrayList<>();
-        if(originSpo2hList == null || originSpo2hList.size()==0)
-            return moringData;
-        for (HRVOriginData HRVOriginData : originSpo2hList) {
-            if (HRVOriginData.getmTime().getHMValue() < 8 * 60) {
-                moringData.add(HRVOriginData);
+        try {
+            if (originSpo2hList == null || originSpo2hList.size() == 0)
+                return moringData;
+            for (HRVOriginData hRVOriginData : originSpo2hList) {
+                if (hRVOriginData.getmTime().getHMValue() < 8 * 60) {
+                    moringData.add(hRVOriginData);
+                }
             }
+            return moringData;
+        }catch (Exception e){
+            e.printStackTrace();
+            moringData.clear();
+            return moringData;
         }
-        return moringData;
+
     }
 
     /**
@@ -1286,14 +1439,22 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
     @NonNull
     private List<Spo2hOriginData> getSpo2MoringData(List<Spo2hOriginData> originSpo2hList) {
         List<Spo2hOriginData> spo2Data = new ArrayList<>();
-        if(originSpo2hList == null || originSpo2hList.isEmpty())
-            return spo2Data;
-        for (Spo2hOriginData spo2hOriginData : originSpo2hList) {
-            if (spo2hOriginData.getmTime().getHMValue() < 8 * 60) {
-                spo2Data.add(spo2hOriginData);
+        try {
+            if (originSpo2hList == null || originSpo2hList.isEmpty())
+                return spo2Data;
+            for (Spo2hOriginData spo2hOriginData : originSpo2hList) {
+                if (spo2hOriginData.getmTime().getHMValue() < 8 * 60) {
+                    spo2Data.add(spo2hOriginData);
+                }
             }
+            return spo2Data;
+        }catch (Exception e){
+            e.printStackTrace();
+            spo2Data.clear();
+            return spo2Data;
         }
-        return spo2Data;
+
+
     }
 
 

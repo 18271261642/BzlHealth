@@ -19,7 +19,6 @@
             android:orientation="vertical">
 
 
-
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -122,8 +121,6 @@
                     android:text="@string/string_sedentary_setting" />
 
 
-
-
                 <ImageView
                     android:id="@+id/bs1img"
                     android:layout_width="wrap_content"
@@ -159,7 +156,6 @@
                     android:text="@string/string_turning_wrist_screen" />
 
 
-
                 <ImageView
                     android:id="@+id/bs2img"
                     android:layout_width="wrap_content"
@@ -174,9 +170,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/size_1"
                 android:background="@color/chang_white" />
-
-
-
 
 
             <View
@@ -324,6 +317,49 @@
                 android:text="@string/string_mores"
                 android:textSize="@dimen/sp_14" />
 
+
+            <RelativeLayout
+                android:id="@+id/b31sDevicePrivateBloadRel"
+                android:visibility="gone"
+                style="@style/B30DeviceRelStyle"
+                android:background="@drawable/square_white_btn_change">
+
+                <ImageView
+                    android:id="@+id/img6"
+                    android:layout_width="@dimen/size_30"
+                    android:layout_height="@dimen/size_30"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="@dimen/size_10"
+                    android:background="@drawable/ic_b31s_private_bp" />
+
+
+                <TextView
+                    style="@style/B30DeviceStyle"
+                    android:layout_toRightOf="@+id/img6"
+                    android:text="@string/string_blood_pressure_mode" />
+
+
+                <ToggleButton
+                    android:id="@+id/b31sPrivateBloadToggleBtn"
+                    android:layout_width="@dimen/size_70"
+                    android:layout_height="@dimen/size_40"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="@dimen/size_3"
+                    android:layout_toLeftOf="@+id/bs4img"
+                    android:background="@drawable/toggle_select"
+                    android:textOff="@null"
+                    android:textOn="@null" />
+
+                <ImageView
+                    android:id="@+id/bs4img"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/fgm_fitness_arrow_left" />
+
+            </RelativeLayout>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/size_1"
@@ -401,8 +437,8 @@
 
             <RelativeLayout
                 android:id="@+id/b31DeviceCounDownRel"
-                android:background="@drawable/square_white_btn_change"
-                style="@style/B30DeviceRelStyle">
+                style="@style/B30DeviceRelStyle"
+                android:background="@drawable/square_white_btn_change">
 
                 <ImageView
                     android:id="@+id/img9"
@@ -431,7 +467,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@color/chang_white" />
-
 
 
             <RelativeLayout
@@ -572,8 +607,8 @@
             <RelativeLayout
                 android:id="@+id/wxSportRel"
                 style="@style/B30DeviceRelStyle"
-                android:visibility="gone"
-                android:background="@drawable/square_white_btn_change">
+                android:background="@drawable/square_white_btn_change"
+                android:visibility="gone">
 
                 <ImageView
                     android:id="@+id/img23"
@@ -612,9 +647,9 @@
                 android:textColor="@color/white" />
 
             <View
-                android:background="#eeeeee"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/size_20" />
+                android:layout_height="@dimen/size_20"
+                android:background="#eeeeee" />
 
         </LinearLayout>
     </android.support.v4.widget.NestedScrollView>

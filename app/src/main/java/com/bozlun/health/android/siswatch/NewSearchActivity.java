@@ -371,7 +371,7 @@ public class NewSearchActivity extends GetUserInfoActivity implements CustomBlue
             String bleName = bluetoothDevice.getName();
             String bleMac = bluetoothDevice.getAddress(); //bozlun
             if (!WatchUtils.isEmpty(bleName) && bleName.length() >= 3) {
-                if (bleName.equals("B31")) {
+                if (WatchUtils.verBleNameForSearch(bleName)) {
                     if (!repeatList.contains(bleMac)) {
                         if (customDeviceList.size() <= 30) {
                             repeatList.add(bleMac);
@@ -496,7 +496,8 @@ public class NewSearchActivity extends GetUserInfoActivity implements CustomBlue
             }
             //B30，B36，Ringmiihx手表
             if (bleName.equals(WatchUtils.B30_NAME) || bleName.equals(WatchUtils.B36_NAME)
-                    || bleName.equals("Ringmii") || bleName.equals(B31_NAME)) {
+                    || bleName.equals(WatchUtils.RINGMII_NAME) || bleName.equals(B31_NAME)
+                    || bleName.equals(WatchUtils.B31S_NAME) || bleName.equals(WatchUtils.S500_NAME)) {
                 connectB30(customBlueDevice.getBluetoothDevice().getAddress().trim(), bleName);
                 return;
             }
@@ -779,13 +780,13 @@ public class NewSearchActivity extends GetUserInfoActivity implements CustomBlue
 //                }
 
                 //B30手环连接成功
-//                if (action.equals(WatchUtils.B30_CONNECTED_ACTION)) { //B30连接成功
-//                    closeLoadingDialog();
-//                    isScanConn = true;
-//                    startActivity(B30HomeActivity.class);
-//                    NewSearchActivity.this.finish();
-//
-//                }
+                if (action.equals(WatchUtils.B30_CONNECTED_ACTION)) { //B30连接成功
+                    closeLoadingDialog();
+                    isScanConn = true;
+                    startActivity(B30HomeActivity.class);
+                    NewSearchActivity.this.finish();
+
+                }
 
                 //B31连接成功
                 if(action.equals(WatchUtils.B31_CONNECTED_ACTION)){

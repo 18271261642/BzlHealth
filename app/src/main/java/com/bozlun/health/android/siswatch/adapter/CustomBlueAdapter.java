@@ -74,6 +74,10 @@ public class CustomBlueAdapter extends RecyclerView.Adapter<CustomBlueAdapter.Cu
                 }
                 else if(bleName.substring(0,3).equals("B31")){  //B31
                     holder.img.setImageResource(R.mipmap.ic_b31_search);
+                }else if (bleName.length() >= 4 && bleName.substring(0, 4).equals("B31S")) {  //B31
+                    holder.img.setImageResource(R.mipmap.ic_b31_search);
+                } else if (bleName.length() >= 4 && bleName.substring(0, 4).equals("500S")) {  //B31
+                    holder.img.setImageResource(R.mipmap.ic_seach_500s);
                 }
 //                else if(bleName.substring(0,4).equals("B18I")){    //B18I手环 bzolun
 //                    holder.img.setImageResource(R.mipmap.icon_b18i_scanshow);

@@ -97,6 +97,12 @@ public class B30MessAlertActivity extends WatchBaseActivity {
     boolean isWhats = false;
     //Line
     boolean isLine = false;
+    //other
+    boolean isOther = false;
+
+
+    @BindView(R.id.b30OhterTogg)
+    ToggleButton b30OhterTogg;
 
 
     @Override
@@ -119,12 +125,12 @@ public class B30MessAlertActivity extends WatchBaseActivity {
     }
 
 
-    private void getPhoneStatus(){
+    private void getPhoneStatus() {
         AudioManager audioManager = (AudioManager) MyApp.getInstance().getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-        if(audioManager != null){
+        if (audioManager != null) {
             int ringMode = audioManager.getRingerMode();
             //audioManager.getStreamVolume()
-            Log.e(TAG, "-------手环模式="+ringMode);
+            Log.e(TAG, "-------手环模式=" + ringMode);
             switch (ringMode) {
                 case AudioManager.RINGER_MODE_NORMAL:
                     //普通模式
@@ -142,16 +148,16 @@ public class B30MessAlertActivity extends WatchBaseActivity {
 
 
     //获取Do not disturb权限,才可进行音量操作
-    private void getDoNotDisturb(){
+    private void getDoNotDisturb() {
         NotificationManager notificationManager =
                 (NotificationManager) MyApp.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-        if(notificationManager == null)
+        if (notificationManager == null)
             return;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
                 && !notificationManager.isNotificationPolicyAccessGranted()) {
 
             Intent intent = new Intent(
-                    android.provider.Settings
+                    Settings
                             .ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
 
             MyApp.getInstance().getApplicationContext().startActivity(intent);
@@ -162,10 +168,10 @@ public class B30MessAlertActivity extends WatchBaseActivity {
 
     //申请电话权限
     private void requestPermiss() {
-        if (!AndPermission.hasPermissions(B30MessAlertActivity.this, new String[]{Manifest.permission.CALL_PHONE, Manifest.permission.READ_PHONE_STATE,Manifest.permission.READ_CALL_LOG})) {
+        if (!AndPermission.hasPermissions(B30MessAlertActivity.this, new String[]{Manifest.permission.CALL_PHONE, Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_CALL_LOG})) {
             AndPermission.with(B30MessAlertActivity.this)
                     .runtime()
-                    .permission(Manifest.permission.CALL_PHONE, Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_CONTACTS,Manifest.permission.READ_CALL_LOG,Manifest.permission.WRITE_CALL_LOG)
+                    .permission(Manifest.permission.CALL_PHONE, Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_CONTACTS, Manifest.permission.READ_CALL_LOG, Manifest.permission.WRITE_CALL_LOG)
                     .rationale(new Rationale<List<String>>() {
                         @Override
                         public void showRationale(Context context, List<String> data, RequestExecutor executor) {
@@ -178,7 +184,7 @@ public class B30MessAlertActivity extends WatchBaseActivity {
         if (!AndPermission.hasPermissions(B30MessAlertActivity.this, new String[]{Manifest.permission.READ_SMS, Manifest.permission.READ_CONTACTS})) {
             AndPermission.with(B30MessAlertActivity.this)
                     .runtime()
-                    .permission(Manifest.permission.READ_SMS, Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_CONTACTS,Manifest.permission.READ_CALL_LOG,Manifest.permission.WRITE_CALL_LOG)
+                    .permission(Manifest.permission.READ_SMS, Manifest.permission.READ_PHONE_STATE, Manifest.permission.READ_CONTACTS, Manifest.permission.READ_CALL_LOG, Manifest.permission.WRITE_CALL_LOG)
                     .start();
         }
     }
@@ -187,7 +193,6 @@ public class B30MessAlertActivity extends WatchBaseActivity {
     protected void onResume() {
         super.onResume();
     }
-
 
 
     /**
@@ -309,6 +314,10 @@ public class B30MessAlertActivity extends WatchBaseActivity {
                         b30PhoneTogg.setChecked(false);
                         isOpenPhone = false;
                     }
+
+                    //other
+                    isOther = functionSocailMsgData.getOther() == EFunctionStatus.SUPPORT_OPEN;
+                    b30OhterTogg.setChecked(isOther);
                 }
             });
         }
@@ -327,6 +336,7 @@ public class B30MessAlertActivity extends WatchBaseActivity {
         b30QQTogg.setOnCheckedChangeListener(new ToggCheckChanageListener());
         b30MessageTogg.setOnCheckedChangeListener(new ToggCheckChanageListener());
         b30PhoneTogg.setOnCheckedChangeListener(new ToggCheckChanageListener());
+        b30OhterTogg.setOnCheckedChangeListener(new ToggCheckChanageListener());
 
 
     }
@@ -352,49 +362,53 @@ public class B30MessAlertActivity extends WatchBaseActivity {
 
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            if(!buttonView.isPressed())
+            if (!buttonView.isPressed())
                 return;
             switch (buttonView.getId()) {
                 case R.id.b30SkypeTogg: //skype
-                   isSkype = isChecked;
-                   SharedPreferencesUtils.setParam(B30MessAlertActivity.this,Commont.ISSkype,isChecked);
+                    isSkype = isChecked;
+                    SharedPreferencesUtils.setParam(B30MessAlertActivity.this, Commont.ISSkype, isChecked);
                     break;
                 case R.id.b30WhatsAppTogg:  //whatspp
-                   isWhats = isChecked;
-                    SharedPreferencesUtils.setParam(B30MessAlertActivity.this,Commont.ISWhatsApp,isChecked);
+                    isWhats = isChecked;
+                    SharedPreferencesUtils.setParam(B30MessAlertActivity.this, Commont.ISWhatsApp, isChecked);
                     break;
                 case R.id.b30FacebookTogg:  //facebook
                     isFaceBook = isChecked;
-                    SharedPreferencesUtils.setParam(B30MessAlertActivity.this,Commont.ISFacebook,isChecked);
+                    SharedPreferencesUtils.setParam(B30MessAlertActivity.this, Commont.ISFacebook, isChecked);
                     break;
                 case R.id.b30LinkedTogg:    //linked
                     isLinkin = isChecked;
-                    SharedPreferencesUtils.setParam(B30MessAlertActivity.this,Commont.ISLinkendln,isChecked);
+                    SharedPreferencesUtils.setParam(B30MessAlertActivity.this, Commont.ISLinkendln, isChecked);
                     break;
                 case R.id.b30TwitterTogg:   //twitter
                     isTwitter = isChecked;
-                    SharedPreferencesUtils.setParam(B30MessAlertActivity.this,Commont.ISTwitter,isChecked);
+                    SharedPreferencesUtils.setParam(B30MessAlertActivity.this, Commont.ISTwitter, isChecked);
                     break;
                 case R.id.b30LineTogg:  //line
                     isLine = isChecked;
-                    SharedPreferencesUtils.setParam(B30MessAlertActivity.this,Commont.ISLINE,isChecked);
+                    SharedPreferencesUtils.setParam(B30MessAlertActivity.this, Commont.ISLINE, isChecked);
                     break;
                 case R.id.b30WechatTogg:    //wechat
                     isWeChat = isChecked;
-                    SharedPreferencesUtils.setParam(B30MessAlertActivity.this,Commont.ISWechart,isChecked);
+                    SharedPreferencesUtils.setParam(B30MessAlertActivity.this, Commont.ISWechart, isChecked);
                     break;
                 case R.id.b30QQTogg:    //qq
                     isQQ = isChecked;
-                    SharedPreferencesUtils.setParam(B30MessAlertActivity.this,Commont.ISQQ,isChecked);
+                    SharedPreferencesUtils.setParam(B30MessAlertActivity.this, Commont.ISQQ, isChecked);
                     break;
                 case R.id.b30MessageTogg:   //msg
                     requestPermiss();
-                   isMsg = isChecked;
-                    SharedPreferencesUtils.setParam(B30MessAlertActivity.this,Commont.ISMsm,isChecked);
+                    isMsg = isChecked;
+                    SharedPreferencesUtils.setParam(B30MessAlertActivity.this, Commont.ISMsm, isChecked);
+                    break;
+                case R.id.b30OhterTogg:     //其它
+                    isOther = isChecked;
+                    SharedPreferencesUtils.setParam(B30MessAlertActivity.this,Commont.ISOther,isChecked);
                     break;
                 case R.id.b30PhoneTogg: //phone
                     requestPermiss();
-                    SharedPreferencesUtils.setParam(B30MessAlertActivity.this,Commont.ISPhone,isChecked);
+                    SharedPreferencesUtils.setParam(B30MessAlertActivity.this, Commont.ISPhone, isChecked);
                     isOpenPhone = isChecked;
                     SharedPreferencesUtils.setParam(B30MessAlertActivity.this, "isCallPhone", isChecked);
                     MyApp.getInstance().getVpOperateManager().settingDeviceControlPhone(new IDeviceControlPhone() {
@@ -461,64 +475,62 @@ public class B30MessAlertActivity extends WatchBaseActivity {
     }
 
 
-
-
-    private void setSocailMsg()    {
+    private void setSocailMsg() {
         FunctionSocailMsgData socailMsgData = new FunctionSocailMsgData();
         //电话提醒
-        if(isOpenPhone){
+        if (isOpenPhone) {
             socailMsgData.setPhone(EFunctionStatus.SUPPORT_OPEN);
-        }else{
+        } else {
             socailMsgData.setPhone(EFunctionStatus.SUPPORT_CLOSE);
         }
         //短信
-        if(isMsg){
+        if (isMsg) {
             socailMsgData.setMsg(EFunctionStatus.SUPPORT_OPEN);
-        }else{
+        } else {
             socailMsgData.setMsg(EFunctionStatus.SUPPORT_CLOSE);
         }
         //微信
-        if(isWeChat){
+        if (isWeChat) {
             socailMsgData.setWechat(EFunctionStatus.SUPPORT_OPEN);
-        }else{
+        } else {
             socailMsgData.setWechat(EFunctionStatus.SUPPORT_CLOSE);
         }
         //QQ
-        if(isQQ){
+        if (isQQ) {
             socailMsgData.setQq(EFunctionStatus.SUPPORT_OPEN);
-        }else{
+        } else {
             socailMsgData.setQq(EFunctionStatus.SUPPORT_CLOSE);
         }
         //新浪 不支持
         socailMsgData.setSina(EFunctionStatus.UNSUPPORT);
         //facebook
-        if(isFaceBook){
+        if (isFaceBook) {
             socailMsgData.setFacebook(EFunctionStatus.SUPPORT_OPEN);
-        }else{
+        } else {
             socailMsgData.setFacebook(EFunctionStatus.SUPPORT_CLOSE);
         }
 
-        if(isTwitter){
+        if (isTwitter) {
             socailMsgData.setTwitter(EFunctionStatus.SUPPORT_OPEN);
-        }else{
+        } else {
             socailMsgData.setTwitter(EFunctionStatus.SUPPORT_CLOSE);
         }
         //flicker  不支持
         socailMsgData.setFlickr(EFunctionStatus.UNSUPPORT);
-        if(isLinkin){
+        if (isLinkin) {
             socailMsgData.setLinkin(EFunctionStatus.SUPPORT_OPEN);
-        }else{
+        } else {
             socailMsgData.setLinkin(EFunctionStatus.SUPPORT_CLOSE);
         }
 
-        if(isWhats){
+        if (isWhats) {
             socailMsgData.setWhats(EFunctionStatus.SUPPORT_OPEN);
-        }else{
+        } else {
             socailMsgData.setWhats(EFunctionStatus.SUPPORT_CLOSE);
         }
-        if(isLine){
+        if (isLine) {
             socailMsgData.setLine(EFunctionStatus.SUPPORT_OPEN);
-        }else{
+        } else {
             socailMsgData.setLine(EFunctionStatus.SUPPORT_CLOSE);
         }
 
@@ -526,17 +538,22 @@ public class B30MessAlertActivity extends WatchBaseActivity {
         socailMsgData.setInstagram(EFunctionStatus.SUPPORT_OPEN);
         //snapchat
         socailMsgData.setSnapchat(EFunctionStatus.SUPPORT_OPEN);
-        if(isSkype){
+        if (isSkype) {
             socailMsgData.setSkype(EFunctionStatus.SUPPORT_OPEN);
-        }else{
+        } else {
             socailMsgData.setSkype(EFunctionStatus.SUPPORT_CLOSE);
         }
         //gmail
         socailMsgData.setGmail(EFunctionStatus.SUPPORT_OPEN);
 
+        //other
+        if(isOther){
+            socailMsgData.setOther(EFunctionStatus.SUPPORT_OPEN);
+        }else{
+            socailMsgData.setOther(EFunctionStatus.SUPPORT_CLOSE);
+        }
 
-
-        Log.e(TAG,"-------------socailMsgData="+socailMsgData.toString());
+        Log.e(TAG, "-------------socailMsgData=" + socailMsgData.toString());
 
         MyApp.getInstance().getVpOperateManager().settingSocialMsg(iBleWriteResponse, new ISocialMsgDataListener() {
             @Override

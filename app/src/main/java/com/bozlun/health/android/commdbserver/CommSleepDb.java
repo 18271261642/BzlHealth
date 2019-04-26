@@ -55,6 +55,11 @@ public class CommSleepDb extends LitePalSupport {
     private String waketime;
 
     /**
+     * 设备名称
+     */
+    private String bleName;
+
+    /**
      * 清醒次数
      */
     private int wakecount;
@@ -139,6 +144,14 @@ public class CommSleepDb extends LitePalSupport {
         this.wakecount = wakecount;
     }
 
+    public String getBleName() {
+        return bleName;
+    }
+
+    public void setBleName(String bleName) {
+        this.bleName = bleName;
+    }
+
     @Override
     public String toString() {
         return "CommSleepDb{" +
@@ -148,9 +161,10 @@ public class CommSleepDb extends LitePalSupport {
                 ", soberlen=" + soberlen +
                 ", deepsleep=" + deepsleep +
                 ", shallowsleep=" + shallowsleep +
-                ", sleeplen='" + sleeplen + '\'' +
+                ", sleeplen=" + sleeplen +
                 ", sleeptime='" + sleeptime + '\'' +
                 ", waketime='" + waketime + '\'' +
+                ", bleName='" + bleName + '\'' +
                 ", wakecount=" + wakecount +
                 '}';
     }

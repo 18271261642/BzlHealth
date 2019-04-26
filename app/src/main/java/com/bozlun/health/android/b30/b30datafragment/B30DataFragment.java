@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.R;
 import com.bozlun.health.android.b30.b30view.B30BloadDataView;
@@ -189,12 +190,22 @@ public class B30DataFragment extends LazyFragment implements B30DataServer.B30Da
         commentB30TitleTv.setText(getResources().getString(R.string.data));
         if(getActivity() == null || getActivity().isFinishing())
             return;
-        if(WatchUtils.getSherpBleName(getActivity()) == null)
+        String bleName = WatchUtils.getSherpBleName(getActivity());
+        if(WatchUtils.isEmpty(bleName))
             return;
-        if(WatchUtils.isB36Device(getActivity()) || WatchUtils.getSherpBleName(getActivity()).equals("B31")){
-            b30BloadChartLin.setVisibility(View.GONE);
-        }else{
+        if (bleName.equals("B30")
+                || bleName.equals("Ringmii")
+                || bleName.equals("B31S")
+                || bleName.equals("500S")) { //目前B30和盖德的B30有血压功能
             b30BloadChartLin.setVisibility(View.VISIBLE);
+        } else {
+            if(bleName.equals("B31")){
+                boolean isB31HasBp = (boolean) SharedPreferencesUtils.getParam(getActivity(),Commont.IS_B31_HAS_BP_KEY,false);
+                b30BloadChartLin.setVisibility(isB31HasBp?View.VISIBLE:View.GONE);
+                return;
+            }
+
+            b30BloadChartLin.setVisibility(View.GONE);
         }
     }
 
@@ -611,15 +622,6 @@ public class B30DataFragment extends LazyFragment implements B30DataServer.B30Da
                     }
                 }
                 mHandler.sendEmptyMessage(0x02);
-//                if (getActivity() != null && !getActivity().isFinishing()) {
-//
-////                    getActivity().runOnUiThread(new Runnable() {
-////                        @Override
-////                        public void run() {
-////                            showHeartChart(heartValues, heartXList);
-////                        }
-////                    });
-//                }
             }
         };
         mHandler.post(runnableHeart);

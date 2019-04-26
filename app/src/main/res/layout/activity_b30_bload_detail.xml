@@ -41,11 +41,21 @@
                 android:padding="@dimen/size_10"
                 android:src="@drawable/arrow_white_right"/>
         </LinearLayout>
+
+
+
+        <com.bozlun.health.android.b30.b30view.CusB30CusBloadView
+            android:id="@+id/cusB30BpView"
+            android:layout_width="match_parent"
+            android:background="#FF8E0D"
+            android:layout_height="150dp" />
+
         
         <com.bozlun.health.android.b30.b30view.B30CusBloadView
             app:highPointColor="@color/white"
             app:lowPointColor="@color/white"
             app:timeColor="@color/white"
+            android:visibility="gone"
             app:linPaintColor="@color/white"
             android:id="@+id/b30DetailBloadView"
             android:layout_width="match_parent"

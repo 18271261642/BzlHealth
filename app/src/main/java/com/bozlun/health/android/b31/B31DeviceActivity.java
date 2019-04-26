@@ -2,16 +2,20 @@ package com.bozlun.health.android.b31;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -26,16 +30,22 @@ import com.bozlun.health.android.b30.B30MessAlertActivity;
 import com.bozlun.health.android.b30.B30ResetActivity;
 import com.bozlun.health.android.b30.B30ScreenStyleActivity;
 import com.bozlun.health.android.b30.B30TrunWristSetActivity;
+import com.bozlun.health.android.b30.PrivateBloadActivity;
 import com.bozlun.health.android.b30.view.B30DeviceAlarmActivity;
 import com.bozlun.health.android.bleutil.MyCommandManager;
 import com.bozlun.health.android.siswatch.NewSearchActivity;
 import com.bozlun.health.android.siswatch.WatchBaseActivity;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
-
 import com.bozlun.health.android.w30s.carema.W30sCameraActivity;
 import com.bozlun.health.android.w30s.wxsport.WXSportActivity;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import com.veepoo.protocol.listener.base.IBleWriteResponse;
+import com.veepoo.protocol.listener.data.IBPSettingDataListener;
+import com.veepoo.protocol.listener.data.IScreenStyleListener;
+import com.veepoo.protocol.model.datas.BpSettingData;
+import com.veepoo.protocol.model.datas.ScreenStyleData;
+import com.veepoo.protocol.model.enums.EBPDetectModel;
+import com.veepoo.protocol.model.settings.BpSetting;
 import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.Permission;
@@ -71,12 +81,26 @@ public class B31DeviceActivity extends WatchBaseActivity implements Rationale<Li
     @BindView(R.id.b31DeviceStyleRel)
     RelativeLayout b31DeviceStyleRel;
 
+    //血压私人模式的开关
+    @BindView(R.id.b31sPrivateBloadToggleBtn)
+    ToggleButton b31sPrivateBloadToggleBtn;
+
+    //血压私人模式布局
+    @BindView(R.id.b31sDevicePrivateBloadRel)
+    RelativeLayout b31sDevicePrivateBloadRel;
+
     private AlertDialog.Builder builder;
 
     //运动目标
     ArrayList<String> sportGoalList;
     //睡眠目标
     ArrayList<String> sleepGoalList;
+
+
+    /**
+     * 私人血压数据
+     */
+    private BpSettingData bpData;
 
 
     @Override
@@ -113,13 +137,50 @@ public class B31DeviceActivity extends WatchBaseActivity implements Rationale<Li
         //公英制
         boolean isMeter = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), "isSystem", true);//是否为公制
         b31DeviceUnitTv.setText(isMeter ? getResources().getString(R.string.setkm) : getResources().getString(R.string.setmi));
+
+        //设置主界面默认风格为1
+        MyApp.getInstance().getVpOperateManager().settingScreenStyle(iBleWriteResponse, new IScreenStyleListener() {
+            @Override
+            public void onScreenStyleDataChange(ScreenStyleData screenStyleData) {
+
+            }
+        },1 );
+
     }
 
     private void initViews() {
         commentB30BackImg.setVisibility(View.VISIBLE);
         commentB30TitleTv.setText(getResources().getString(R.string.device));
+        b31sPrivateBloadToggleBtn.setOnCheckedChangeListener(new ToggleClickListener());
+        //判断是否是B31S或者500S 有血压功能
+        if(MyCommandManager.DEVICENAME != null){
+            boolean isB31HasBp = (boolean) SharedPreferencesUtils.getParam(B31DeviceActivity.this,Commont.IS_B31_HAS_BP_KEY,false);
+            b31sDevicePrivateBloadRel.setVisibility(isB31HasBp?View.VISIBLE:View.GONE);
+            if(isB31HasBp){
+                //读取私人血压
+                MyApp.getInstance().getVpOperateManager().readDetectBP(iBleWriteResponse, new IBPSettingDataListener() {
+                    @Override
+                    public void onDataChange(BpSettingData bpSettingData) {
+                        readDetectBp(bpSettingData);
+                    }
+                });
+            }
+        }
 
     }
+
+
+    /**
+     * 读取手环私人血压模式是否打开
+     */
+    private void readDetectBp(BpSettingData bpSettingData) {
+        bpData = bpSettingData;
+        boolean privateBlood = bpSettingData.getModel() == EBPDetectModel.DETECT_MODEL_PRIVATE;
+        b31sPrivateBloadToggleBtn.setChecked(privateBlood);
+    }
+
+
+
 
     @OnClick({R.id.commentB30BackImg, R.id.b31DeviceMsgRel,
             R.id.b31DeviceAlarmRel, R.id.b31DeviceLongSitRel,
@@ -129,7 +190,8 @@ public class B31DeviceActivity extends WatchBaseActivity implements Rationale<Li
             R.id.b31DeviceSwitchRel, R.id.b31DevicePtoRel,
             R.id.b31DeviceResetRel, R.id.b31DeviceStyleRel,
             R.id.b31DeviceDfuRel, R.id.b31DeviceClearDataRel,
-            R.id.wxSportRel, R.id.b31DisConnBtn, R.id.b31DeviceCounDownRel})
+            R.id.wxSportRel, R.id.b31DisConnBtn,
+            R.id.b31DeviceCounDownRel, R.id.b31sDevicePrivateBloadRel})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.commentB30BackImg:    //返回
@@ -146,6 +208,9 @@ public class B31DeviceActivity extends WatchBaseActivity implements Rationale<Li
                 break;
             case R.id.b31DeviceWristRel:    //转腕亮屏
                 startActivity(B30TrunWristSetActivity.class);
+                break;
+            case R.id.b31sDevicePrivateBloadRel:    //设置私人血压值
+                startActivity(PrivateBloadActivity.class);
                 break;
             case R.id.b31DeviceSportRel:    //运动目标
                 setSportGoal();
@@ -219,8 +284,8 @@ public class B31DeviceActivity extends WatchBaseActivity implements Rationale<Li
                 break;
             case R.id.b31DisConnBtn:    //断开连接
                 disB30Conn();
-
                 break;
+
         }
     }
 
@@ -425,5 +490,36 @@ public class B31DeviceActivity extends WatchBaseActivity implements Rationale<Li
 
         }
     };
+
+
+
+    //开关按钮点击监听
+    private class ToggleClickListener implements CompoundButton.OnCheckedChangeListener {
+
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            Log.e("===onCheckedChanged===", buttonView.isPressed() + "");
+            if (!buttonView.isPressed())
+                return;
+            if (MyCommandManager.DEVICENAME != null) {
+                switch (buttonView.getId()) {
+                    case R.id.b31sPrivateBloadToggleBtn:    // 血压私人模式
+                        int high = bpData == null ? 120 : bpData.getHighPressure();// 判断一下,防空
+                        int low = bpData == null ? 80 : bpData.getLowPressure();// 给个默认值
+                        BpSetting bpSetting = new BpSetting(isChecked, high, low);
+                        MyApp.getInstance().getVpOperateManager().settingDetectBP(iBleWriteResponse, new IBPSettingDataListener() {
+                            @Override
+                            public void onDataChange(BpSettingData bpSettingData) {
+                                //readDetectBp(bpSettingData);
+                            }
+                        }, bpSetting);
+                        break;
+                }
+            }
+
+        }
+    }
+
+
 
 }

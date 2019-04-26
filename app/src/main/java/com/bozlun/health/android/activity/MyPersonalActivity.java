@@ -30,6 +30,7 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.aigestudio.wheelpicker.widgets.DatePick;
 import com.aigestudio.wheelpicker.widgets.ProfessionPick;
+import com.bozlun.health.android.view.MineQrcodeView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
@@ -186,6 +187,9 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
     private B30SkinColorView b30SkinColorView;
     //H8公英制选择dialog
     private AlertDialog.Builder alertDialog;
+    //我的二维码view
+    private MineQrcodeView mineQrcodeView;
+
 
 
     @Override
@@ -389,7 +393,8 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
             R.id.nickname_relayout_personal,
             R.id.sex_relayout, R.id.height_relayout,
             R.id.weight_relayout, R.id.birthday_relayout,
-            R.id.skinColorRel, R.id.personal_UnitLin})
+            R.id.skinColorRel, R.id.personal_UnitLin,
+            R.id.persionQrcodeRel})
     public void onClick(View view) {
         String userId = (String) SharedPreferencesUtils.readObject(MyPersonalActivity.this, "userId");
         SharedPreferences share = getSharedPreferences("Login_id", 0);
@@ -595,7 +600,11 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
                         break;
                     case R.id.personal_UnitLin:     //公英制单位
                         showChooseH8Unit();
-
+                        break;
+                    case R.id.persionQrcodeRel:     //我的二维码显示
+                        if(mineQrcodeView == null)
+                            mineQrcodeView = new MineQrcodeView(MyPersonalActivity.this);
+                        mineQrcodeView.show();
                         break;
                 }
 
@@ -953,7 +962,7 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
     private void syncUserInfoToB30() {
         if(MyCommandManager.DEVICENAME == null)
             return;
-        if(MyCommandManager.DEVICENAME.equals("B30") || MyCommandManager.DEVICENAME.equals("B36")){
+        if(WatchUtils.isVPBleDevice(MyCommandManager.DEVICENAME)){
             //目标步数
             int sportGoal = (int) SharedPreferencesUtils.getParam(MyApp.getContext(), "b30Goal", 10000);
             MyApp.getInstance().getVpOperateManager().syncPersonInfo(new IBleWriteResponse() {

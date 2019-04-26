@@ -6,9 +6,7 @@ import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
-
 import com.bozlun.health.android.Commont;
-import com.bozlun.health.android.LogTestUtil;
 import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.b30.bean.B30HalfHourDB;
 import com.bozlun.health.android.b30.bean.B30HalfHourDao;
@@ -18,7 +16,6 @@ import com.bozlun.health.android.net.OkHttpObservable;
 import com.bozlun.health.android.rxandroid.CommonSubscriber;
 import com.bozlun.health.android.rxandroid.SubscriberOnNextListener;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
-import com.bozlun.health.android.util.MyLogUtil;
 import com.bozlun.health.android.util.OkHttpTool;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import com.bozlun.health.android.util.URLs;
@@ -38,11 +35,9 @@ import com.veepoo.protocol.model.datas.LanguageData;
 import com.veepoo.protocol.model.datas.SleepData;
 import com.veepoo.protocol.model.datas.TimeData;
 import com.veepoo.protocol.model.enums.ELanguage;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -152,14 +147,14 @@ public class DateUploadService extends IntentService {
     private void uploadSportData(int position) {
         Log.e(TAG,"---------运动数据position="+position);
         if (sportData == null || sportData.isEmpty() || position >= sportData.size()) {
-            Log.d(TAG, "步数上传完成，开始上传睡眠");
+           // Log.d(TAG, "步数上传完成，开始上传睡眠");
             uploadSleepData(0);// 运动数据上传完了,换着上传睡眠数据
             return;
         }
         B30HalfHourDB dbData = sportData.get(position);
         String date = dbData.getDate();
         String originData = dbData.getOriginData();
-        LogTestUtil.e(TAG, "---------步数数据" + originData);
+        //LogTestUtil.e(TAG, "---------步数数据" + originData);
 
         setStep(originData,position);
 
@@ -173,7 +168,7 @@ public class DateUploadService extends IntentService {
             //submitSportData2(sportVo, position);
             submitSportData2(sportVo1, i);
 
-            LogTestUtil.e(TAG, "---------一天的原始数据" + sportVo1.toString());
+           // LogTestUtil.e(TAG, "---------一天的原始数据" + sportVo1.toString());
         }
 
     }
@@ -195,7 +190,7 @@ public class DateUploadService extends IntentService {
         params.put("timeLen", sportVo.timeLen);
         params.put("date", sportVo.date);
         params.put("status", sportVo.status);
-        Log.d(TAG, "------AAA-步数上传参数" + params.toString());
+        //Log.d(TAG, "------AAA-步数上传参数" + params.toString());
         requestStep2(URLs.HTTPs + URLs.upSportData, params);
     }
 
@@ -228,7 +223,7 @@ public class DateUploadService extends IntentService {
         }.getType());
         if (dataList == null || dataList.isEmpty()) return;
         String date = dataList.get(0).getDate();
-        Log.e(TAG, "-----------步数长度" + dataList.size());
+        //Log.e(TAG, "-----------步数长度" + dataList.size());
         List<UpHeartBean> upHeartBeanList = new ArrayList<>();
         List<Integer> list = new ArrayList<>();
         if (!dataList.isEmpty()) {
@@ -255,7 +250,7 @@ public class DateUploadService extends IntentService {
 //                    } else {
 //                        times = i + ":00";
 //                    }
-                    Log.d(TAG, "步数时间--" + date + " " + times);
+                    //Log.d(TAG, "步数时间--" + date + " " + times);
                     list.add(all);
 //                    UpHeartBean upHeartBean = new UpHeartBean(userId, deviceCode,
 //                            "00", all + "",
@@ -273,16 +268,16 @@ public class DateUploadService extends IntentService {
             }
             JSONArray jsonArray1 = ProLogListJson(upHeartBeanList);
 //            UpDatasBase.upAllDataSteps(jsonArray1);
-            Log.d(TAG, "步数处理数据长度" + list.size() + "===" + list.toString());
+           // Log.d(TAG, "步数处理数据长度" + list.size() + "===" + list.toString());
             try {
                 JSONObject mapB = new JSONObject();
                 mapB.put("data", jsonArray1);
                 String mapjson = mapB.toString();
-                LogTestUtil.e("-------------步数上传", jsonArray1.toString());
+               // LogTestUtil.e("-------------步数上传", jsonArray1.toString());
                 SubscriberOnNextListener sb = new SubscriberOnNextListener<String>() {
                     @Override
                     public void onNext(String result) {
-                        LogTestUtil.e("-------------步数上传返回", result);
+                       // LogTestUtil.e("-------------步数上传返回", result);
                         handlerResult(result, STATE_SPORT, position);
                     }
                 };
@@ -380,7 +375,7 @@ public class DateUploadService extends IntentService {
         params.put("timeLen", sportVo.timeLen);
         params.put("date", sportVo.date);
         params.put("status", sportVo.status);
-        Log.d(TAG, "------AAA-步数上传参数" + params.toString());
+        //Log.d(TAG, "------AAA-步数上传参数" + params.toString());
         requestStep(URLs.HTTPs + URLs.upSportData, params, STATE_SPORT, position);
     }
 
@@ -389,7 +384,7 @@ public class DateUploadService extends IntentService {
      */
     private void uploadSleepData(int position) {
         if (sleepData == null || sleepData.isEmpty() || position >= sleepData.size()) {
-            Log.d(TAG, "睡眠数据上传完成，开始上传心率数据");
+            //Log.d(TAG, "睡眠数据上传完成，开始上传心率数据");
             uploadRateData(0);// 睡眠数据上传完了,换着上传心率数据
             return;
         }
@@ -397,10 +392,14 @@ public class DateUploadService extends IntentService {
         if (dbData != null) {
             String originData = dbData.getOriginData();
             if (TextUtils.isEmpty(originData)) return;
-            LogTestUtil.e(TAG, "数据库睡眠" + originData);
+            Log.e(TAG, "数据库睡眠" + originData);
             SleepData sleepData = gson.fromJson(originData, SleepData.class);
-            setSleep(sleepData);
-            submitSleepData(sleepData, position);
+//            if(sleepData != null){
+//                Log.e(TAG,"---------sleepData-="+sleepData.toString());
+//                setSleep(sleepData);
+//                submitSleepData(sleepData, position);
+//            }
+
         }
     }
 
@@ -424,7 +423,7 @@ public class DateUploadService extends IntentService {
         String sleep_type = "1";//1清醒  2浅睡   3深睡
         String startTime = sleepDown.substring(11, 16);
         List<W30S_SleepDataItem> w30S_sleepDataList = new ArrayList<>();
-        Log.d(TAG, "睡眠串===" + sleepLine + "==" + listValue.size() + "==" + sleepLine.length());
+        //Log.d(TAG, "睡眠串===" + sleepLine + "==" + listValue.size() + "==" + sleepLine.length());
         long longStart = W30BasicUtils.stringToLong(startTime, "HH:mm");
         for (int i = 0; i < listValue.size(); i++) {
             int integer = listValue.get(i);
@@ -440,7 +439,7 @@ public class DateUploadService extends IntentService {
                     break;
             }
             String mytimes = W30BasicUtils.longToString(longStart, "HH:mm");
-            Log.d(TAG, "睡眠==预测===" + integer + "=" + mytimes);
+           // Log.d(TAG, "睡眠==预测===" + integer + "=" + mytimes);
             W30S_SleepDataItem w30S_sleepData = new W30S_SleepDataItem();
             w30S_sleepData.setSleep_type(sleep_type);
             w30S_sleepData.setStartTime(mytimes);
@@ -451,9 +450,9 @@ public class DateUploadService extends IntentService {
 
 
         JSONArray jsonArray = ProLogList2Json(w30S_sleepDataList);
-        Log.d(TAG, "原始时间==预测===" + sleepDatas + "=\n=" + jsonArray);
+        //Log.d(TAG, "原始时间==预测===" + sleepDatas + "=\n=" + jsonArray);
         String dateStr = W30BasicUtils.getDateStr2(sleepDatas, 1);
-        Log.d(TAG, "正式时间==预测===" + dateStr + "=\n=" + jsonArray);
+        //Log.d(TAG, "正式时间==预测===" + dateStr + "=\n=" + jsonArray);
         UpDatasBase.upDataTodaSleep(dateStr, jsonArray);
     }
 
@@ -489,11 +488,11 @@ public class DateUploadService extends IntentService {
         params.put("deviceCode", deviceCode);
         String dateAndClockForSleep = sleepData.getSleepDown().getDateAndClockForSleep();
         String dateAndClockForSleep1 = sleepData.getSleepUp().getDateAndClockForSleep();
-        Log.d(TAG, "------AAA-----睡眠数据" + "uploadSleepData==4=="
-                + dateAndClockForSleep + "==" + dateAndClockForSleep);
+//        Log.d(TAG, "------AAA-----睡眠数据" + "uploadSleepData==4=="
+//                + dateAndClockForSleep + "==" + dateAndClockForSleep);
         String s = dateToStamp(dateAndClockForSleep);
         String s1 = dateToStamp(dateAndClockForSleep1);
-        Log.d(TAG, "------AAA--睡眠数据--时间戳" + s + "===" + s1);
+      //  Log.d(TAG, "------AAA--睡眠数据--时间戳" + s + "===" + s1);
 
         try {
             //时间戳转化为Sting或Date
@@ -511,7 +510,7 @@ public class DateUploadService extends IntentService {
             String nextDayddd = H9TimeUtil.getValidDateStr3(dateBeforessddd);
             Date dateBeforessaaa = H9TimeUtil.getDateBefore(date1, 0);
             String nextDayaaa = H9TimeUtil.getValidDateStr3(dateBeforessaaa);
-            Log.d(TAG, "times--startTime" + nextDayddd + "===endTime" + nextDayaaa);
+           // Log.d(TAG, "times--startTime" + nextDayddd + "===endTime" + nextDayaaa);
             params.put("startTime", nextDayddd);
             params.put("endTime", nextDayaaa);
             int deepSleepTime = sleepData.getDeepSleepTime();
@@ -527,7 +526,7 @@ public class DateUploadService extends IntentService {
             params.put("sleepCurveP", "" + sleepData.getSleepLine());
             params.put("sleepCurveS", "8");
 
-            MyLogUtil.d(TAG, "------AAA--睡眠数据---上传参数---" + params.toString());
+            //MyLogUtil.d(TAG, "------AAA--睡眠数据---上传参数---" + params.toString());
             request(URLs.HTTPs + URLs.upSleep, params, STATE_SLEEP, position);
         } catch (ParseException e) {
             e.printStackTrace();
@@ -558,7 +557,7 @@ public class DateUploadService extends IntentService {
      */
     private void uploadRateData(int position) {
         if (rateData == null || rateData.isEmpty() || position >= rateData.size()) {
-            Log.d(TAG, "心率数据上传完成，开始上传血压数据");
+           // Log.d(TAG, "心率数据上传完成，开始上传血压数据");
             uploadBpData(0);// 心率数据上传完了,换着上传血压数据
             return;
         }
@@ -653,13 +652,13 @@ public class DateUploadService extends IntentService {
     void setHeart(List<HalfHourRateData> dataList, int STATE_RATE, int position) {
         if (dataList == null && dataList.isEmpty()) return;
         String date = dataList.get(0).getDate();
-        Log.d(TAG, "心率数据长度" + dataList.size());
+       // Log.d(TAG, "心率数据长度" + dataList.size());
         List<UpHeartBean> upHeartBeanList = new ArrayList<>();
         List<Integer> list = new ArrayList<>();
         String times = "00:00";
         for (int i = 0; i < 48; i++) {
             times = StringDate[i].trim();
-            Log.d(TAG, "添加占位数据 心率时间：" + date + " " + times);
+          //  Log.d(TAG, "添加占位数据 心率时间：" + date + " " + times);
 //            UpHeartBean upHeartBean = new UpHeartBean(userId, deviceCode,
 //                    "00", "00",
 ////                    date + " " + times, "0", "0");
@@ -673,7 +672,7 @@ public class DateUploadService extends IntentService {
             upHeartBeanList.add(upHeartBean);
             list.add(0);
         }
-        Log.d(TAG, "位数据  长度" + list.size() + " " + upHeartBeanList.size());
+       // Log.d(TAG, "位数据  长度" + list.size() + " " + upHeartBeanList.size());
         for (int j = 0; j < StringDate.length; j++) {
             int heartValue = 0;
             for (int i = 0; i < dataList.size(); i++) {
@@ -696,7 +695,7 @@ public class DateUploadService extends IntentService {
 //                        + ":" + ((int)time.getMinute() > 9 ? (int)time.getMinute()+"" : "0" + (int)time.getMinute());
                 String dates = stringHour + ":" + stringMinute;
                 if (StringDate[j].trim().equals(dates)) {
-                    Log.d(TAG, "心率时间对比成功    新时间:" + dates + "  存在时间:" + StringDate[j] + "  心率值：" + heartValue);
+                   // Log.d(TAG, "心率时间对比成功    新时间:" + dates + "  存在时间:" + StringDate[j] + "  心率值：" + heartValue);
 //                    UpHeartBean upHeartBean = new UpHeartBean(userId, deviceCode,
 //                            "00", "00",
 //                            date + " " + dates, heartValue + "", "0");
@@ -712,10 +711,10 @@ public class DateUploadService extends IntentService {
             list.set(j, heartValue);
 
         }
-        Log.d(TAG, "最终心率数据" + list.size() + "===" + list.toString());
-        Log.d(TAG, "最终上传心率数据" + upHeartBeanList.size() + "===" + upHeartBeanList.toString());
+//        Log.d(TAG, "最终心率数据" + list.size() + "===" + list.toString());
+//        Log.d(TAG, "最终上传心率数据" + upHeartBeanList.size() + "===" + upHeartBeanList.toString());
         JSONArray jsonArray1 = ProLogListJson(upHeartBeanList);
-        LogTestUtil.e(TAG, "上传到服务端的心率详细数据：" + jsonArray1);
+       // LogTestUtil.e(TAG, "上传到服务端的心率详细数据：" + jsonArray1);
 //        UpDatasBase.upAllDataHearte(jsonArray1);
 
         JSONObject mapB = new JSONObject();
@@ -791,7 +790,7 @@ public class DateUploadService extends IntentService {
             if (TextUtils.isEmpty(originData)) return;
             List<HalfHourBpData> dataList = gson.fromJson(originData, new TypeToken<List<HalfHourBpData>>() {
             }.getType());
-            LogTestUtil.e(TAG, "血压数据原始" + dataList.size() + "\n" + dataList.toString());
+           // LogTestUtil.e(TAG, "血压数据原始" + dataList.size() + "\n" + dataList.toString());
 
             setBp(dataList, STATE_BP, position);
 //            HealthParamVo paramVo = new HealthParamVo();
@@ -813,14 +812,14 @@ public class DateUploadService extends IntentService {
     void setBp(List<HalfHourBpData> dataList, int STATE_RATE, int position) {
         if (dataList == null && dataList.isEmpty()) return;
         String date = dataList.get(0).getDate();
-        Log.d(TAG, "血压数据长度" + dataList.size());
+        //Log.d(TAG, "血压数据长度" + dataList.size());
         List<UpHeartBean> upHeartBeanList = new ArrayList<>();
         List<Integer> list = new ArrayList<>();
         List<Integer> list2 = new ArrayList<>();
         String times = "00:00";
         for (int i = 0; i < 48; i++) {
             times = StringDate[i].trim();
-            Log.d(TAG, "添加占位数据 血压时间：" + date + " " + times);
+            //Log.d(TAG, "添加占位数据 血压时间：" + date + " " + times);
 //            UpHeartBean upHeartBean = new UpHeartBean(userId, deviceCode,
 //                    "0", "00",
 ////                    date + " " + times, "0", "0");
@@ -835,7 +834,7 @@ public class DateUploadService extends IntentService {
             list.add(0);
             list2.add(0);
         }
-        Log.d(TAG, "血压位数据  长度" + list.size() + " " + upHeartBeanList.size());
+        //Log.d(TAG, "血压位数据  长度" + list.size() + " " + upHeartBeanList.size());
         for (int j = 0; j < StringDate.length; j++) {
             int hightValue = 0;
             int lowValue = 0;
@@ -865,7 +864,7 @@ public class DateUploadService extends IntentService {
                     hightValue = dataList.get(i).getHighValue();
                     lowValue = dataList.get(i).getLowValue();
 
-                    Log.d(TAG, "血压时间对比成功    新时间:" + dates + "  存在时间:" + StringDate[j] + "  高压：" + hightValue + "=== 低压：" + lowValue);
+                    //Log.d(TAG, "血压时间对比成功    新时间:" + dates + "  存在时间:" + StringDate[j] + "  高压：" + hightValue + "=== 低压：" + lowValue);
 
                 }
             }
@@ -879,9 +878,9 @@ public class DateUploadService extends IntentService {
             list2.set(j, hightValue);
 
         }
-        Log.d(TAG, "最终血压数据" + list.size() + "===" + list.toString());
-        Log.d(TAG, "最终血压数据" + list2.size() + "===" + list2.toString());
-        Log.d(TAG, "最终上传血压数据" + upHeartBeanList.size() + "===" + upHeartBeanList.toString());
+//        Log.d(TAG, "最终血压数据" + list.size() + "===" + list.toString());
+//        Log.d(TAG, "最终血压数据" + list2.size() + "===" + list2.toString());
+//        Log.d(TAG, "最终上传血压数据" + upHeartBeanList.size() + "===" + upHeartBeanList.toString());
         JSONArray jsonArray1 = ProLogListJson(upHeartBeanList);
 //        UpDatasBase.upAllDataHearte(jsonArray1);
 
@@ -892,7 +891,7 @@ public class DateUploadService extends IntentService {
             e.printStackTrace();
         }
         String mapjson = mapB.toString();
-        LogTestUtil.e(TAG, "上传到服务端的血压详细数据：" + mapjson);
+       // LogTestUtil.e(TAG, "上传到服务端的血压详细数据：" + mapjson);
         requestBp(mapjson, STATE_BP, position);
 
     }

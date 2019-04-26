@@ -29,6 +29,7 @@ import com.mob.MobSDK;
 import com.sdk.bluetooth.app.BluetoothApplicationContext;
 import com.suchengkeji.android.w30sblelibrary.W30SBLEManage;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
+import com.umeng.commonsdk.UMConfigure;
 import com.veepoo.protocol.VPOperateManager;
 
 import org.litepal.LitePal;
@@ -60,6 +61,12 @@ public class MyApp extends LitePalApplication {
     public static MyApp getInstance() {
         return instance;
     }
+    //异常收集
+    CrashHandler crashHandler;
+
+
+    //判断是否是B31带血压功能
+    private boolean isB31HasBP = false;
 
     @Override
     public void onCreate() {
@@ -96,11 +103,14 @@ public class MyApp extends LitePalApplication {
                 try {
                     Thread.sleep(700);
 
+                    // 必须在调用任何统计SDK接口之前调用初始化函数
+                    UMConfigure.init(instance,  UMConfigure.DEVICE_TYPE_PHONE, null);
+
                     /**
                      * 全局异常处理
                      */
 //                    初始化异常收集
-                    CrashHandler crashHandler = CrashHandler.getInstance();
+                    crashHandler = CrashHandler.getInstance();
                     crashHandler.init(getContext());
 
                     /**
@@ -150,6 +160,14 @@ public class MyApp extends LitePalApplication {
         MultiDex.install(this);
     }
 
+
+    public boolean isB31HasBP() {
+        return isB31HasBP;
+    }
+
+    public void setB31HasBP(boolean b31HasBP) {
+        isB31HasBP = b31HasBP;
+    }
 
     public boolean isOne = true;
     public boolean AppisOne = false;

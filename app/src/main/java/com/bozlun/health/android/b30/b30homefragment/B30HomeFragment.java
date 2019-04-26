@@ -2,6 +2,7 @@ package com.bozlun.health.android.b30.b30homefragment;
 
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -39,6 +40,7 @@ import com.bozlun.health.android.b30.bean.B30HalfHourDB;
 import com.bozlun.health.android.b30.bean.B30HalfHourDao;
 import com.bozlun.health.android.b30.service.ConnBleHelpService;
 import com.bozlun.health.android.b30.women.WomenDetailActivity;
+import com.bozlun.health.android.b31.InternalTestActivity;
 import com.bozlun.health.android.bleutil.MyCommandManager;
 import com.bozlun.health.android.h9.h9monitor.UpDatasBase;
 import com.bozlun.health.android.h9.settingactivity.SharePosterActivity;
@@ -172,6 +174,9 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
      */
     private List<Map<Integer, Integer>> bloadListMap;
 
+    //血压的集合map，key : 时间；value : 血压值map
+    private List<Map<String,Map<Integer,Integer>>> resultBpMapList;
+
     private List<BarEntry> tmpB30StepList;
     @BindView(R.id.b30SportChartLin1)
     LinearLayout b30SportChartLin1;
@@ -221,6 +226,7 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
      * 本地化工具类
      */
     private LocalizeTool mLocalTool;
+
 
     @SuppressLint("HandlerLeak")
     Handler mHandler = new Handler() {
@@ -281,26 +287,32 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
     boolean womenPrivacy = false;
 
 
+
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(WatchUtils.B30_CONNECTED_ACTION);
         intentFilter.addAction(WatchUtils.B30_DISCONNECTED_ACTION);
-        mContext.registerReceiver(broadcastReceiver, intentFilter);
+        getmContext().registerReceiver(broadcastReceiver, intentFilter);
         if (connBleHelpService == null) {
             connBleHelpService = ConnBleHelpService.getConnBleHelpService();
         }
-        bleName = (String) SharedPreferencesUtils.readObject(getActivity(), Commont.BLENAME);
+        bleName = (String) SharedPreferencesUtils.readObject(getmContext(), Commont.BLENAME);
         connBleHelpService.setConnBleMsgDataListener(this);
         //目标步数
-        goalStep = (int) SharedPreferencesUtils.getParam(MyApp.getContext(), "b30Goal", 0);
-        String saveDate = (String) SharedPreferencesUtils.getParam(mContext, "saveDate", "");
+        goalStep = (int) SharedPreferencesUtils.getParam(getmContext(), "b30Goal", 0);
+        String saveDate = (String) SharedPreferencesUtils.getParam(getmContext(), "saveDate", "");
         if (WatchUtils.isEmpty(saveDate)) {
-            SharedPreferencesUtils.setParam(mContext, "saveDate", System.currentTimeMillis() / 1000 + "");
+            SharedPreferencesUtils.setParam(getmContext(), "saveDate", System.currentTimeMillis() / 1000 + "");
         }
 
-//        MyLogUtil.e("---------------记录---onCreate");
+        //保存的时间
+        String tmpSaveTime = (String) SharedPreferencesUtils.getParam(getmContext(), "save_curr_time", "");
+        if (WatchUtils.isEmpty(tmpSaveTime))
+            SharedPreferencesUtils.setParam(getmContext(), "save_curr_time", System.currentTimeMillis() / 1000 + "");
+
     }
 
     @Nullable
@@ -325,15 +337,21 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
         //心率图表
         heartList = new ArrayList<>();
         //血压图表
+        heartList = new ArrayList<>();
+        //血压图表
+        resultBpMapList = new ArrayList<>();
         b30BloadList = new ArrayList<>();
         bloadListMap = new ArrayList<>();
         sleepList = new ArrayList<>();
         gson = new Gson();
-        mLocalTool = new LocalizeTool(mContext);
+        mLocalTool = new LocalizeTool(getmContext());
 
-        updatePageData();
     }
 
+
+    public Context getmContext() {
+        return mContext == null ? MyApp.getContext() : mContext;
+    }
 
     private void initViews() {
         b30TopDateTv.setText(WatchUtils.getCurrentDate());
@@ -363,16 +381,28 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
 
         //判断是B30还是B36 ,B36无血压功能
         verIsTureB36();
+
+        b30TopDateTv.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                startActivity(new Intent(getmContext(),InternalTestActivity.class));
+                return true;
+            }
+        });
+
+
+
+
     }
 
-
+    //判断是否是B36
     private void verIsTureB36() {
         try {
             if (bleName.equals("B36")) {
                 b30HomeB30Lin.setVisibility(View.GONE);
                 if (WatchUtils.isB36SexWomen(getActivity())) {
                     b36WomenStatusLin.setVisibility(View.VISIBLE);
-                    womenPrivacy = (boolean) SharedPreferencesUtils.getParam(getActivity(),"b36_women_privacy",false);
+                    womenPrivacy = (boolean) SharedPreferencesUtils.getParam(getmContext(),"b36_women_privacy",false);
                     if(womenPrivacy){       //开启了隐私 ic_b36_home_woman_rec
                         b36WomenPrivacyImg.setBackground(getResources().getDrawable(R.mipmap.ic_b36_home_woman_rec_pri));
                     }else{  //关闭了隐私
@@ -521,11 +551,12 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
     protected void onFragmentVisibleChange(boolean isVisible) {
         super.onFragmentVisibleChange(isVisible);
         if (isVisible) {
+            int curCode = (int) SharedPreferencesUtils.getParam(getmContext(), "curr_code", 0);
+            clearDataStyle(curCode);//设置每次回主界面，返回数据不清空的
             if (connBleHelpService != null && MyCommandManager.DEVICENAME != null) {
                 long currentTime = System.currentTimeMillis() / 1000;
                 //保存的时间
-                if(mContext == null) mContext = MyApp.getContext();
-                String tmpSaveTime = (String) SharedPreferencesUtils.getParam(mContext, "saveDate", currentTime+"");
+                String tmpSaveTime = (String) SharedPreferencesUtils.getParam(getmContext(), "saveDate", currentTime+"");
                 long diffTime = (currentTime - Long.valueOf(tmpSaveTime)) / 60;
                 if (WatchConstants.isScanConn) {  //是搜索进来的
                     WatchConstants.isScanConn = false;
@@ -533,7 +564,7 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
                     if (b30HomeSwipeRefreshLayout != null) b30HomeSwipeRefreshLayout.autoRefresh();
                     Log.d("bobo", "onFragmentVisibleChange: autoRefresh()");
                 } else {  //不是搜索进来的
-                    if (diffTime > 5) {// 大于五分钟没更新再取数据
+                    if (diffTime > 10) {// 大于五分钟没更新再取数据
                         getBleMsgData();
                         if (b30HomeSwipeRefreshLayout != null)
                             b30HomeSwipeRefreshLayout.autoRefresh();
@@ -562,16 +593,15 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
         if (MyCommandManager.DEVICENAME != null && MyCommandManager.ADDRESS != null) {    //已连接
             if (b30ConnectStateTv != null)
                 b30ConnectStateTv.setText(getResources().getString(R.string.connted));
-            int param = (int) SharedPreferencesUtils.getParam(getContext(), Commont.BATTERNUMBER, 0);
+            int param = (int) SharedPreferencesUtils.getParam(getmContext(), Commont.BATTERNUMBER, 0);
             if (param > 0) {
                 showBatterStute(param);
-                clearDataStyle(0);//设置每次回主界面，返回数据不清空的
             }
         } else {  //未连接
             if (getActivity() != null && !getActivity().isFinishing()) {
                 if (b30ConnectStateTv != null)
                     b30ConnectStateTv.setText(getResources().getString(R.string.disconnted));
-                B30HomeActivity activity = (B30HomeActivity) getActivity();
+                B30HomeActivity activity = (B30HomeActivity) getmContext();
                 if (activity != null) activity.reconnectDevice();// 重新连接
             }
         }
@@ -592,7 +622,7 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
         super.onDestroy();
         try {
             if (broadcastReceiver != null) {
-                mContext.unregisterReceiver(broadcastReceiver);
+                getmContext().unregisterReceiver(broadcastReceiver);
             }
             if (b30ProgressBar != null) {
                 b30ProgressBar.removeAnimator();
@@ -605,7 +635,7 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
     /* 电量更新 */
     @Override
     public void getBleBatteryData(int batteryLevel) {
-        SharedPreferencesUtils.setParam(getContext(), Commont.BATTERNUMBER, batteryLevel);//保存下电量
+        SharedPreferencesUtils.setParam(getmContext(), Commont.BATTERNUMBER, batteryLevel);//保存下电量
         showBatterStute(batteryLevel);
     }
 
@@ -659,7 +689,8 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
     @Override
     public void onOriginData() {
         mHandler.sendEmptyMessage(1000);// 步数和健康数据都取到了,就关闭刷新条
-        updatePageData();
+        //updatePageData();
+        clearDataStyle(0);//从手环同步完数据后就显示今天的数据
         B30HomeActivity activity = (B30HomeActivity) getActivity();
         if (activity != null) activity.startUploadDate();// 上传数据
     }
@@ -668,22 +699,14 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
      * 更新页面数据
      */
     private void updatePageData() {
-        if (runnable == null)
-            mHandler.removeCallbacks(runnable);
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                String mac = MyApp.getInstance().getMacAddress();
-                if (mac == null) return;
-                String date = WatchUtils.obtainFormatDate(currDay);
-                updateStepData(mac, date);
-                updateSportData(mac, date);
-                updateRateData(mac, date);
-                updateBpData(mac, date);
-                updateSleepData(mac, WatchUtils.obtainFormatDate(currDay ));
-            }
-        };
-        mHandler.post(runnable);
+        String mac = MyApp.getInstance().getMacAddress();
+        if (mac == null) return;
+        String date = WatchUtils.obtainFormatDate(currDay);
+        updateStepData(mac, date);
+        updateSportData(mac, date);
+        updateRateData(mac, date);
+        updateBpData(mac, date);
+        updateSleepData(mac, WatchUtils.obtainFormatDate(currDay ));
 
     }
 
@@ -729,10 +752,6 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
         message.what = 1002;
         message.obj = sportData;
         mHandler.sendMessage(message);//发送消息，展示步数图标
-
-//        if (getActivity() != null && !getActivity().isFinishing() && b30SportMaxNumTv != null)
-//            b30SportMaxNumTv.setText("0" + getResources().getString(R.string.steps));
-//        showSportStepData(sportData);//展示步数的图表
     }
 
     /**
@@ -832,13 +851,20 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
         if (getActivity() == null || getActivity().isFinishing()) return;
         b30BloadList.clear();
         bloadListMap.clear();
+        resultBpMapList.clear();
         if (bpData != null && !bpData.isEmpty()) {
             //获取日期
+            //获取日期
             for (HalfHourBpData halfHourBpData : bpData) {
+                Map<String, Map<Integer, Integer>> mapMap = new HashMap<>();
+
                 b30BloadList.add(halfHourBpData.getTime().getColck());// 时:分
                 Map<Integer, Integer> mp = new HashMap<>();
                 mp.put(halfHourBpData.getLowValue(), halfHourBpData.getHighValue());
                 bloadListMap.add(mp);
+
+                mapMap.put(halfHourBpData.getTime().getColck(), mp);
+                resultBpMapList.add(mapMap);
             }
             //最近一次的血压数据
             HalfHourBpData lastHalfHourBpData = bpData.get(bpData.size() - 1);
@@ -850,11 +876,11 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
                     b30BloadValueTv.setText(lastHalfHourBpData.getHighValue() + "/" + lastHalfHourBpData.getLowValue() + "mmhg");
             }
         }
-//        b30HomeBloadChart.setTimeList(b30BloadList);
-//        b30HomeBloadChart.setMapList(bloadListMap);
-        if (b30HomeBloadChart != null) b30HomeBloadChart.setDataMap(obtainBloodMap(bpData));
-        if (b30HomeBloadChart != null) b30HomeBloadChart.setScale(false);
+
+        if (b30HomeBloadChart != null)
+            b30HomeBloadChart.setBpVerticalMap(resultBpMapList);
     }
+
 
     /**
      * 统计血压数据源
@@ -910,10 +936,9 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
                 if (b30HeartValueTv != null)
                     b30HeartValueTv.setText(lastHalfHourRateData.getRateValue() + " bpm");
             }
-//            b30CusHeartView.setPointRadio(5);//圆点的半径
             if (b30CusHeartView != null) b30CusHeartView.setRateDataList(heartList);
         } else {
-//            b30CusHeartView.setPointRadio(5);//圆点的半径
+
             if (b30CusHeartView != null) b30CusHeartView.setRateDataList(heartList);
         }
     }
@@ -1021,22 +1046,22 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
         switch (view.getId()) {
             case R.id.b30SportChartLin1: // 运动数据详情
             case R.id.b30BarChart: // 运动数据详情
-                B30StepDetailActivity.startAndParams(getActivity(), WatchUtils.obtainFormatDate(currDay));
+                B30StepDetailActivity.startAndParams(getmContext(), WatchUtils.obtainFormatDate(currDay));
                 break;
             case R.id.b30CusHeartLin:   //心率详情
-                B30HeartDetailActivity.startAndParams(getActivity(), WatchUtils.obtainFormatDate(currDay));
+                B30HeartDetailActivity.startAndParams(getmContext(), WatchUtils.obtainFormatDate(currDay));
                 break;
             case R.id.b30CusBloadLin:   //血压详情
-                B30BloadDetailActivity.startAndParams(getActivity(), WatchUtils.obtainFormatDate(currDay));
+                B30BloadDetailActivity.startAndParams(getmContext(), WatchUtils.obtainFormatDate(currDay));
                 break;
             case R.id.b30MeaureHeartImg:    //手动测量心率
-                startActivity(new Intent(getActivity(), ManualMeaureHeartActivity.class));
+                startActivity(new Intent(getmContext(), ManualMeaureHeartActivity.class));
                 break;
             case R.id.b30MeaureBloadImg:    //手动测量血压
-                startActivity(new Intent(getActivity(), ManualMeaureBloadActivity.class));
+                startActivity(new Intent(getmContext(), ManualMeaureBloadActivity.class));
                 break;
             case R.id.b30SleepLin:      //睡眠详情
-                B30SleepDetailActivity.startAndParams(getActivity(), WatchUtils.obtainFormatDate
+                B30SleepDetailActivity.startAndParams(getmContext(), WatchUtils.obtainFormatDate
                         (currDay ));
                 break;
             case R.id.homeTodayTv:  //今天
@@ -1051,13 +1076,13 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
             case R.id.battery_watchRecordShareImg:  //分享
                 if (getActivity() == null || getActivity().isFinishing())
                     return;
-                Intent intent = new Intent(getActivity(), SharePosterActivity.class);
+                Intent intent = new Intent(getmContext(), SharePosterActivity.class);
                 intent.putExtra("is18i", "B36");
                 intent.putExtra("stepNum", defaultSteps + "");
                 startActivity(intent);
                 break;
             case R.id.b36WomenStatusLin:    //女性功能
-                startActivity(new Intent(getActivity(), WomenDetailActivity.class));
+                startActivity(new Intent(getmContext(), WomenDetailActivity.class));
                 break;
             case R.id.b36WomenPrivacyImg:       //隐私是否开启
                 if(womenPrivacy){       //开启了隐私
@@ -1068,7 +1093,7 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
                     womenPrivacy = true;
                     b36WomenPrivacyImg.setBackground(getResources().getDrawable(R.mipmap.ic_b36_home_woman_rec_pri));
                 }
-                SharedPreferencesUtils.setParam(getActivity(),"b36_women_privacy",womenPrivacy);
+                SharedPreferencesUtils.setParam(getmContext(),"b36_women_privacy",womenPrivacy);
                 tunrOnOrOffPrivacy(womenPrivacy);
 
                 break;
@@ -1089,73 +1114,62 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
 
     }
 
-    /**
-     * 获取手环的数据
-     */
-    Runnable runnable;
-
+    //获取手环数据
     private void getBleMsgData() {
         if(MyCommandManager.DEVICENAME == null)
             return;
-        if (runnable == null)
-            mHandler.removeCallbacks(runnable);
-        runnable = new Runnable() {
-            @Override
-            public void run() {
-                SharedPreferencesUtils.setParam(mContext, "saveDate", System.currentTimeMillis() / 1000 + "");
-                connBleHelpService.getDeviceMsgData();
-                /**
-                 * 连接的成功时只读取昨天一天的数据，刷新时再读取前3天的数据
-                 */
-                String date = mLocalTool.getUpdateDate();// 最后更新总数据的日期
-                Log.e(TAG,"-----最后更新总数据的日期--date="+date);
-                if(WatchUtils.isEmpty(date))
-                    date = WatchUtils.obtainFormatDate(1);  //如果是空的话表示第一次读取
-                long delayMillis = 60 * 1000;// 默认超时时间
-                //connBleHelpService.readAllHealthData(false);// 刷新三天数据
-                if (date.equals(WatchUtils.obtainFormatDate(0))) {
-                    connBleHelpService.readAllHealthData(false);// 刷新3天数据
-                } else {
-                    connBleHelpService.readAllHealthData(true);// 刷新昨天天数据
-                    delayMillis = 60 * 1000;
-                }
-                mHandler.sendEmptyMessageDelayed(1001, delayMillis);
-            }
-        };
-        mHandler.post(runnable);
+        //clearDataStyle(0);//设置每次回主界面
+        SharedPreferencesUtils.setParam(getmContext(), "saveDate", System.currentTimeMillis() / 1000 + "");
+        connBleHelpService.getDeviceMsgData();
+        /**
+         * 连接的成功时只读取昨天一天的数据，刷新时再读取前3天的数据
+         */
+        String date = mLocalTool.getUpdateDate();// 最后更新总数据的日期
+        Log.e(TAG,"-----最后更新总数据的日期--date="+date);
+        if(WatchUtils.isEmpty(date))
+            date = WatchUtils.obtainFormatDate(1);  //如果是空的话表示第一次读取
+        long delayMillis = 60 * 1000;// 默认超时时间
+        //connBleHelpService.readAllHealthData(false);// 刷新三天数据
+        if (date.equals(WatchUtils.obtainFormatDate(0))) {
+            connBleHelpService.readAllHealthData(false);// 刷新3天数据
+        } else {
+            connBleHelpService.readAllHealthData(true);// 刷新昨天天数据
+            delayMillis = 60 * 1000;
+        }
+        mHandler.sendEmptyMessageDelayed(1001, delayMillis);
 
     }
 
 
     private void clearDataStyle(final int code) {
-        if (runnable == null)
-            mHandler.removeCallbacks(runnable);
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                if (code == currDay) return;// 防重复点击
-                if (homeTodayImg != null) homeTodayImg.setVisibility(View.INVISIBLE);
-                if (homeYestdayImg != null) homeYestdayImg.setVisibility(View.INVISIBLE);
-                if (homeBeYestdayImg != null) homeBeYestdayImg.setVisibility(View.INVISIBLE);
-                switch (code) {
-                    case 0: //今天
-                        if (homeTodayImg != null) homeTodayImg.setVisibility(View.VISIBLE);
-                        break;
-                    case 1: //昨天
-                        if (homeYestdayImg != null) homeYestdayImg.setVisibility(View.VISIBLE);
-                        break;
-                    case 2: //前天
-                        if (homeBeYestdayImg != null) homeBeYestdayImg.setVisibility(View.VISIBLE);
-                        break;
-                }
-                currDay = code;
-                updatePageData();
-            }
-        };
-        mHandler.post(runnable);
-
+        long currentTime = System.currentTimeMillis() / 1000;   //当前时间
+        //保存的时间
+        String tmpSaveTime = (String) SharedPreferencesUtils.getParam(getmContext(), "save_curr_time", "");
+        long diffTime = (currentTime - Long.valueOf(tmpSaveTime));
+        if (diffTime < 2)
+            return;
+        SharedPreferencesUtils.setParam(getmContext(), "save_curr_time", System.currentTimeMillis() / 1000 + "");
+        //if (code == currDay) return;// 防重复点击
+        if (homeTodayImg != null) homeTodayImg.setVisibility(View.INVISIBLE);
+        if (homeYestdayImg != null) homeYestdayImg.setVisibility(View.INVISIBLE);
+        if (homeBeYestdayImg != null) homeBeYestdayImg.setVisibility(View.INVISIBLE);
+        switch (code) {
+            case 0: //今天
+                if (homeTodayImg != null) homeTodayImg.setVisibility(View.VISIBLE);
+                break;
+            case 1: //昨天
+                if (homeYestdayImg != null) homeYestdayImg.setVisibility(View.VISIBLE);
+                break;
+            case 2: //前天
+                if (homeBeYestdayImg != null) homeBeYestdayImg.setVisibility(View.VISIBLE);
+                break;
+        }
+        currDay = code;
+        SharedPreferencesUtils.setParam(getmContext(), "curr_code", code);
+        updatePageData();
     }
 
+    //接收连接和断开的广播
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {

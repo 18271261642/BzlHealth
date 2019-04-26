@@ -302,7 +302,9 @@ public class WatchMineFragment extends LazyFragment {
                     } else if (MyCommandManager.DEVICENAME.equals("B30") || MyCommandManager.DEVICENAME.equals("B36")
                             || MyCommandManager.DEVICENAME.equals("Ringmii")) {    //B30
                         startActivity(new Intent(getActivity(), B30DeviceActivity.class));
-                    } else if (MyCommandManager.DEVICENAME.equals("B31")) {    //B31
+                    } else if (MyCommandManager.DEVICENAME.equals("B31")
+                            ||MyCommandManager.DEVICENAME.equals("B31S")
+                            ||MyCommandManager.DEVICENAME.equals("500S")) {    //B31
                         startActivity(new Intent(getActivity(), B31DeviceActivity.class));
                     }
 

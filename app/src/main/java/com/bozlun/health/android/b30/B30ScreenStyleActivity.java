@@ -102,15 +102,28 @@ public class B30ScreenStyleActivity extends WatchBaseActivity {
         commentB30BackImg.setVisibility(View.VISIBLE);
         commentB30TitleTv.setText(getResources().getString(R.string.string_devices_ui));
 
-
         //B36,B31总共有5个主界面风格
+        if(MyCommandManager.DEVICENAME != null){
+            if(!MyCommandManager.DEVICENAME.equals("B30") || !MyCommandManager.DEVICENAME.equals("Ringmii")){
+                Style3Rel.setVisibility(View.VISIBLE);
+                Style4Rel.setVisibility(View.VISIBLE);
+            }else{
+                Style3Rel.setVisibility(View.INVISIBLE);
+                Style4Rel.setVisibility(View.INVISIBLE);
+            }
+        }
+
+
+        //B36总共有5个主界面风格
         if(WatchUtils.isB36Device(B30ScreenStyleActivity.this,"B31")){
             Style3Rel.setVisibility(View.VISIBLE);
             Style4Rel.setVisibility(View.VISIBLE);
+
         }else{
             Style3Rel.setVisibility(View.INVISIBLE);
             Style4Rel.setVisibility(View.INVISIBLE);
         }
+
 
     }
 

@@ -3,18 +3,10 @@ package com.bozlun.health.android.b30.bean;
 
 import android.os.Handler;
 import android.util.Log;
-import android.view.animation.TranslateAnimation;
-
 import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.b31.model.B31HRVBean;
 import com.bozlun.health.android.b31.model.B31Spo2hBean;
-import com.bozlun.health.android.b31.model.TempB31HRVBean;
-import com.bozlun.health.android.util.MyLogUtil;
 import org.litepal.LitePal;
-import org.litepal.crud.LitePalSupport;
-import org.litepal.crud.callback.SaveCallback;
-
-import java.util.ArrayList;
 import java.util.List;
 
 

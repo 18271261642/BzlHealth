@@ -375,6 +375,42 @@
                 </RelativeLayout>
 
 
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginLeft="@dimen/size_15"
+                    android:background="@color/linear_border" />
+
+                <RelativeLayout
+                    android:id="@+id/persionQrcodeRel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:background="@drawable/square_white_btn_change">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="@dimen/size_10"
+                        android:text="我的二维码"
+                        android:textSize="15sp" />
+
+
+
+
+                    <ImageView
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginRight="@dimen/size_15"
+                        android:src="@drawable/ic_persion_qrcode" />
+                </RelativeLayout>
+
+
+
             </LinearLayout>
         </android.support.v7.widget.CardView>
     </LinearLayout>

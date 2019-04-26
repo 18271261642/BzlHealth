@@ -128,7 +128,7 @@ public class ManualMeaureBloadActivity extends WatchBaseActivity {
                 privateMode = true;
                 manual_blood_public_line.setVisibility(View.GONE);
                 manual_blood_private_line.setVisibility(View.VISIBLE);
-                private_mode_setting.setVisibility(View.VISIBLE);
+                private_mode_setting.setVisibility(View.GONE);
                 break;
             case R.id.private_mode_setting:   //  私人模式设置
                 Intent intent = new Intent(this, PrivateBloadActivity.class);
@@ -141,8 +141,11 @@ public class ManualMeaureBloadActivity extends WatchBaseActivity {
                     if (!isStart) {
                         isStart = true;
                         b30MeaureStartImg.setImageResource(R.drawable.detect_bp_pause);
+                        showStateTv.setText("");
+                        b30MeaureBloadProgressView.setTmpTxt(null);
                         b30MeaureBloadProgressView.setScheduleDuring(27 * 1000);
                         b30MeaureBloadProgressView.setProgress(100);
+
                         if (MyCommandManager.DEVICENAME != null) {
                             MyApp.getInstance().getVpOperateManager().startDetectBP(bleWriteResponse, new IBPDetectDataListener() {
                                 @Override
@@ -186,6 +189,7 @@ public class ManualMeaureBloadActivity extends WatchBaseActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        stopMeaureBoload();
+        if(MyCommandManager.DEVICENAME != null)
+          stopMeaureBoload();
     }
 }

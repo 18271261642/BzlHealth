@@ -29,6 +29,11 @@ public class  CommBloodOxyDb extends LitePalSupport {
     private String devicecode;
 
     /**
+     * 设备名称
+     */
+    private String bleName;
+
+    /**
      * 日期yyyy-MM-dd格式
      */
     private String rtc;
@@ -96,11 +101,20 @@ public class  CommBloodOxyDb extends LitePalSupport {
         this.avgbloodoxygen = avgbloodoxygen;
     }
 
+    public String getBleName() {
+        return bleName;
+    }
+
+    public void setBleName(String bleName) {
+        this.bleName = bleName;
+    }
+
     @Override
     public String toString() {
         return "CommBloodOxyDb{" +
                 "userid='" + userid + '\'' +
                 ", devicecode='" + devicecode + '\'' +
+                ", bleName='" + bleName + '\'' +
                 ", rtc='" + rtc + '\'' +
                 ", maxbloodoxygen=" + maxbloodoxygen +
                 ", minbloodoxygen=" + minbloodoxygen +

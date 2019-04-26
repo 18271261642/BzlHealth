@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.R;
+import com.umeng.analytics.MobclickAgent;
 
 
 /**
@@ -35,6 +36,7 @@ public class WatchBaseActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         hideTitleStute();
         super.onCreate(savedInstanceState);
+        MobclickAgent.setScenarioType(this, MobclickAgent.EScenarioType.E_UM_NORMAL);
         if (myApp == null) {
             myApp = (MyApp) getApplication();
         }
@@ -46,9 +48,17 @@ public class WatchBaseActivity extends AppCompatActivity {
 
     }
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onResume(this);
+    }
+
     @Override
     protected void onStop() {
         super.onStop();
+        MobclickAgent.onPause(this);
         if (dialog != null) {
             if (dialog.isShowing()) {
                 dialog.dismiss();

@@ -282,6 +282,10 @@
                 <!--心率图表-->
                 <include layout="@layout/include_b30_heart_chart" />
 
+
+                <!--血压图表-->
+                <include layout="@layout/include_b30_bload_chart" />
+
             </LinearLayout>
 
         </ScrollView>

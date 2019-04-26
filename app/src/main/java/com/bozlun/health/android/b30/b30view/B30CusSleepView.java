@@ -57,26 +57,30 @@ public class B30CusSleepView extends View {
     //是否绘制标线
     private boolean isShowSeekBar = false;
 
+    //无数据时显示的颜色
+    private int noDataColor;
+
 
     //#fcd647 清醒  潜水 #a6a8ff 深睡 #b592d6
     public B30CusSleepView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        initAttr(context,attrs);
+        initAttr(context, attrs);
     }
 
     public B30CusSleepView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        initAttr(context,attrs);
+        initAttr(context, attrs);
     }
 
     private void initAttr(Context context, AttributeSet attrs) {
-        TypedArray typedArray =context.obtainStyledAttributes(attrs,R.styleable.B30CusSleepView);
-        if(typedArray != null){
-            hightSleepColor = typedArray.getColor(R.styleable.B30CusSleepView_lightSleepColor,0);
-            deepSleepColor = typedArray.getColor(R.styleable.B30CusSleepView_deepSleepColor,0);
-            awakeSleepColor = typedArray.getColor(R.styleable.B30CusSleepView_awakeSleepColor,0);
-            sleepHeight = typedArray.getDimension(R.styleable.B30CusSleepView_sleepViewHeight,DimenUtil.dp2px(context,180));
-            sleepEmptyData = typedArray.getDimensionPixelSize(R.styleable.B30CusSleepView_sleepEmptyData,20);
+        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.B30CusSleepView);
+        if (typedArray != null) {
+            hightSleepColor = typedArray.getColor(R.styleable.B30CusSleepView_lightSleepColor, 0);
+            deepSleepColor = typedArray.getColor(R.styleable.B30CusSleepView_deepSleepColor, 0);
+            awakeSleepColor = typedArray.getColor(R.styleable.B30CusSleepView_awakeSleepColor, 0);
+            sleepHeight = typedArray.getDimension(R.styleable.B30CusSleepView_sleepViewHeight, DimenUtil.dp2px(context, 180));
+            sleepEmptyData = typedArray.getDimensionPixelSize(R.styleable.B30CusSleepView_sleepEmptyData, dp2px(15));
+            noDataColor = typedArray.getColor(R.styleable.B30CusSleepView_b30SleepNoDataColor, Color.parseColor("#6074BF"));
             typedArray.recycle();
         }
         initPath();
@@ -87,6 +91,7 @@ public class B30CusSleepView extends View {
         hightPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         hightPaint.setColor(hightSleepColor);
         hightPaint.setAntiAlias(true);
+        hightPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         hightPaint.setTextAlign(Paint.Align.LEFT);
         hightPaint.setStrokeWidth(5f);
 
@@ -94,34 +99,37 @@ public class B30CusSleepView extends View {
         deepPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         deepPaint.setColor(deepSleepColor);
         deepPaint.setAntiAlias(true);
+        deepPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         deepPaint.setTextAlign(Paint.Align.LEFT);
-        deepPaint.setStrokeWidth(5f);
+        deepPaint.setStrokeWidth(2f);
 
 
         awakePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         awakePaint.setColor(awakeSleepColor);
         awakePaint.setTextAlign(Paint.Align.LEFT);
+        awakePaint.setStyle(Paint.Style.FILL_AND_STROKE);
         awakePaint.setAntiAlias(true);
-        awakePaint.setStrokeWidth(5f);
+        awakePaint.setStrokeWidth(2f);
 
         emptyPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        emptyPaint.setColor(Color.WHITE);
-        emptyPaint.setStrokeWidth(5);
+        emptyPaint.setColor(noDataColor);
+        emptyPaint.setStrokeWidth(2);
+        emptyPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         emptyPaint.setTextSize(sleepEmptyData);
 
 
         linPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         linPaint.setColor(Color.WHITE);
-        linPaint.setStrokeWidth(5);
+        linPaint.setStrokeWidth(2);
 
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-         width = getMeasuredWidth();
+        width = getMeasuredWidth();
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
-       // Log.e(TAG,"------width="+width+"--widthSize="+widthSize);
+        // Log.e(TAG,"------width="+width+"--widthSize="+widthSize);
     }
 
     @Override
@@ -131,59 +139,57 @@ public class B30CusSleepView extends View {
         //Log.e(TAG,"---width-="+width);
 
     }
+
     @SuppressLint("DrawAllocation")
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         //坐标点平移
-        canvas.translate(0,getHeight());
-       // canvas.rotate(270);
+        canvas.translate(0, getHeight());
+        // canvas.rotate(270);
         canvas.save();
-        if(sleepList != null && sleepList.size()>0){
-           float mCurrentWidth = getWidth()/sleepList.size();
+        if (sleepList != null && sleepList.size() > 0) {
+            float mCurrentWidth = width / sleepList.size();
             //Log.e(TAG,"---size="+sleepList.size()+"-mCurrentWidth="+mCurrentWidth+"==="+sleepList.toString());
-            for(int i = 0;i<sleepList.size();i++){
-                if(sleepList.get(i) == 0){  //浅睡
-                    RectF rectF = new RectF(i*mCurrentWidth,
-                            -dp2px(130),(1+i)*mCurrentWidth,
+            for (int i = 0; i < sleepList.size(); i++) {
+                if (sleepList.get(i) == 0) {  //浅睡
+                    RectF rectF = new RectF(i * mCurrentWidth,
+                            -dp2px(130), (1 + i) * mCurrentWidth,
                             0);
-                    canvas.drawRect(rectF,hightPaint);
-                }
-                else if(sleepList.get(i) == 1){    //深睡
-                    RectF rectF = new RectF(i*mCurrentWidth,-dp2px(80),(1+i)*mCurrentWidth,0);
-                    canvas.drawRect(rectF,deepPaint);
+                    canvas.drawRect(rectF, hightPaint);
+                } else if (sleepList.get(i) == 1) {    //深睡
+                    RectF rectF = new RectF(i * mCurrentWidth, -dp2px(80), (1 + i) * mCurrentWidth, 0);
+                    canvas.drawRect(rectF, deepPaint);
 
-                }else if(sleepList.get(i) == 2){    //清醒
-                    RectF rectF = new RectF(i*mCurrentWidth,-dp2px(160),
-                            (i+1)*mCurrentWidth,0);
-                    canvas.drawRect(rectF,awakePaint);
+                } else if (sleepList.get(i) == 2) {    //清醒
+                    RectF rectF = new RectF(i * mCurrentWidth, -dp2px(160),
+                            (i + 1) * mCurrentWidth, 0);
+                    canvas.drawRect(rectF, awakePaint);
 
                 }
 
             }
 
-            if(isShowSeekBar){
+            if (isShowSeekBar) {
                 //绘制一条白线
-                RectF linRectF = new RectF(seekX * mCurrentWidth,-dp2px(160),seekX * mCurrentWidth+10,0);
-                canvas.drawRect(linRectF,linPaint);
+                RectF linRectF = new RectF(seekX * mCurrentWidth, -dp2px(160), seekX * mCurrentWidth + 10, 0);
+                canvas.drawRect(linRectF, linPaint);
 
                 linPaint.setTextSize(30f);
-                if(seekX<=sleepList.size()/2){
+                if (seekX <= sleepList.size() / 2) {
                     linPaint.setTextAlign(Paint.Align.LEFT);
-                }else{
+                } else {
                     linPaint.setTextAlign(Paint.Align.RIGHT);
                 }
 
                 //绘制显示的时间
-                canvas.drawText(timeTxt,seekX<=sleepList.size()/2?seekX * mCurrentWidth+mCurrentWidth+10:seekX * mCurrentWidth-mCurrentWidth-10,
-                        -dp2px(140),linPaint);
+                canvas.drawText(timeTxt, seekX <= sleepList.size() / 2 ? seekX * mCurrentWidth + mCurrentWidth + 10 : seekX * mCurrentWidth - mCurrentWidth - 10,
+                        -dp2px(140), linPaint);
             }
 
-        }else{
+        } else {
             drawEmptyTxt(canvas);
         }
-
-
 
 
     }
@@ -194,32 +200,29 @@ public class B30CusSleepView extends View {
     }
 
     //是否绘制标线
-    public void setShowSeekBar(boolean showSeekBar,int nor) {
+    public void setShowSeekBar(boolean showSeekBar, int nor) {
         isShowSeekBar = showSeekBar;
         invalidate();
     }
 
     //绘制文字
-    public void setSleepDateTxt(String txt){
+    public void setSleepDateTxt(String txt) {
         this.timeTxt = txt;
     }
 
 
-
     //显示标线
-    public void setSeekBarSchdue(int position){
+    public void setSeekBarSchdue(int position) {
         seekX = position;
         invalidate();
 
     }
 
 
-
-
     //绘制数据为空时显示
     public void drawEmptyTxt(Canvas canvas) {
-        if(sleepList == null || sleepList.size()<=0){
-            canvas.drawText("No Data",getWidth()/2-40,getHeight()/2,emptyPaint);
+        if (sleepList == null || sleepList.size() <= 0) {
+            canvas.drawText("No Data", width / 2 - DimenUtil.getTextWidth(emptyPaint, "No Data") / 2, -getHeight() / 2, emptyPaint);
         }
 
     }
@@ -230,7 +233,7 @@ public class B30CusSleepView extends View {
 
     public void setSleepList(List<Integer> sleepList) {
         this.sleepList = sleepList;
-       // Log.e(TAG,"-----list="+sleepList.toString());
+        // Log.e(TAG,"-----list="+sleepList.toString());
         invalidate();
     }
 
@@ -238,7 +241,7 @@ public class B30CusSleepView extends View {
     /**
      * dp转px
      */
-    public  int dp2px(float dp) {
+    public int dp2px(float dp) {
         return (int) (dp * getResources().getDisplayMetrics().density + 0.5f);
     }
 }

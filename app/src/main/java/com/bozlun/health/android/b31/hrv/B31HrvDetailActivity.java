@@ -218,9 +218,34 @@ public class B31HrvDetailActivity extends WatchBaseActivity {
     }
 
     private void transHrvMarkImg(int value) {
-        int backImgWidth = hrvReferBackImg.getWidth();
-        int currV = backImgWidth / 10;
-        TranslateAnimation translateAnimation = new TranslateAnimation(0, value == 0 ? 0 : backImgWidth - 40 - (100 - value) / 10 * currV + (hrvReferMarkviewImg.getWidth() / 2),
+        //图片的宽度
+        float backImgWidth = hrvReferBackImg.getWidth();
+        //箭头的宽度
+        float flagImgWidht = hrvReferMarkviewImg.getWidth();
+
+        float mWidth = backImgWidth / 3f;
+
+        float coefficient = 0f;
+        float xValue = 0f;
+
+        if(value <= 40){
+            coefficient = value / 40f;
+            xValue = mWidth * coefficient;
+        }else if(value<=60 && value>40){
+            coefficient = (value-40)/20f;
+            xValue = mWidth+(mWidth*coefficient);
+        }else{
+            if(value == 100){
+                xValue = backImgWidth - (flagImgWidht/2);
+
+            }else{
+                coefficient = (value-60)/40f;
+                xValue = mWidth + mWidth +(mWidth*coefficient);
+            }
+
+        }
+
+        TranslateAnimation translateAnimation = new TranslateAnimation(0, value==0?0:xValue-(flagImgWidht/2),
                 Animation.ABSOLUTE,
                 Animation.ABSOLUTE);
         translateAnimation.setDuration(3 * 1000);

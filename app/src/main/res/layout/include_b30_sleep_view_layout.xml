@@ -61,7 +61,8 @@
         app:awakeSleepColor="#fcd647"
         app:deepSleepColor="#b592d6"
         app:lightSleepColor="#a6a8ff"
-        app:sleepEmptyData="@dimen/sp_10"
+        app:sleepEmptyData="@dimen/sp_13"
+        app:b30SleepNoDataColor="#6074BF"
         app:sleepViewHeight="@dimen/size_180" />
 
 

@@ -38,16 +38,6 @@ public class LaunchActivity extends WatchBaseActivity {
             super.handleMessage(msg);
             switch (msg.what){
                 case 1001:
-//                    boolean isGuid = (boolean) msg.obj;
-//                    Log.e(TAG,"---isGuid="+isGuid);
-//                    if(isGuid){
-//                        switchLoginUser();
-//                    }else{
-//                        startActivity(NewGuidActivity.class);
-//                        finish();
-//                    }
-
-
                     switchLoginUser();
                    // finish();
 
@@ -133,8 +123,6 @@ public class LaunchActivity extends WatchBaseActivity {
             SharedPreferencesUtils.setParam(MyApp.getContext(), "laidianphone", "off");
         }
 
-
-
     }
 
     //判断进入的页面
@@ -160,7 +148,7 @@ public class LaunchActivity extends WatchBaseActivity {
                     startActivity(new Intent(LaunchActivity.this, B30HomeActivity.class));
                 }else if("Ringmii".equals(btooth)){
                     startActivity(new Intent(LaunchActivity.this, B30HomeActivity.class));
-                } else if("B31".equals(btooth)){
+                } else if("B31".equals(btooth) || "B31S".equals(btooth) || "500S".equals(btooth)){
                     startActivity(new Intent(LaunchActivity.this,B31HomeActivity.class));
                 }
 

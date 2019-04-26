@@ -31,8 +31,8 @@ android {
         applicationId "com.bozlun.health.android"
         minSdkVersion 19
         targetSdkVersion 27
-        versionCode 7
-        versionName "1.0.6"
+        versionCode 8
+        versionName "1.0.7"
         flavorDimensions "versionName"
         manifestPlaceholders = [
                 qq_id: "101357650"
@@ -44,22 +44,22 @@ android {
         debug {
             buildConfigField "boolean", "LOG_DEBUG", "true"//是否输出LOG信息
             debuggable true
-            //开启dex字节码压缩，舍去未使用的jar和class文件
-            minifyEnabled false//混淆编译
-            zipAlignEnabled false//压缩
-            shrinkResources false//移除无用的资源文件
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.debug
+//            //开启dex字节码压缩，舍去未使用的jar和class文件
+//            minifyEnabled false//混淆编译
+//            zipAlignEnabled false//压缩
+//            shrinkResources false//移除无用的资源文件
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+//            signingConfig signingConfigs.debug
         }
         release {
             debuggable false
             jniDebuggable false
-            //开启dex字节码压缩，舍去未使用的jar和class文件
-            minifyEnabled false//混淆编译
-            zipAlignEnabled false//压缩
-            shrinkResources false//移除无用的资源文件
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
+//            //开启dex字节码压缩，舍去未使用的jar和class文件
+//            minifyEnabled false//混淆编译
+//            zipAlignEnabled false//压缩
+//            shrinkResources false//移除无用的资源文件
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+//            signingConfig signingConfigs.release
         }
 
     }
@@ -127,13 +127,16 @@ dependencies {
     implementation 'io.reactivex:rxjava:1.1.0'
     implementation 'io.reactivex:rxandroid:1.1.0'
     implementation 'com.google.code.gson:gson:2.8.5'
+
     implementation 'org.greenrobot:greendao:3.2.0'
     implementation 'org.greenrobot:greendao-generator:3.2.0'
     implementation 'de.hdodenhof:circleimageview:2.1.0'
     implementation 'com.readystatesoftware.systembartint:systembartint:1.0.3'
     implementation 'com.afollestad.material-dialogs:core:0.9.5.0'
     implementation 'com.romandanylyk:pageindicatorview:0.1.1'
-    implementation 'com.umeng.analytics:analytics:latest.integration'
+    //友盟统计
+    implementation 'com.umeng.sdk:common:1.5.0'
+    implementation 'com.umeng.sdk:analytics:7.5.0'
     implementation 'com.roughike:bottom-bar:2.1.2'
     implementation 'com.nightonke:boommenu:2.0.7'
     implementation 'com.github.yalantis:ucrop:2.2.2'
@@ -160,7 +163,7 @@ dependencies {
     implementation 'com.yanzhenjie.nohttp:okhttp:1.1.5'
     implementation project(':w30sblelibrary')
     implementation files('libs/vpbluetooth_1.0.3.jar')
-    implementation files('libs/vpprotocol_2.0.9.15.jar')
+    implementation files('libs/vpprotocols_2.1.2.15.jar')
     implementation project(':MPChartLib')
     implementation 'com.contrarywind:Android-PickerView:4.1.6'
     // 网络请求
@@ -177,7 +180,7 @@ dependencies {
     implementation 'com.amap.api:3dmap:6.2.0'
     implementation 'com.amap.api:location:4.0.1'
     /**
-     *    登陆分享
+     *     登陆分享
      */
     implementation files('libs/MobCommons-2018.1011.1129.jar')
     implementation files('libs/MobTools-2018.1009.1056.jar')
@@ -199,4 +202,5 @@ dependencies {
     implementation 'org.litepal.android:java:3.0.0'
     //recyclerView动画效果
     //implementation 'jp.wasabeef:recyclerview-animators:3.0.0'
+   // implementation files('libs/gson-2.8.5.jar')
 }

@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.ArrayMap;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -16,6 +17,7 @@ import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.R;
 import com.bozlun.health.android.b30.adapter.B30BloadDetailAdapter;
 import com.bozlun.health.android.b30.b30view.B30CusBloadView;
+import com.bozlun.health.android.b30.b30view.CusB30CusBloadView;
 import com.bozlun.health.android.b30.bean.B30HalfHourDao;
 import com.bozlun.health.android.siswatch.WatchBaseActivity;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
@@ -40,6 +42,9 @@ import butterknife.OnClick;
  * B30血压详情界面
  */
 public class B30BloadDetailActivity extends WatchBaseActivity {
+
+    @BindView(R.id.cusB30BpView)
+    CusB30CusBloadView cusB30BpView;
 
     /**
      * 跳转到B30BloadDetailActivity,并附带参数
@@ -86,6 +91,14 @@ public class B30BloadDetailActivity extends WatchBaseActivity {
      */
     private Gson gson;
 
+
+    private List<Map<Integer, Integer>> resultMap = new ArrayList<>();
+
+    //数据源
+    private List<Map<String,Map<Integer,Integer>>> cusResultMap;
+
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,7 +110,7 @@ public class B30BloadDetailActivity extends WatchBaseActivity {
 
     private void initViews() {
         commentB30BackImg.setVisibility(View.VISIBLE);
-        commentB30TitleTv.setText(getResources().getString(R.string.blood));
+        commentB30TitleTv.setText(getResources().getString(R.string.bloodpressure));
 //        commentB30ShareImg.setVisibility(View.VISIBLE);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -109,6 +122,8 @@ public class B30BloadDetailActivity extends WatchBaseActivity {
 
         gson = new Gson();
         currDay = getIntent().getStringExtra(Constant.DETAIL_DATE);
+
+        cusResultMap = new ArrayList<>();
     }
 
     private void initData() {
@@ -118,8 +133,35 @@ public class B30BloadDetailActivity extends WatchBaseActivity {
                 .TYPE_BP);
         List<HalfHourBpData> bpData = gson.fromJson(bp, new TypeToken<List<HalfHourBpData>>() {
         }.getType());
-        b30DetailBloadView.setDataMap(obtainBloodMap(bpData));
-        b30DetailBloadView.setScale(true);
+
+
+//        b30DetailBloadView.setDataMap(obtainBloodMap(bpData));
+//        b30DetailBloadView.setScale(true);
+
+        resultMap.clear();
+        cusResultMap.clear();
+        if (bpData != null && bpData.size() > 0) {
+            for (HalfHourBpData halfHourBpData : bpData) {
+                Map<Integer, Integer> mp = new ArrayMap<>();
+                mp.put(halfHourBpData.lowValue, halfHourBpData.highValue);
+                //resultMap.add(mp);
+
+                Map<String,Map<Integer,Integer>> mMap = new HashMap<>();
+                mMap.put(halfHourBpData.getTime().getColck(),mp);
+                cusResultMap.add(mMap);
+            }
+            //b30DetailBloadView.setBPDataMap(resultMap);
+            //cusB30BpView.setYValues(yValueList);
+            cusB30BpView.setxVSize(dataList.size());
+            cusB30BpView.setResultMapData(cusResultMap);
+
+        } else {
+            //b30DetailBloadView.setBPDataMap(resultMap);
+            cusB30BpView.setxVSize(0);
+            cusB30BpView.setResultMapData(cusResultMap);
+        }
+
+
         //展示数据
         dataList.clear();
         if (bpData != null && !bpData.isEmpty()) {

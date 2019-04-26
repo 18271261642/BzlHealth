@@ -8,6 +8,21 @@ import com.bozlun.health.android.util.ToastUtil;
  */
 public class Commont {
 
+
+    /**
+     * 判断B31是否带有血压功能
+     */
+    public static final String IS_B31_HAS_BP_KEY = "is_b31_bp";
+
+
+
+
+
+
+    public static int COUNTNUMBER = 4;
+    public static int GPSCOUNT = 2;
+    public static boolean isSosOpen = false;
+
     public static boolean H9_SyncTrue = false;//由于H9读取数据需是串行所以添加同步开关标识
     public static final String BLEMAC = "mylanmac";//蓝牙MAC
     public static final String BLENAME = "mylanya"; //蓝牙名字
@@ -85,6 +100,7 @@ public class Commont {
     public static final String ISQQ = "isQQ";//是否开启 QQ 提醒
     public static final String ISMsm = "isMsm";//是否开启 短息 提醒
     public static final String ISPhone = "isPhone";//是否开启 电话 提醒
+    public static final String ISOther = "isOther"; //其它
 
 
     //H8 公制或英制

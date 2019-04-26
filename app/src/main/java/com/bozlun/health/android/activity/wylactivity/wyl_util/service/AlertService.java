@@ -102,6 +102,8 @@ public class AlertService extends MyNotificationListenerService {
             //获取消息内容
             CharSequence tickerText = notification.tickerText;
             if (tickerText != null) {
+                if(MyCommandManager.DEVICENAME == null)
+                    return;
                 String msgCont = tickerText.toString();
                 if (WatchUtils.isEmpty(msgCont) || msgCont.equals("[]"))
                     return;
@@ -161,15 +163,18 @@ public class AlertService extends MyNotificationListenerService {
 
                     sendB30Mesage(ESocailMsg.SMS, "MMS", msgCont);
 
-                }
-                else if (packageName.equals(CALENDAR_PACKAGENAME)) {//日历提醒
+                } else{
+                    //其它
+                    boolean isOther = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISOther, false);
+                    if (isOther)
+                        sendB30Mesage(ESocailMsg.OTHER, "", msgCont);
 
                 }
 
             }
 
         } catch (Exception exception) {
-            exception.getMessage();
+            exception.printStackTrace();
         }
 
     }
