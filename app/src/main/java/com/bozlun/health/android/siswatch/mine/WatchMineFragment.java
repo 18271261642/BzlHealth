@@ -103,7 +103,7 @@ public class WatchMineFragment extends LazyFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        watchMineView = inflater.inflate(R.layout.fragment_watch_mine, container,false);
+        watchMineView = inflater.inflate(R.layout.fragment_watch_mine, container, false);
         unbinder = ButterKnife.bind(this, watchMineView);
 
         initViews();
@@ -119,7 +119,7 @@ public class WatchMineFragment extends LazyFragment {
     private void initViews() {
         if (bleName == null)
             return;
-        if (MyCommandManager.DEVICENAME == null){
+        if (MyCommandManager.DEVICENAME == null) {
             showBleNameTv.setText("未连接");
             return;
         }
@@ -256,8 +256,8 @@ public class WatchMineFragment extends LazyFragment {
 
                                     Glide.with(getActivity()).load(myInfoJsonObject.getString("image"))
                                             .apply(mRequestOptions).into(watchMineUserheadImg);    //头像
-                                    userId = myInfoJsonObject.getString("userId");
                                 }
+                                userId = myInfoJsonObject.getString("userId");
                                 String userHeight = myInfoJsonObject.getString("height");
                                 if (userHeight != null) {
                                     if (userHeight.contains("cm")) {
@@ -269,11 +269,9 @@ public class WatchMineFragment extends LazyFragment {
                                 }
                             }
                         }
-
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-
                 }
             }
         };
@@ -303,8 +301,8 @@ public class WatchMineFragment extends LazyFragment {
                             || MyCommandManager.DEVICENAME.equals("Ringmii")) {    //B30
                         startActivity(new Intent(getActivity(), B30DeviceActivity.class));
                     } else if (MyCommandManager.DEVICENAME.equals("B31")
-                            ||MyCommandManager.DEVICENAME.equals("B31S")
-                            ||MyCommandManager.DEVICENAME.equals("500S")) {    //B31
+                            || MyCommandManager.DEVICENAME.equals("B31S")
+                            || MyCommandManager.DEVICENAME.equals("500S")) {    //B31
                         startActivity(new Intent(getActivity(), B31DeviceActivity.class));
                     }
 
@@ -324,10 +322,10 @@ public class WatchMineFragment extends LazyFragment {
 
                 break;
             case R.id.watchmineSetting:  //系统设置
-                 startActivity(new Intent(getActivity(), B30SysSettingActivity.class));
+                startActivity(new Intent(getActivity(), B30SysSettingActivity.class));
                 break;
             case R.id.card_frend://亲情互动
-                if (!userId.equals("9278cc399ab147d0ad3ef164ca156bf0")) {
+                if (!WatchUtils.isEmpty(userId) && !userId.equals("9278cc399ab147d0ad3ef164ca156bf0")) {
                     startActivity(new Intent(getActivity(), FriendActivity.class));
                 } else {
                     ToastUtil.showShort(MyApp.getInstance(), getString(R.string.noright));

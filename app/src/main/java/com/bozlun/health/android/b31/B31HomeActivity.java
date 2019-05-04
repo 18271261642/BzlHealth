@@ -1,21 +1,29 @@
 package com.bozlun.health.android.b31;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.media.AudioManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.widget.Toast;
 
 import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.MyApp;
@@ -28,11 +36,14 @@ import com.bozlun.health.android.b30.service.DateUploadService;
 import com.bozlun.health.android.b30.service.VerB30PwdListener;
 import com.bozlun.health.android.b31.record.B31RecordFragment;
 import com.bozlun.health.android.bleutil.MyCommandManager;
+import com.bozlun.health.android.bzlmaps.sos.GPSGaoDeUtils;
+import com.bozlun.health.android.bzlmaps.sos.GPSGoogleUtils;
 import com.bozlun.health.android.siswatch.WatchBaseActivity;
 import com.bozlun.health.android.siswatch.mine.WatchMineFragment;
 import com.bozlun.health.android.siswatch.utils.PhoneUtils;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
 import com.bozlun.health.android.util.ToastUtil;
+import com.bozlun.health.android.util.VerifyUtil;
 import com.bozlun.health.android.view.CusInputDialogView;
 import com.bozlun.health.android.widget.NoScrollViewPager;
 import com.roughike.bottombar.BottomBar;
@@ -40,6 +51,12 @@ import com.roughike.bottombar.OnTabSelectListener;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import com.veepoo.protocol.listener.base.IBleWriteResponse;
 import com.veepoo.protocol.listener.data.IDeviceControlPhone;
+import com.yanzhenjie.permission.Action;
+import com.yanzhenjie.permission.AndPermission;
+import com.yanzhenjie.permission.Permission;
+import com.yanzhenjie.permission.Rationale;
+import com.yanzhenjie.permission.RequestExecutor;
+import com.yanzhenjie.permission.Setting;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +69,7 @@ import butterknife.ButterKnife;
  * Created by Admin
  * Date 2018/12/17
  */
-public class B31HomeActivity extends WatchBaseActivity implements IDeviceControlPhone {
+public class B31HomeActivity extends WatchBaseActivity implements IDeviceControlPhone, Rationale<List<String>> {
 
 
     @BindView(R.id.b31View_pager)
@@ -94,7 +111,8 @@ public class B31HomeActivity extends WatchBaseActivity implements IDeviceControl
 
         initViews();
         registerReceiver(broadcastReceiver, new IntentFilter("com.example.bozhilun.android.siswatch.CHANGEPASS"));
-        MyApp.getInstance().getVpOperateManager().settingDeviceControlPhone(this);
+//        MyApp.getInstance().getVpOperateManager().settingDeviceControlPhone(this);
+        MyApp.getInstance().getVpOperateManager().settingDeviceControlPhone(MyApp.getPhoneSosOrDisPhone());
 
     }
 
@@ -285,6 +303,231 @@ public class B31HomeActivity extends WatchBaseActivity implements IDeviceControl
 
     @Override
     public void sos() {
+        if (!Commont.isSosOpen) {
+            Commont.isSosOpen = true;
+            //Toast.makeText(this,"SOS 执行了 进入",Toast.LENGTH_SHORT).show();
+            boolean isSos = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISHelpe, false);//sos
+            String stringpersonOne = (String) SharedPreferencesUtils.getParam(MyApp.getInstance(), "personOne", "");
+            String stringpersonTwo = (String) SharedPreferencesUtils.getParam(MyApp.getInstance(), "personTwo", "");
+            String stringpersonThree = (String) SharedPreferencesUtils.getParam(MyApp.getInstance(), "personThree", "");
+            if ((!TextUtils.isEmpty(stringpersonOne)
+                    || !TextUtils.isEmpty(stringpersonTwo)
+                    || !TextUtils.isEmpty(stringpersonThree))
+                    && isSos) {
+                //Toast.makeText(this,"SOS 执行了 电话和条件允许",Toast.LENGTH_SHORT).show();
+                Commont.COUNTNUMBER = 0;
+                Commont.GPSCOUNT = 0;
+//                Commont.isGPSed = true;
+                Log.e("===", "======开始定位");
+                getGps();
 
+                Log.e("===", "======5 秒后打电话");
+                handler.sendEmptyMessageAtTime(0x01, 5000);
+                //handler.sendEmptyMessageAtTime(0x02, 1000 * 60 * 3);
+            } else {
+                Commont.isSosOpen = false;
+                ToastUtil.showShort(B31HomeActivity.this, "SOS未打开或者没有添加紧急联系人");
+            }
+
+        }
+    }
+
+    GPSGoogleUtils instance;
+
+    /**
+     * 获取定位以及发送短信
+     */
+    void getGps() {
+        AndPermission.with(this)
+                .runtime()
+//                .permission(Permission.Group.SMS, Permission.Group.LOCATION)
+                .permission(
+                        Permission.ACCESS_FINE_LOCATION,
+                        Permission.ACCESS_COARSE_LOCATION,
+                        //--------------
+                        Permission.SEND_SMS
+                )
+                .rationale(this)//添加拒绝权限回调
+                .onGranted(new Action<List<String>>() {
+                    @Override
+                    public void onAction(List<String> data) {
+//                        GPSGaoDeUtils.getInstance(B30HomeActivity.this);
+
+//                        Commont.isSosOpen = true;
+//                        boolean zh = VerifyUtil.isZh(MyApp.getInstance());
+//                        if (zh) {
+//                            GPSGaoDeUtils.getInstance(MyApp.getInstance());
+//                        } else {
+//                            instance = GPSGoogleUtils.getInstance(MyApp.getInstance());
+//                            getGpsGoogle();
+//                        }  13145994816
+
+                        boolean zh = VerifyUtil.isZh(MyApp.getInstance());
+                        if (zh) {
+                            Boolean zhonTW = getResources().getConfiguration().locale.getCountry().equals("TW");
+                            Log.e("======", zh + "====" + zhonTW);
+                            if (zhonTW) {
+                                instance = GPSGoogleUtils.getInstance(MyApp.getInstance());
+                                getGpsGoogle();
+                            } else {
+                                GPSGaoDeUtils.getInstance(MyApp.getInstance());
+                            }
+                        } else {
+                            instance = GPSGoogleUtils.getInstance(MyApp.getInstance());
+                            getGpsGoogle();
+                        }
+
+                    }
+                })
+                .onDenied(new Action<List<String>>() {
+                    @Override
+                    public void onAction(List<String> data) {
+                        /**
+                         * 当用户没有允许该权限时，回调该方法
+                         */
+                        Toast.makeText(MyApp.getContext(), getString(R.string.string_no_permission), Toast.LENGTH_SHORT).show();
+                        /**
+                         * 判断用户是否点击了禁止后不再询问，AndPermission.hasAlwaysDeniedPermission(MainActivity.this, data)
+                         */
+                        if (AndPermission.hasAlwaysDeniedPermission(MyApp.getContext(), data)) {
+                            //true，弹窗再次向用户索取权限
+                            showSettingDialog(B31HomeActivity.this, data);
+                        }
+                    }
+                }).start();
+    }
+
+
+    void getGpsGoogle() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                boolean b = instance.startLocationUpdates(MyApp.getInstance());
+                if (!b) {
+                    getGpsGoogle();
+                }
+            }
+        }, 3000);
+    }
+
+
+    /**
+     * Display setting dialog.
+     */
+    public void showSettingDialog(Context context, final List<String> permissions) {
+        List<String> permissionNames = Permission.transformText(context, permissions);
+        String message = getResources().getString(R.string.string_get_permission) + "\n" + permissionNames;
+//                context.getString("Please give us permission in the settings:\\n\\n%1$s", TextUtils.join("\n", permissionNames));
+
+        new AlertDialog.Builder(context)
+                .setCancelable(false)
+                .setTitle(getResources().getString(R.string.prompt))
+                .setMessage(message)
+                .setPositiveButton(getResources().getString(R.string.confirm), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        setPermission();
+                    }
+                })
+                .setNegativeButton(getResources().getString(R.string.cancle), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .show();
+    }
+
+    /**
+     * Set permissions.
+     */
+    private void setPermission() {
+        AndPermission.with(this)
+                .runtime()
+                .setting()
+                .onComeback(new Setting.Action() {
+                    @Override
+                    public void onAction() {
+                        //Toast.makeText(MyApp.getContext(),"用户从设置页面返回。", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .start();
+    }
+
+
+    @Override
+    public void showRationale(Context context, List<String> data, final RequestExecutor executor) {
+        List<String> permissionNames = Permission.transformText(context, data);
+        String message = getResources().getString(R.string.string_get_permission) + "\n" + permissionNames;
+
+        new android.app.AlertDialog.Builder(context)
+                .setCancelable(false)
+                .setTitle(getResources().getString(R.string.prompt))
+                .setMessage(message)
+                .setPositiveButton(getResources().getString(R.string.confirm), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        executor.execute();
+                    }
+                })
+                .setNegativeButton(getResources().getString(R.string.cancle), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        executor.cancel();
+                    }
+                })
+                .show();
+    }
+
+    /**
+     * 打电话
+     *
+     * @param tel
+     */
+    //点击事件调用的类
+    protected void call(final String tel) {
+
+        AndPermission.with(B31HomeActivity.this)
+                .runtime()
+                .permission(
+                        Manifest.permission.CALL_PHONE,
+                        Manifest.permission.READ_PHONE_STATE,
+                        Manifest.permission.READ_CONTACTS,
+                        Manifest.permission.READ_CALL_LOG,
+//                        Manifest.permission.WRITE_CALL_LOG,
+                        Manifest.permission.USE_SIP
+//                        Manifest.permission.PROCESS_OUTGOING_CALLS
+                )
+                .rationale(this)
+                .rationale(this)//添加拒绝权限回调
+                .onGranted(new Action<List<String>>() {
+                    @Override
+                    public void onAction(List<String> data) {
+                        //Toast.makeText(B30HomeActivity.this,"SOS 执行了 拨打电话 "+tel,Toast.LENGTH_SHORT).show();
+                        //直接拨打
+//                        Log.d("GPS", "call:" + tel);
+                        Uri uri = Uri.parse("tel:" + tel);
+                        Intent intent = new Intent(Intent.ACTION_CALL, uri);
+                        if (ActivityCompat.checkSelfPermission(B31HomeActivity.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                            return;
+                        }
+                        startActivity(intent);
+                    }
+                })
+                .onDenied(new Action<List<String>>() {
+                    @Override
+                    public void onAction(List<String> data) {
+                        /**
+                         * 当用户没有允许该权限时，回调该方法
+                         */
+                        Toast.makeText(MyApp.getContext(), getString(R.string.string_no_permission), Toast.LENGTH_SHORT).show();
+                        /**
+                         * 判断用户是否点击了禁止后不再询问，AndPermission.hasAlwaysDeniedPermission(MainActivity.this, data)
+                         */
+                        if (AndPermission.hasAlwaysDeniedPermission(MyApp.getContext(), data)) {
+                            //true，弹窗再次向用户索取权限
+                            showSettingDialog(B31HomeActivity.this, data);
+                        }
+                    }
+                }).start();
     }
 }

@@ -16,6 +16,7 @@ import com.afa.tourism.greendao.gen.DaoSession;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.bozlun.health.android.bleutil.MyCommandManager;
+import com.bozlun.health.android.bzlmaps.PhoneSosOrDisPhone;
 import com.bozlun.health.android.db.DBManager;
 import com.bozlun.health.android.bi8i.b18iutils.B18iUtils;
 import com.bozlun.health.android.activity.wylactivity.wyl_util.service.AlertService;
@@ -24,9 +25,7 @@ import com.bozlun.health.android.b30.service.B30DataServer;
 import com.bozlun.health.android.exection.CrashHandler;
 import com.bozlun.health.android.siswatch.bleus.H8BleManagerInstance;
 import com.bozlun.health.android.siswatch.bleus.WatchBluetoothService;
-import com.bozlun.health.android.siswatch.utils.HidUtil;
 import com.mob.MobSDK;
-import com.sdk.bluetooth.app.BluetoothApplicationContext;
 import com.suchengkeji.android.w30sblelibrary.W30SBLEManage;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import com.umeng.commonsdk.UMConfigure;
@@ -58,9 +57,17 @@ public class MyApp extends LitePalApplication {
     private static MyApp instance = null;
     public static final String RefreshBroad = "com.example.bozhilun.android.RefreshBroad";
 
+    private static PhoneSosOrDisPhone phoneSosOrDisPhone;
+
+
+    public static PhoneSosOrDisPhone getPhoneSosOrDisPhone() {
+        return phoneSosOrDisPhone == null ? new PhoneSosOrDisPhone() : phoneSosOrDisPhone;
+    }
+
     public static MyApp getInstance() {
         return instance;
     }
+
     //异常收集
     CrashHandler crashHandler;
 
@@ -85,8 +92,8 @@ public class MyApp extends LitePalApplication {
          */
         MobSDK.init(this);
         initSDK();
+        phoneSosOrDisPhone = new PhoneSosOrDisPhone();
     }
-
 
 
     /**
@@ -104,7 +111,7 @@ public class MyApp extends LitePalApplication {
                     Thread.sleep(700);
 
                     // 必须在调用任何统计SDK接口之前调用初始化函数
-                    UMConfigure.init(instance,  UMConfigure.DEVICE_TYPE_PHONE, null);
+                    UMConfigure.init(instance, UMConfigure.DEVICE_TYPE_PHONE, null);
 
                     /**
                      * 全局异常处理
@@ -134,12 +141,12 @@ public class MyApp extends LitePalApplication {
                     /**
                      * H8配对工具
                      */
-                   // HidUtil.getInstance(getContext());
+                    // HidUtil.getInstance(getContext());
 
                     /**
                      * H9手表初始化
                      */
-                   // BluetoothApplicationContext.getInstance().init(getContext());
+                    // BluetoothApplicationContext.getInstance().init(getContext());
 
                     //startH9Server();
 
@@ -266,8 +273,8 @@ public class MyApp extends LitePalApplication {
             //启动W30S手表服务
             mW30SBLEManage = W30SBLEManage.getInstance(getContext());
             //上传数据时间间隔
-            SharedPreferencesUtils.setParam(getContext(), "upSleepTime","2018-12-25 12:20");
-            SharedPreferencesUtils.setParam(getContext(), "upStepTime","2018-12-25 12:20");//上传步数时间间隔
+            SharedPreferencesUtils.setParam(getContext(), "upSleepTime", "2018-12-25 12:20");
+            SharedPreferencesUtils.setParam(getContext(), "upStepTime", "2018-12-25 12:20");//上传步数时间间隔
             SharedPreferencesUtils.setParam(getContext(), "upSportTime", "2017-11-02 15:00:00");
             SharedPreferencesUtils.setParam(getContext(), "upSleepTime", "2013-11-02 15:00:00");
             SharedPreferencesUtils.setParam(getContext(), "upHeartTimetwo", "2017-11-02 15:00:00");
@@ -504,7 +511,6 @@ public class MyApp extends LitePalApplication {
 //        Intent ints = new Intent(instance, BluetoothService.class);
 //        instance.bindService(ints, h9ServerConn, BIND_AUTO_CREATE);
     }
-
 
 
     //B30的服务绑定

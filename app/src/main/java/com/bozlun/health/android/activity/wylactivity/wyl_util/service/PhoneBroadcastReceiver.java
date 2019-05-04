@@ -62,7 +62,8 @@ public class PhoneBroadcastReceiver extends BroadcastReceiver {
         bleName = (String) SharedPreferencesUtils.readObject(MyApp.getContext().getApplicationContext(), Commont.BLENAME);
         if(!WatchUtils.isEmpty(bleName) && WatchUtils.isVPBleDevice(bleName)){
             //设置维亿魄系列的来电静音和挂断电话功能
-            setVPPhoneSetting();
+//            setVPPhoneSetting();
+            MyApp.getInstance().getVpOperateManager().settingDeviceControlPhone(MyApp.getPhoneSosOrDisPhone());
         }
 
     }
@@ -75,7 +76,7 @@ public class PhoneBroadcastReceiver extends BroadcastReceiver {
         if(!AndPermission.hasPermissions(MyApp.getContext(),Manifest.permission.READ_CONTACTS)){
             AndPermission.with(MyApp.getContext()).runtime().permission(Manifest.permission.READ_CONTACTS,Manifest.permission.READ_CALL_LOG).start();
         }
-        if(action == null)
+        if(WatchUtils.isEmpty(action))
             return;
         //呼入电话
         if (action.equals(B_PHONE_STATE) || action.equals("android.intent.action.PHONE_STATE")) {

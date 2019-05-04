@@ -242,24 +242,27 @@ public class B30CusBloadView extends View {
         //Log.e("BP","---------bpMapV="+bpMapV.size());
         for (int i = 0; i < bpMapV.size(); i++) {
             Map<Integer, Integer> tempMap = bpMapV.get(i);
+            if (tempMap == null)return;
             for (Map.Entry<Integer, Integer> vMaps : tempMap.entrySet()) {
+                if (vMaps!=null){
+                    //高压值
+                    int heightBpV = vMaps.getValue();
+                    //低压值
+                    int lowBpV = vMaps.getKey();
+                    //x轴的值，低压和高压相等
+                    float bpXvalue = mCurrWidth + mCurrWidth * i + dp2px(2);
 
-                //高压值
-                int heightBpV = vMaps.getValue();
-                //低压值
-                int lowBpV = vMaps.getKey();
-                //x轴的值，低压和高压相等
-                float bpXvalue = mCurrWidth + mCurrWidth * i + dp2px(2);
+                    canvas.drawCircle(bpXvalue, -lowBpV * ratio + timeStroke / 2, mCircleRaido, lowPaint);
 
-                canvas.drawCircle(bpXvalue, -lowBpV * ratio + timeStroke / 2, mCircleRaido, lowPaint);
+                    canvas.drawCircle(bpXvalue, -heightBpV * ratio + timeStroke / 2, mCircleRaido, highPaint);
 
-                canvas.drawCircle(bpXvalue, -heightBpV * ratio + timeStroke / 2, mCircleRaido, highPaint);
+                    Path path = new Path();//绘制连线
+                    path.moveTo(bpXvalue, -lowBpV * ratio + timeStroke / 2);
+                    path.lineTo(bpXvalue, -heightBpV * ratio + timeStroke / 2);
+                    path.close();
+                    canvas.drawPath(path, linPaint);
 
-                Path path = new Path();//绘制连线
-                path.moveTo(bpXvalue, -lowBpV * ratio + timeStroke / 2);
-                path.lineTo(bpXvalue, -heightBpV * ratio + timeStroke / 2);
-                path.close();
-                canvas.drawPath(path, linPaint);
+                }
 
             }
         }

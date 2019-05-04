@@ -9,6 +9,7 @@ import android.provider.ContactsContract;
 import android.service.notification.StatusBarNotification;
 import android.text.TextUtils;
 import android.util.Log;
+
 import com.bozlun.health.android.bi8i.b18iutils.B18iUtils;
 import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.MyApp;
@@ -30,7 +31,9 @@ import com.veepoo.protocol.model.enums.ESocailMsg;
 import com.veepoo.protocol.model.settings.ContentSetting;
 import com.veepoo.protocol.model.settings.ContentSmsSetting;
 import com.veepoo.protocol.model.settings.ContentSocailSetting;
+
 import org.greenrobot.eventbus.EventBus;
+
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
@@ -102,13 +105,13 @@ public class AlertService extends MyNotificationListenerService {
             //获取消息内容
             CharSequence tickerText = notification.tickerText;
             if (tickerText != null) {
-                if(MyCommandManager.DEVICENAME == null)
+                if (MyCommandManager.DEVICENAME == null)
                     return;
                 String msgCont = tickerText.toString();
                 if (WatchUtils.isEmpty(msgCont) || msgCont.equals("[]"))
                     return;
-                    Log.e(TAG, "-------tickerText----" + tickerText);
-                    Log.e(TAG, "-------newmsg--2--" + msgCont);
+                Log.e(TAG, "-------tickerText----" + tickerText);
+                Log.e(TAG, "-------newmsg--2--" + msgCont);
                 //line
                 if (packageName.equals(LINE_PACKAGENAME)) {
                     boolean isLine = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISLINE, false);
@@ -150,10 +153,10 @@ public class AlertService extends MyNotificationListenerService {
                     sendB30Msg(ESocailMsg.INSTAGRAM, "Instagram", msgCont);
                 }
                 //sky
-                else if(packageName.equals(SKYPE_PACKAGENAME) || packageName.equals(SKYPE_PACKNAME)){
-                    boolean isSkey = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(),Commont.ISSkype,false);
-                    if(isSkey)
-                        sendB30Mesage(ESocailMsg.SKYPE,"Skype",msgCont);
+                else if (packageName.equals(SKYPE_PACKAGENAME) || packageName.equals(SKYPE_PACKNAME)) {
+                    boolean isSkey = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISSkype, false);
+                    if (isSkey)
+                        sendB30Mesage(ESocailMsg.SKYPE, "Skype", msgCont);
                 }
                 //短信
                 else if (packageName.equals(MSG_PACKAGENAME)
@@ -163,7 +166,7 @@ public class AlertService extends MyNotificationListenerService {
 
                     sendB30Mesage(ESocailMsg.SMS, "MMS", msgCont);
 
-                } else{
+                } else {
                     //其它
                     boolean isOther = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISOther, false);
                     if (isOther)
@@ -182,13 +185,11 @@ public class AlertService extends MyNotificationListenerService {
     //推送B30的消息提醒
     private void sendB30Msg(ESocailMsg b30msg, String appName, String context) {
         Log.e(TAG, "------name=" + MyCommandManager.DEVICENAME);
-        if (MyCommandManager.DEVICENAME != null && (MyCommandManager.DEVICENAME.equals("B30") ||
-                MyCommandManager.DEVICENAME.equals("B36")) || MyCommandManager.DEVICENAME.equals("B31")) {
+        if (!WatchUtils.isEmpty(MyCommandManager.DEVICENAME)&&WatchUtils.isVPBleDevice(MyCommandManager.DEVICENAME)) {
             ContentSocailSetting contentSocailSetting = new ContentSocailSetting(b30msg, appName, context);
             //ContentSetting contentSetting = new ContentSocailSetting(b30msg, 0, 20, appName, context);
             MyApp.getInstance().getVpOperateManager().sendSocialMsgContent(iBleWriteResponse, contentSocailSetting);
         }
-
     }
 
 

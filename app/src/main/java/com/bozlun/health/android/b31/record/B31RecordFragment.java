@@ -335,7 +335,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
                 case 1005:  //血压
                     if (getActivity() != null && !getActivity().isFinishing()) {
                         if (bloadLastTimeTv != null)
-                            bloadLastTimeTv.setText(getResources().getString(R.string.string_recent) + " --:--" );
+                            bloadLastTimeTv.setText(getResources().getString(R.string.string_recent) + " --:--");
                         //最近时间的血压高低值
                         if (b30BloadValueTv != null)
                             b30BloadValueTv.setText("--:--");
@@ -418,10 +418,10 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
     //判断设备，显示和隐藏
     private void verticalDevice() {
 
-        boolean isB31HasBp = (boolean) SharedPreferencesUtils.getParam(getmContext(),Commont.IS_B31_HAS_BP_KEY,false);
-        Log.e(TAG,"----------isB31HasBp="+isB31HasBp);
-        b30CusBloadLin.setVisibility(isB31HasBp?View.VISIBLE:View.GONE);
-        homeBPLin.setVisibility(isB31HasBp?View.VISIBLE:View.GONE);
+        boolean isB31HasBp = (boolean) SharedPreferencesUtils.getParam(getmContext(), Commont.IS_B31_HAS_BP_KEY, false);
+        Log.e(TAG, "----------isB31HasBp=" + isB31HasBp);
+        b30CusBloadLin.setVisibility(isB31HasBp ? View.VISIBLE : View.GONE);
+        homeBPLin.setVisibility(isB31HasBp ? View.VISIBLE : View.GONE);
 
 
     }
@@ -624,7 +624,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
             R.id.homeB31ManRespRateImg, R.id.battery_watchRecordShareImg,
             R.id.b31BpOxyLin, R.id.b31HrvView, R.id.block_spo2h, R.id.block_heart,
             R.id.block_sleep, R.id.block_breath, R.id.block_lowspo2h,
-            R.id.b30_top_dateTv, R.id.b30CusBloadLin,R.id.homeBPLin})
+            R.id.b30_top_dateTv, R.id.b30CusBloadLin, R.id.homeBPLin})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.battery_watchRecordShareImg:  //分享
@@ -669,7 +669,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
                 startActivity(new Intent(getmContext(), B31RespiratoryRateActivity.class));
                 break;
             case R.id.homeBPLin:            //血压测量
-                startActivity(new Intent(getmContext(),ManualMeaureBloadActivity.class));
+                startActivity(new Intent(getmContext(), ManualMeaureBloadActivity.class));
                 break;
             case R.id.b31BpOxyLin:  //血氧分析
                 B31BpOxyAnysisActivity.startAndParams(getmContext(), WatchUtils.obtainFormatDate(currDay));
@@ -1313,7 +1313,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            Log.e(TAG, "-----------action-=" + action);
+            //Log.e(TAG, "-----------action-=" + action);
             if (action == null)
                 return;
             if (action.equals(WatchUtils.B31_CONNECTED_ACTION)) { //连接
@@ -1365,18 +1365,20 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
         List<HRVOriginData> data0to8 = getMoringData(dataList);
         HRVOriginUtil mHrvOriginUtil = new HRVOriginUtil(data0to8);
         HrvScoreUtil hrvScoreUtil = new HrvScoreUtil();
-        int heartSocre = hrvScoreUtil.getSocre(dataList);
-        hrvHeartSocreTv.setText(getResources().getString(R.string.heart_health_sorce) + " " + heartSocre);
-        final List<Map<String, Float>> tenMinuteData = mHrvOriginUtil.getTenMinuteData();
-        if (getActivity() == null)
-            return;
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                //主界面
-                showHomeView(tenMinuteData);
-            }
-        });
+        if (dataList != null) {
+            int heartSocre = hrvScoreUtil.getSocre(dataList);
+            hrvHeartSocreTv.setText(getResources().getString(R.string.heart_health_sorce) + " " + heartSocre);
+            final List<Map<String, Float>> tenMinuteData = mHrvOriginUtil.getTenMinuteData();
+            if (getActivity() == null)
+                return;
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    //主界面
+                    showHomeView(tenMinuteData);
+                }
+            });
+        }
 
     }
 
@@ -1414,15 +1416,17 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
     private List<HRVOriginData> getMoringData(List<HRVOriginData> originSpo2hList) {
         List<HRVOriginData> moringData = new ArrayList<>();
         try {
-            if (originSpo2hList == null || originSpo2hList.size() == 0)
+            if (originSpo2hList == null || originSpo2hList.size() == 0) {
                 return moringData;
-            for (HRVOriginData hRVOriginData : originSpo2hList) {
-                if (hRVOriginData.getmTime().getHMValue() < 8 * 60) {
-                    moringData.add(hRVOriginData);
+            } else {
+                for (HRVOriginData hRVOriginData : originSpo2hList) {
+                    if (hRVOriginData.getmTime().getHMValue() < 8 * 60) {
+                        moringData.add(hRVOriginData);
+                    }
                 }
+                return moringData;
             }
-            return moringData;
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             moringData.clear();
             return moringData;
@@ -1448,7 +1452,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
                 }
             }
             return spo2Data;
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             spo2Data.clear();
             return spo2Data;

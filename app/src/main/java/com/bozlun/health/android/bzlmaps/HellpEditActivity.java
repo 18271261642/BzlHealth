@@ -45,7 +45,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-public class HellpEditActivity extends WatchBaseActivity
+public class HellpEditActivity
+        extends WatchBaseActivity
         implements Rationale<List<String>>, View.OnLongClickListener {
 
     @BindView(R.id.tv_title)
@@ -327,7 +328,7 @@ public class HellpEditActivity extends WatchBaseActivity
             switch (type) {
                 case 1:
                     if (!WatchUtils.isEmpty(phoneNumber.trim())) {
-                        if (WatchUtils.isEmpty(name)) name = "RingmiiHX";
+                        if (WatchUtils.isEmpty(name)) name = "User";
                         SharedPreferencesUtils.setParam(HellpEditActivity.this, "personOne", phoneNumber.trim());
                         SharedPreferencesUtils.setParam(HellpEditActivity.this, "NameOne", name);
                         textOne.setText(phoneNumber.trim());
@@ -336,7 +337,7 @@ public class HellpEditActivity extends WatchBaseActivity
                     break;
                 case 2:
                     if (!WatchUtils.isEmpty(phoneNumber.trim())) {
-                        if (WatchUtils.isEmpty(name)) name = "RingmiiHX";
+                        if (WatchUtils.isEmpty(name)) name = "User";
                         SharedPreferencesUtils.setParam(HellpEditActivity.this, "personTwo", phoneNumber.trim());
                         SharedPreferencesUtils.setParam(HellpEditActivity.this, "NameTwo", name);
                         textTwo.setText(phoneNumber.trim());
@@ -345,7 +346,7 @@ public class HellpEditActivity extends WatchBaseActivity
                     break;
                 case 3:
                     if (!WatchUtils.isEmpty(phoneNumber.trim())) {
-                        if (WatchUtils.isEmpty(name)) name = "RingmiiHX";
+                        if (WatchUtils.isEmpty(name)) name = "User";
                         SharedPreferencesUtils.setParam(HellpEditActivity.this, "personThree", phoneNumber.trim());
                         SharedPreferencesUtils.setParam(HellpEditActivity.this, "NameThree", name);
 
@@ -746,7 +747,7 @@ public class HellpEditActivity extends WatchBaseActivity
                                 if ((!WatchUtils.isEmpty(userPhone) && !WatchUtils.isEmpty(userNames))
                                         || (!WatchUtils.isEmpty(userPhone) && WatchUtils.isEmpty(userNames))) {
 
-                                    if (WatchUtils.isEmpty(userNames)) userNames = "RingmiiHX";
+                                    if (WatchUtils.isEmpty(userNames)) userNames = "User";
                                 } else {
                                     userPhone = "";
                                     userNames = "";
@@ -760,7 +761,7 @@ public class HellpEditActivity extends WatchBaseActivity
                                 if ((!WatchUtils.isEmpty(userPhone) && !WatchUtils.isEmpty(userNames))
                                         || (!WatchUtils.isEmpty(userPhone) && WatchUtils.isEmpty(userNames))) {
 
-                                    if (WatchUtils.isEmpty(userNames)) userNames = "RingmiiHX";
+                                    if (WatchUtils.isEmpty(userNames)) userNames = "User";
 
                                 } else {
                                     userPhone = "";
@@ -777,7 +778,7 @@ public class HellpEditActivity extends WatchBaseActivity
 //                                if ((!WatchUtils.isEmpty(phone.getText().toString().trim()) && !WatchUtils.isEmpty(name.getText().toString().trim()))
 //                                        || (!WatchUtils.isEmpty(phone.getText().toString().trim()) && WatchUtils.isEmpty(name.getText().toString().trim()))) {
 //                                    String names = name.getText().toString().trim();
-//                                    if (WatchUtils.isEmpty(names)) names = "RingmiiHX";
+//                                    if (WatchUtils.isEmpty(names)) names = "User";
 //                                    SharedPreferencesUtils.setParam(HellpEditActivity.this, "personTwo", textTwo.getText().toString().trim());
 //                                    SharedPreferencesUtils.setParam(HellpEditActivity.this, "NameTwo", names);
 //                                } else {
@@ -790,7 +791,7 @@ public class HellpEditActivity extends WatchBaseActivity
                                 if ((!WatchUtils.isEmpty(userPhone) && !WatchUtils.isEmpty(userNames))
                                         || (!WatchUtils.isEmpty(userPhone) && WatchUtils.isEmpty(userNames))) {
 
-                                    if (WatchUtils.isEmpty(userNames)) userNames = "RingmiiHX";
+                                    if (WatchUtils.isEmpty(userNames)) userNames = "User";
 
                                 } else {
                                     userPhone = "";
@@ -807,7 +808,7 @@ public class HellpEditActivity extends WatchBaseActivity
 //                                if ((!WatchUtils.isEmpty(phone.getText().toString().trim()) && !WatchUtils.isEmpty(name.getText().toString().trim()))
 //                                        || (!WatchUtils.isEmpty(phone.getText().toString().trim()) && WatchUtils.isEmpty(name.getText().toString().trim()))) {
 //                                    String names = name.getText().toString().trim();
-//                                    if (WatchUtils.isEmpty(names)) names = "RingmiiHX";
+//                                    if (WatchUtils.isEmpty(names)) names = "User";
 //                                    SharedPreferencesUtils.setParam(HellpEditActivity.this, "personThree", textThee.getText().toString().trim());
 //                                    SharedPreferencesUtils.setParam(HellpEditActivity.this, "NameThree", names);
 //                                } else {
