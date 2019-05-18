@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
@@ -279,6 +280,11 @@ public class ShowSpo2DetailActivity extends WatchBaseActivity {
     private ShowSpo2DetailAdapter.ShowDialogItemClickListener showDialogItemClickListener = new ShowSpo2DetailAdapter.ShowDialogItemClickListener() {
         @Override
         public void itemPosition(int position) {
+
+//            Log.e(TAG,"---------resultListMap.size()="+resultListMap.size()+"---position="+position+"---repositon="+(resultListMap.size() - position - 1));
+//
+//            Log.e(TAG,"------getSpo2Type(spo2Int)="+getSpo2Type(spo2Int));
+
             if (spo2SecondDialogView == null) {
                 spo2SecondDialogView = new Spo2SecondDialogView(ShowSpo2DetailActivity.this);
             }
@@ -286,6 +292,11 @@ public class ShowSpo2DetailActivity extends WatchBaseActivity {
 //                spo2SecondDialogView.cancel();
 //            }
             List<Map<String, Float>> lt = spo2hOriginUtil.getDetailList(getSpo2Type(spo2Int), resultListMap.size() - position - 1);
+
+            //Log.e(TAG,"-------ltSize="+lt.size());
+            if(lt == null || lt.size()==0)
+                return;
+
             spo2SecondDialogView.show();
             spo2SecondDialogView.setSpo2Type(spo2Int);
             spo2SecondDialogView.setMapList(lt);

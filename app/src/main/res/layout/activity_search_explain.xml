@@ -9,8 +9,21 @@
     <WebView
         android:id="@+id/search_explainWV"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
     </WebView>
+
+
+    <TextView
+        android:id="@+id/moreHelpTv"
+        android:layout_width="match_parent"
+        android:text="查看更帮助>>"
+        android:layout_gravity="center"
+        android:gravity="right"
+        android:textColor="@color/blue"
+        android:textSize="18sp"
+        android:padding="5dp"
+        android:layout_marginTop="@dimen/size_15"
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

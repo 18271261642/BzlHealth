@@ -28,7 +28,7 @@ public class CommHeartDb extends LitePalSupport {
     /**
      * 日期 yyyy-MM-dd格式
      */
-    private String rtc;
+    private String dateStr;
 
     /**
      * 最大心率
@@ -44,6 +44,8 @@ public class CommHeartDb extends LitePalSupport {
      * 平均心率
      */
     private int avgheartrate;
+
+    private boolean isUpload;
 
 
     public String getUserid() {
@@ -62,12 +64,12 @@ public class CommHeartDb extends LitePalSupport {
         this.devicecode = devicecode;
     }
 
-    public String getRtc() {
-        return rtc;
+    public String getDateStr() {
+        return dateStr;
     }
 
-    public void setRtc(String rtc) {
-        this.rtc = rtc;
+    public void setDateStr(String dateStr) {
+        this.dateStr = dateStr;
     }
 
     public int getMaxheartrate() {
@@ -102,16 +104,25 @@ public class CommHeartDb extends LitePalSupport {
         this.bleName = bleName;
     }
 
+    public boolean isUpload() {
+        return isUpload;
+    }
+
+    public void setUpload(boolean upload) {
+        isUpload = upload;
+    }
+
     @Override
     public String toString() {
         return "CommHeartDb{" +
                 "userid='" + userid + '\'' +
                 ", bleName='" + bleName + '\'' +
                 ", devicecode='" + devicecode + '\'' +
-                ", rtc='" + rtc + '\'' +
+                ", dateStr='" + dateStr + '\'' +
                 ", maxheartrate=" + maxheartrate +
                 ", minheartrate=" + minheartrate +
                 ", avgheartrate=" + avgheartrate +
+                ", isUpload=" + isUpload +
                 '}';
     }
 }

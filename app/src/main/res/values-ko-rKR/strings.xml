@@ -511,7 +511,7 @@
     <string name="blood">혈압</string>
 
 
-    <string name="app_name">健康天天检</string>
+    <string name="app_name">天天检</string>
     <string name="input_password">암호를 입력하십시오</string>
     <string name="input_code">좀 검증 야드</string>
     <string name="input_nickname">별명 입력하십시오.</string>

@@ -512,7 +512,7 @@
 
 
 
-    <string name="app_name">健康天天检</string>
+    <string name="app_name">天天检</string>
     <string name="input_password">Inserisci la Password</string>
     <string name="input_code">Per favore, inserisci il Codice</string>
     <string name="input_nickname">Inserisci il soprannome</string>

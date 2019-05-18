@@ -75,11 +75,11 @@
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.ADD_VOICEMAIL" />
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
-
-    <!--<uses-permission android:name="android.permission.WRITE_CALL_LOG" />-->
+<!--    <uses-permission android:name="android.permission.WRITE_CALL_LOG" />-->
     <!-- <uses-permission android:name="android.permission.READ_SMS" />-->
     <!--<uses-permission android:name="android.permission.RECEIVE_SMS" />-->
     <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS"/>
     <uses-permission
         android:name="android.permission.SET_DEBUG_APP"
         tools:ignore="ProtectedPermissions" />
@@ -1251,6 +1251,22 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
 
+        <!--数据周月年页面-->
+        <activity android:name=".commdbserver.CommentDataActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <!--帮助页面-->
+        <activity android:name=".b31.MessageHelpActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <!--好友睡眠详细页面-->
+        <activity android:name=".friend.NewFriendSleepActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <!--好友血压详情的页面-->
+        <activity android:name=".friend.NewFriendBpActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <!-- 下载的serveir -->
         <service android:name=".siswatch.utils.DownloadService" />
@@ -1258,6 +1274,13 @@
         <service android:name=".b30.service.NewDateUploadService" />
         <service android:name=".b30.service.CommVpDateUploadService"/>
         <service android:name=".b31.bpoxy.ReadHRVAnSpo2DatatService"/>
+
+        <!--数据缓存的service-->
+        <service android:name=".commdbserver.UploadCommDbServices"/>
+        <!--上传详细运动数据的servicce-->
+        <!--W30,W31的详细数据上传-->
+        <service android:name=".commdbserver.detail.UploadW30DetailService"/>
+        <service android:name=".b30.service.FriendsUploadServices"/>
 
 
         <!-- SOS电话的广播 -->
@@ -1270,6 +1293,13 @@
                 <action android:name="android.intent.action.NEW_OUTGOING_CALL" />
             </intent-filter>
         </receiver>
+        <!--soso发送短信的广播-->
+        <receiver android:name=".bzlmaps.sos.SendSMSBroadCast">
+            <intent-filter>
+                <action android:name="com.example.bozhilun.android.sos.SENDSMS"/>
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

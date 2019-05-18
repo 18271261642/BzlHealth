@@ -3,9 +3,6 @@ package com.bozlun.health.android.b30.bean;
 
 import android.os.Handler;
 import android.util.Log;
-import com.bozlun.health.android.MyApp;
-import com.bozlun.health.android.b31.model.B31HRVBean;
-import com.bozlun.health.android.b31.model.B31Spo2hBean;
 import org.litepal.LitePal;
 import java.util.List;
 
@@ -89,27 +86,6 @@ public class B30HalfHourDao {
     }
 
 
-    public void findBetweenStep(String address, String date, String type){
-
-        String startDate = "2019-03-01";
-        String endDate = "2019-03-04";
-        String mac = MyApp.getInstance().getMacAddress();
-        //List<B30HalfHourDB> ltH = LitePal.where("date  between  ? and ?"+startDate+endDate).find(B30HalfHourDB.class);
-        String where = "dateStr = ? ";
-        List<B31HRVBean> resultList = LitePal.where(where,date).find(B31HRVBean.class);
-
-        if (resultList == null) {
-            for(B31HRVBean bd : resultList){
-                Log.e("DB","--------bd="+bd.toString());
-            }
-        } else {
-            Log.e("DB","------------数据查询为null---");
-        }
-
-
-
-    }
-
 
 
     /**
@@ -125,184 +101,7 @@ public class B30HalfHourDao {
         result = db.saveOrUpdate("address=? and date =? and type=?",bMac,strDate,type);
         Log.e("DB","--------数据存储="+result);
 
-//
-//        B30HalfHourDB localData = getOriginData(db.getAddress(), db.getDate(), db.getType());
-//        if (localData == null) {
-//            result = db.save();// 本地没有,就直接新增
-//            MyLogUtil.d("bobo", "saveOriginData type: " + db.getType() + ",date:"
-//                    + db.getDate() + ",result:" + result + ",add:"+ db.getUpload());
-//        } else {
-//            //localData.setOriginData(db.getOriginData());
-//            result = localData.saveOrUpdate("address=? and date =? and type=?",bMac,strDate,type);//.save();// 本地有,就更新本地
-////            MyLogUtil.d("bobo", "saveOriginData type: " + db.getType() + ",date:"
-////                    + db.getDate() + ",result:" + result + ",update:" + localData.getUpload());
-//        }
     }
-
-
-    //保存B31HRV的数据
-    public synchronized void saveB31HRVData(final B31HRVBean db) {
-        final String where = "bleMac = ? and dateStr = ? and currHrvDate = ?";
-//        db.saveOrUpdateAsync(where,db.getBleMac(),db.getDateStr(),db.getCurrHrvDate()).listen(new SaveCallback() {
-//            @Override
-//            public void onFinish(boolean success) {
-//                Log.e("DB","--hrc-----存储结果="+success);
-//            }
-//        });
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                db.saveOrUpdate(where,db.getBleMac(),db.getDateStr(),db.getCurrHrvDate());
-//            }
-//        }).start();
-
-        //db.saveOrUpdate(where,db.getBleMac(),db.getDateStr(),db.getCurrHrvDate());
-
-       // B31HRVBean localData = getHRVOriginData(db.getBleMac(), db.getDateStr(),db.getCurrHrvDate());
-
-
-
-
-//        if(localData == null){
-//
-//            TempB31HRVBean tempB31HRVBean = new TempB31HRVBean();
-//            tempB31HRVBean.setStrCurrDay(db.getDateStr());
-//            tempB31HRVBean.setB31HRVBean(db);
-//            resultList.add(tempB31HRVBean);
-//            LitePal.saveAll(resultList);
-//
-//
-//           // LitePal.findAll(B31HRVBean.class);
-//        }
-
-
-
-//        if(localData == null){
-//            new Thread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    db.save();
-//                }
-//            }).start();
-//        }
-
-
-
-
-//        boolean result;
-//        B31HRVBean localData = getHRVOriginData(db.getBleMac(), db.getDateStr(),db.getCurrHrvDate());
-//        //Log.e("DB","-------localData="+localData.toString());
-//        if (localData == null) {
-//            db.saveAsync();
-////             db.saveAsync().listen(new SaveCallback() {
-////                 @Override
-////                 public void onFinish(boolean success) {
-////                     Log.e("DB","-------存储结果="+success);
-////                 }
-////             });
-//           // LitePal.saveAll();
-//            //result = db.save();// 本地没有,就直接新增
-////            MyLogUtil.d("bobo", "date:"
-////                    + db.getDateStr() + " ,result:"+result );
-//        }
-//        else {
-//            localData.setHrvDataStr(db.getHrvDataStr());
-//            result = localData.save();// 本地有,就更新本地
-//            MyLogUtil.d("bobo", "date:"
-//                    + db.getDateStr() + ",result:" + result );
-//        }
-    }
-
-
-    //判断HRV是否已经保存
-    private B31HRVBean getHRVOriginData(String address, String date,String currDay) {
-        String where = "bleMac = ? and dateStr = ? and currHrvDate = ?";
-        List<B31HRVBean> resultList = LitePal.where(where, address, date,currDay).find
-                (B31HRVBean.class);// 一个类型,同一天只有一条数据
-        return resultList == null || resultList.isEmpty() ? null : resultList.get(0);
-    }
-
-
-    //保存B31血氧的数据
-    public synchronized void saveB31Spo2hData(final B31Spo2hBean db) {
-        //Log.e("DB","------db="+db.getSpo2currDate());
-        final String where = "bleMac = ? and dateStr = ? and spo2currDate = ?";
-//        Runnable runnable = new Runnable() {
-//            @Override
-//            public void run() {
-//                db.saveOrUpdate(where,db.getBleMac(),db.getDateStr(),db.getSpo2currDate());
-//            }
-//        };
-//        runnable.run();
-//
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                db.saveOrUpdate(where,db.getBleMac(),db.getDateStr(),db.getSpo2currDate());
-//            }
-//        }).start();
-//        db.saveOrUpdateAsync(where,db.getBleMac(),db.getDateStr(),db.getSpo2currDate())
-//                .listen(new SaveCallback() {
-//            @Override
-//            public void onFinish(boolean success) {
-//                Log.e("DB","-----------血氧存储结果="+success);
-//            }
-//        });
-
-        //db.saveOrUpdate(where,db.getBleMac(),db.getDateStr(),db.getSpo2currDate());
-
-
-
-//        B31Spo2hBean localData = getSpo2hOriginData(db.getBleMac(), db.getDateStr(),db.getSpo2currDate());
-//        if(localData == null){
-//            new Thread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    db.save();
-//                }
-//            }).start();
-//        }
-
-
-
-//        boolean result;
-//        B31Spo2hBean localData = getSpo2hOriginData(db.getBleMac(), db.getDateStr(),db.getSpo2currDate());
-//        if (localData == null) {
-//            db.saveAsync();
-////            db.saveAsync().listen(new SaveCallback() {
-////                @Override
-////                public void onFinish(boolean success) {
-////                    Log.e("DB","-----------血氧存储结果="+success);
-////                }
-////            });
-////            result =  db.save();// 本地没有,就直接新增
-////            Log.e("DB","--------数据库中没有="+result);
-////            new Thread(new Runnable() {
-////                @Override
-////                public void run() {
-////                    db.save();// 本地没有,就直接新增
-////                }
-////            }).start();
-//        }else{
-//
-//            Log.e("DB","----------else="+localData.toString());
-//        }
-//        else {
-//            localData.setSpo2hOriginData(db.getSpo2hOriginData());
-//            result = localData.save();
-//            Log.e("DB","--------数据库中有="+result);
-//        }
-    }
-
-    //判断血氧是否已经保存
-    private B31Spo2hBean getSpo2hOriginData(String address, String date,String currDate) {
-        String where = "bleMac = ? and dateStr = ? and spo2currDate = ?";
-        List<B31Spo2hBean> resultBLt = LitePal.where(where,address,date,currDate).find(B31Spo2hBean.class);
-        return  resultBLt == null || resultBLt.isEmpty() ? null : resultBLt.get(0);
-
-    }
-
-
 
 
     /**
@@ -317,5 +116,56 @@ public class B30HalfHourDao {
 //        String where = "address = ? and type = ?";
         return LitePal.where(where, address, type).find(B30HalfHourDB.class);
     }
+
+
+    /**
+     * 根据日期查询没有上传的数据,一个类型一天只有一条数据
+     * @param bleMac mac地址
+     * @param type 类型
+     * @param dayStr 日期yyyy-mm-dd
+     * @return
+     */
+    public List<B30HalfHourDB> findNotUpDataByDay(String bleMac,String type,String dayStr){
+        List<B30HalfHourDB> stepDayList = LitePal.where("upload = 0 and address = ? and type = ? and date = ?",bleMac,type,dayStr).find(B30HalfHourDB.class);
+        return stepDayList == null || stepDayList.isEmpty() ? null : stepDayList;
+    }
+
+
+    /**
+     * 根据指定日期查询心率详细数据
+     * @param dateStr 日期
+     * @param bleMac mac地址
+     * @param type 类型
+     * @return
+     */
+    public List<B30HalfHourDB> findW30HeartDetail(String dateStr,String bleMac,String type ){
+        List<B30HalfHourDB> w30HeartDbList = LitePal.where("address = ? and date = ? and type = ?",bleMac,dateStr,type).find(B30HalfHourDB.class);
+        return w30HeartDbList == null || w30HeartDbList.isEmpty() ? null : w30HeartDbList;
+    }
+
+
+    /**
+     * 根据指定日期查询睡眠数据，一天只有一条
+     * @param dateStr 日期
+     * @param bleMac mac地址
+     * @param type 类型
+     * @return
+     */
+    public List<B30HalfHourDB> findW30SleepDetail(String dateStr,String bleMac,String type){
+        List<B30HalfHourDB> w30SleepDbList = LitePal.where("address = ? and date = ? and type = ?",bleMac,dateStr,type).find(B30HalfHourDB.class);
+        return w30SleepDbList == null || w30SleepDbList.isEmpty() ? null : w30SleepDbList;
+    }
+
+    /**
+     * 根据指定日期查询w30保存的数据
+     * @param dateStr 日期
+     * @param bleMac 地址
+     * @return B30HalfHourDB
+     */
+    public List<B30HalfHourDB> findW30SportData(String dateStr,String bleMac,String type){
+        List<B30HalfHourDB> w30SportDbList = LitePal.where("address = ? and date = ? and type = ?",bleMac,dateStr,type).find(B30HalfHourDB.class);
+        return w30SportDbList == null || w30SportDbList.isEmpty() ? null : w30SportDbList;
+    }
+
 
 }

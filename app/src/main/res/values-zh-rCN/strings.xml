@@ -531,7 +531,7 @@
 
 
 
-    <string name="app_name">健康天天检</string>
+    <string name="app_name">天天检</string>
     <string name="input_password">请输入密码</string>
     <string name="input_code">请输入验证码</string>
     <string name="input_nickname">请输入昵称</string>

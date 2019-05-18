@@ -14,6 +14,8 @@ import com.bozlun.health.android.R;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
 import com.bozlun.health.android.util.ToastUtil;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
+
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 public class SendSMSBroadCast extends BroadcastReceiver {
@@ -133,7 +135,6 @@ public class SendSMSBroadCast extends BroadcastReceiver {
     });
 
     void sendMS(String phone,String message) {
-
         if (message.length() > 70) {
             ArrayList<String> msgs = SmsManager.getDefault().divideMessage(message);
             for (String msg : msgs) {

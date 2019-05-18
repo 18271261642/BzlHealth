@@ -159,7 +159,6 @@ public class DateUploadService extends IntentService {
         setStep(originData,position);
 
 
-
         for (int i = 0; i < sportData.size(); i++) {
             B30HalfHourDB dbData1 = sportData.get(position);
             String date1 = dbData1.getDate();

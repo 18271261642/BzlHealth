@@ -19,6 +19,7 @@ import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
 import com.bozlun.health.android.util.PhoneUtile;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
+
 import java.util.Date;
 
 
@@ -138,6 +139,7 @@ public class CallReceiver extends PhonecallReceiver {
                 new String[]{number},
                 CallLog.Calls.DATE + " desc");
         int i = 0;
+        if (cursor == null) return false;
         while (cursor.moveToNext()) {
             if (i == 0) {//第一个记录 也就是当前这个电话的记录
                 int durationIndex = cursor.getColumnIndex(CallLog.Calls.DURATION);

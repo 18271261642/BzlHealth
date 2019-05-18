@@ -15,7 +15,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-
 import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.LogTestUtil;
 import com.bozlun.health.android.MyApp;
@@ -31,10 +30,8 @@ import com.bozlun.health.android.w30s.utils.httputils.RequestPressent;
 import com.bozlun.health.android.w30s.utils.httputils.RequestView;
 import com.google.gson.Gson;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -44,7 +41,6 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -199,7 +195,7 @@ public class FrendBpActivity extends WatchBaseActivity implements RequestView {
         requestPressent = new RequestPressent();
         requestPressent.attach(this);
         currDay = df.format(new Date());
-        commentB30TitleTv.setText(R.string.heart_rate);
+        commentB30TitleTv.setText(R.string.blood);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this,
                 LinearLayoutManager.VERTICAL, true);
         b30BpDetailRecyclerView.setLayoutManager(layoutManager);

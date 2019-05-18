@@ -166,7 +166,7 @@ public class HellpEditActivity
                                 Manifest.permission.READ_PHONE_STATE,
                                 Manifest.permission.READ_CONTACTS,
                                 Manifest.permission.READ_CALL_LOG,
-//                                Manifest.permission.WRITE_CALL_LOG,
+                                Manifest.permission.SEND_SMS,
                                 Manifest.permission.USE_SIP
 //                                ,
 //                                Manifest.permission.PROCESS_OUTGOING_CALLS
@@ -205,6 +205,7 @@ public class HellpEditActivity
                                 Manifest.permission.READ_PHONE_STATE,
                                 Manifest.permission.READ_CONTACTS,
                                 Manifest.permission.READ_CALL_LOG,
+                                Manifest.permission.SEND_SMS,
 //                                Manifest.permission.WRITE_CALL_LOG,
                                 Manifest.permission.USE_SIP
 //                                ,
@@ -228,7 +229,12 @@ public class HellpEditActivity
                                 /**
                                  * 判断用户是否点击了禁止后不再询问，AndPermission.hasAlwaysDeniedPermission(MainActivity.this, data)
                                  */
-                                if (AndPermission.hasAlwaysDeniedPermission(MyApp.getContext(), data)) {
+                                if (AndPermission.hasAlwaysDeniedPermission(MyApp.getContext(), Manifest.permission.CALL_PHONE,
+                                        Manifest.permission.READ_PHONE_STATE,
+                                        Manifest.permission.READ_CONTACTS,
+                                        Manifest.permission.READ_CALL_LOG,
+//                                Manifest.permission.WRITE_CALL_LOG,
+                                        Manifest.permission.USE_SIP)) {
                                     //true，弹窗再次向用户索取权限
                                     showSettingDialog(HellpEditActivity.this, data);
                                 }
@@ -652,7 +658,7 @@ public class HellpEditActivity
 
     // 显示对话框
     public void showWaiterAuthorizationDialog(final int type) {
-
+        showKeyboard(true);
         // LayoutInflater是用来找layout文件夹下的xml布局文件，并且实例化
         LayoutInflater factory = LayoutInflater.from(HellpEditActivity.this);
         // 把布局文件中的控件定义在View中
@@ -941,6 +947,24 @@ public class HellpEditActivity
                 imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
             }
         }
+    }
+
+
+    private void readPermission(){
+        AndPermission.with(this)
+                .runtime()
+                .permission( Manifest.permission.CALL_PHONE,
+                        Manifest.permission.READ_PHONE_STATE,
+                        Manifest.permission.READ_CONTACTS,
+                        Manifest.permission.READ_CALL_LOG,
+                        Manifest.permission.SEND_SMS,
+                        Manifest.permission.USE_SIP)
+                .rationale(new Rationale<List<String>>() {
+                    @Override
+                    public void showRationale(Context context, List<String> data, RequestExecutor executor) {
+
+                    }
+                }).start();
     }
 
 }

@@ -169,8 +169,8 @@ public class B30BloadDataView extends View {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
-        height = getHeight();
-        width = getWidth();
+        height = getMeasuredHeight();
+        width = getMeasuredWidth();
         Log.e(TAG, "----onMeasure---=" + height + "--wi=" + width);
 
     }
@@ -284,7 +284,7 @@ public class B30BloadDataView extends View {
         float mCirRadio = big ? radioStroke * 2 : radioStroke;//圆的半径
         linPaint.setStrokeWidth(big ? linStroke * 2 : linStroke);// 画笔大小
 //        float start = getWidth() / mapList.size();
-        float start = getWidth() / (mapList.size() + 1);
+        float start = width / (mapList.size() + 1);
         //绘制连线
         Path path = new Path();
         if (mapList != null && mapList.size() > 0) {
@@ -331,12 +331,12 @@ public class B30BloadDataView extends View {
 //        }
         if (timeList.size() < 9) {
             for (int i = 0; i < timeList.size(); i++) {
-                canvas.drawText(timeList.get(i), i * getWidth() / timeList.size() + 20, -15, timePaint);//Y -15 解决底部日期靠底部
+                canvas.drawText(timeList.get(i), i * width / timeList.size() + 20, -15, timePaint);//Y -15 解决底部日期靠底部
             }
         } else if (timeList.size() <= 30 && timeList.size() > 8) {
             for (int i = 0; i < timeList.size(); i++) {
                 if (i / 5 == 0) {
-                    canvas.drawText(timeList.get(i), i * getWidth() * 5 / timeList.size(), -20, timePaint);
+                    canvas.drawText(timeList.get(i), i * width * 5 / timeList.size(), -20, timePaint);
                 }
             }
         }

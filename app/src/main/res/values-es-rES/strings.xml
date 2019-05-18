@@ -528,7 +528,7 @@
 
 
 
-    <string name="app_name">健康天天检</string>
+    <string name="app_name">天天检</string>
     <string name="input_password">Introduzca la contraseña</string>
     <string name="input_code">Introduzca el Código de verificación</string>
     <string name="input_nickname">Por favor introduzca el apodo</string>

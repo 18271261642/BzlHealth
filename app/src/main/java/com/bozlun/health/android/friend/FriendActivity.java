@@ -1,7 +1,6 @@
 package com.bozlun.health.android.friend;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -18,8 +17,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.AnimationUtils;
-import android.view.animation.LayoutAnimationController;
 import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.R;
 import com.bozlun.health.android.friend.bean.MyFrendListBean;
@@ -29,16 +26,14 @@ import com.bozlun.health.android.friend.mutilbind.FrendAdapter;
 import com.bozlun.health.android.friend.mutilbind.TodayRankAdapter;
 import com.bozlun.health.android.siswatch.WatchBaseActivity;
 import com.bozlun.health.android.util.RecycleViewDivider;
-import com.bozlun.health.android.util.ToastUtil;
-import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import com.bozlun.health.android.util.URLs;
 import com.bozlun.health.android.w30s.utils.httputils.RequestPressent;
 import com.bozlun.health.android.w30s.utils.httputils.RequestView;
 import com.google.gson.Gson;
+import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -62,7 +57,6 @@ public class FriendActivity
     RecyclerView recyclerViewUnFrend;
     @BindView(R.id.m_tablayout)
     TabLayout mTabLayout;
-
     //    @BindView(R.id.un_frend_smartrefresh)
 //    SmartRefreshLayout un_frend_smartrefresh;
     private int pageNumber = 0;//记录当前页码
@@ -70,26 +64,17 @@ public class FriendActivity
     private RequestPressent requestPressent;
     String userId = "";
 
-    //好友
-    List<MyFrendListBean.MyfriendsBean> myfriendsList;
-    FrendAdapter frendAdapter;
 
-    //排行榜
-    TodayRankAdapter todayRankAdapter;
-    List<TodayRankBean.RankListBean> leaderList;
+//    List<MyFrendListBean.MyfriendsBean> myfriendsList;
+//    FrendAdapter frendAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fredens);
         ButterKnife.bind(this);
-
-
         inEdit();
     }
-
-
-
 
     @Override
     protected void onResume() {
@@ -131,33 +116,26 @@ public class FriendActivity
         mTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
         mTabLayout.addOnTabSelectedListener(this);
 
-
         //替换三个点
         mNormalToolbar.setOverflowIcon(getResources().getDrawable(R.mipmap.image_add));
         mNormalToolbar.setNavigationIcon(R.mipmap.backs);
         setSupportActionBar(mNormalToolbar);
 
-        //LayoutAnimationController layoutAnimationController = AnimationUtils.loadLayoutAnimation(FriendActivity.this,R.anim.layout_animation_fall_down);
-
         recyclerViewFrend.setLayoutManager(new GridLayoutManager(this, 1));
         //分割线
         recyclerViewFrend.addItemDecoration(new RecycleViewDivider(
                 this, LinearLayoutManager.VERTICAL, 8, Color.parseColor("#D9D9D9")));
-        //recyclerViewFrend.setLayoutAnimation(layoutAnimationController);
-        myfriendsList = new ArrayList<>();
-        frendAdapter = new FrendAdapter(FriendActivity.this, myfriendsList);
-        recyclerViewFrend.setAdapter(frendAdapter);
-        frendAdapter.setmOnItemListenter(this);
 
         //非好友列表
         recyclerViewUnFrend.setLayoutManager(new GridLayoutManager(this, 1));
         //分割线
         recyclerViewUnFrend.addItemDecoration(new RecycleViewDivider(
-                this, LinearLayoutManager.VERTICAL, 1, Color.parseColor("#D9D9D9")));
-       // recyclerViewUnFrend.setLayoutAnimation(layoutAnimationController);
-        leaderList = new ArrayList<>();
-        todayRankAdapter = new TodayRankAdapter(FriendActivity.this, leaderList);
-        recyclerViewUnFrend.setAdapter(todayRankAdapter);
+                this, LinearLayoutManager.VERTICAL, 8, Color.parseColor("#D9D9D9")));
+//        myfriendsList = new ArrayList<>();
+//        frendAdapter = new FrendAdapter(FriendActivity.this, myfriendsList);
+//        recyclerViewFrend.setAdapter(frendAdapter);
+//        frendAdapter.setmOnItemListenter(FriendActivity.this);
+
 
     }
 
@@ -193,7 +171,9 @@ public class FriendActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+
         int id = item.getItemId();
+
         if (id == R.id.action_add_new_frend) {//添加好友
             startActivity(new Intent(this, AddNewFriendActivity.class));
             return true;
@@ -202,6 +182,7 @@ public class FriendActivity
             startActivity(new Intent(this, FriendApplyActivity.class));
             return true;
         }
+
         finish();
         return super.onOptionsItemSelected(item);
     }
@@ -356,14 +337,12 @@ public class FriendActivity
 //                                });
 
 
-                                    myfriendsList.clear();
-                                    myfriendsList.addAll(myfriends);
+//                                    myfriendsList.clear();
+//                                    myfriendsList.addAll(myfriends);
+                                    FrendAdapter frendAdapter = new FrendAdapter(FriendActivity.this, myfriends);
+                                    recyclerViewFrend.setAdapter(frendAdapter);
+                                    frendAdapter.setmOnItemListenter(FriendActivity.this);
                                     frendAdapter.notifyDataSetChanged();
-//                                    FrendAdapter frendAdapter = new FrendAdapter(FriendActivity.this, myfriends);
-//                                    recyclerViewFrend.setAdapter(frendAdapter);
-//                                    frendAdapter.setmOnItemListenter(FriendActivity.this);
-                                   // frendAdapter.notifyDataSetChanged();
-                                   // runLayoutAnimation(recyclerViewFrend);
                                 }
                             }
                         }
@@ -374,13 +353,9 @@ public class FriendActivity
                         if (todayRankBean != null) {
                             if (todayRankBean.getResultCode().equals("001")) {
                                 List<TodayRankBean.RankListBean> rankList = todayRankBean.getRankList();
-                               // TodayRankAdapter todayRankAdapter = new TodayRankAdapter(FriendActivity.this, rankList);
-                                //recyclerViewUnFrend.setAdapter(todayRankAdapter);
-                                //todayRankAdapter.notifyDataSetChanged();
-                                leaderList.clear();
-                                leaderList.addAll(rankList);
-                                //todayRankAdapter.notifyDataSetChanged();
-                                runLayoutAnimation(recyclerViewUnFrend);
+                                TodayRankAdapter todayRankAdapter = new TodayRankAdapter(FriendActivity.this, rankList);
+                                recyclerViewUnFrend.setAdapter(todayRankAdapter);
+                                todayRankAdapter.notifyDataSetChanged();
                             }
                         }
                         break;
@@ -448,16 +423,6 @@ public class FriendActivity
             return false;
         }
     });
-
-    private void runLayoutAnimation(final RecyclerView recyclerView) {
-        final Context context = recyclerView.getContext();
-        final LayoutAnimationController controller =
-                AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_fall_down);
-
-        recyclerView.setLayoutAnimation(controller);
-        recyclerView.getAdapter().notifyDataSetChanged();
-        recyclerView.scheduleLayoutAnimation();
-    }
 
 
     @Override
@@ -533,10 +498,10 @@ public class FriendActivity
      * @param frendHeight 身高
      */
     @Override
-    public void ItemOnClick(View view, String applicant, int stepNumber, String frendHeight, int postion) {
+    public void ItemOnClick(View view, String applicant, int stepNumber, String frendHeight, int postion,String bleMac) {
         //去朋友数据界面
-        startActivity(FrendDataActivity.class, new String[]{"applicant", "stepNumber", "frendHeight"},
-                new String[]{applicant, stepNumber + "", frendHeight});
+        startActivity(FrendDataActivity.class, new String[]{"applicant", "stepNumber", "frendHeight","bleMac"},
+                new String[]{applicant, stepNumber + "", frendHeight,bleMac});
     }
 
     /**
@@ -546,7 +511,7 @@ public class FriendActivity
      */
     @Override
     public void ItemOnClickMine(int postion) {
-        if (postion == 0){
+        if (postion == 0) {
             startActivity(FrendLoveMineActivity.class);
         }
     }

@@ -14,27 +14,23 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.LogTestUtil;
 import com.bozlun.health.android.R;
 import com.bozlun.health.android.friend.bean.FrendDataBean;
 import com.bozlun.health.android.siswatch.WatchBaseActivity;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
-import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import com.bozlun.health.android.util.URLs;
 import com.bozlun.health.android.w30s.utils.httputils.RequestPressent;
 import com.bozlun.health.android.w30s.utils.httputils.RequestView;
 import com.google.gson.Gson;
+import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import com.suchengkeji.android.w30sblelibrary.utils.W30SBleUtils;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -84,6 +80,8 @@ public class FrendDataActivity
     private int FrendSeeToMeBlood = 0;
     Intent intent = null;
     String stringJson = "";
+    //好友的设备地址
+    private String friendBleMac = null;
 
 
     @SuppressLint({"DefaultLocale", "SetTextI18n"})
@@ -100,6 +98,7 @@ public class FrendDataActivity
         if (intent == null) return;
         applicant = intent.getStringExtra("applicant");
         StepNumber = intent.getStringExtra("stepNumber");//步数
+        friendBleMac = intent.getStringExtra("bleMac");
 //        if (see.equals("1")) {
 //            //替换三个点
 //            mNormalToolbar.setOverflowIcon(getResources().getDrawable(R.mipmap.ic_close_frend));
@@ -587,8 +586,8 @@ public class FrendDataActivity
                 Log.d("-------AA-", "FrendSeeToMeSleep:" + FrendSeeToMeSleep + "");
                 if (FrendSeeToMeSleep == 0) return;
                 if (!WatchUtils.isEmpty(stringJson))
-                    startActivity(FrendSleepActivity.class, new String[]{"applicant", "stringJson"},
-                            new String[]{applicant, stringJson});
+                    startActivity(NewFriendSleepActivity.class, new String[]{"applicant", "stringJson","friendBleMac"},
+                            new String[]{applicant, stringJson,friendBleMac});
                 break;
             case R.id.rela_heart:
                 Log.d("-------AA-", "FrendSeeToMeHeart:" + FrendSeeToMeHeart + "");
@@ -598,7 +597,7 @@ public class FrendDataActivity
                 break;
             case R.id.rela_bp:
                 if (FrendSeeToMeBlood == 0) return;
-                startActivity(FrendBpActivity.class, new String[]{"applicant"},
+                startActivity(NewFriendBpActivity.class, new String[]{"applicant"},
                         new String[]{applicant});
                 break;
         }

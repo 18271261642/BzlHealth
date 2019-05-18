@@ -16,7 +16,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.LogTestUtil;
 import com.bozlun.health.android.MyApp;
@@ -25,17 +24,15 @@ import com.bozlun.health.android.b30.b30view.B30CusHeartView;
 import com.bozlun.health.android.friend.bean.FrendHaretBean;
 import com.bozlun.health.android.siswatch.WatchBaseActivity;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
-import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import com.bozlun.health.android.util.URLs;
 import com.bozlun.health.android.w30s.adapters.CommonRecyclerAdapter;
 import com.bozlun.health.android.w30s.adapters.MyViewHolder;
 import com.bozlun.health.android.w30s.utils.httputils.RequestPressent;
 import com.bozlun.health.android.w30s.utils.httputils.RequestView;
 import com.google.gson.Gson;
-
+import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -43,7 +40,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -124,8 +120,13 @@ public class FrendHeartActivity extends WatchBaseActivity implements RequestView
 
         @Override
         public void convert(MyViewHolder holder, final FrendHaretBean.FriendHeartRateBean item) {
-            holder.setText(R.id.itemHeartDetailDateTv, item.getRtc().substring(11, 16));
-            holder.setText(R.id.itemHeartDetailValueTv, item.getHeartRate() + "");
+            try {
+                holder.setText(R.id.itemHeartDetailDateTv, item.getTime());
+                holder.setText(R.id.itemHeartDetailValueTv, item.getHeartRate() + "");
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
         }
     }
 
@@ -247,7 +248,7 @@ public class FrendHeartActivity extends WatchBaseActivity implements RequestView
             Collections.sort(dataList, new Comparator<FrendHaretBean.FriendHeartRateBean>() {
                 @Override
                 public int compare(FrendHaretBean.FriendHeartRateBean o1, FrendHaretBean.FriendHeartRateBean o2) {
-                    return o2.getRtc().compareTo(o1.getRtc());
+                    return o2.getTime().compareTo(o1.getTime());
                 }
             });
             b30HeartDetailAdapter.notifyDataSetChanged();
@@ -288,6 +289,7 @@ public class FrendHeartActivity extends WatchBaseActivity implements RequestView
                         break;
                 }
             } catch (Error e) {
+                e.printStackTrace();
             }
 
             return false;
@@ -304,6 +306,13 @@ public class FrendHeartActivity extends WatchBaseActivity implements RequestView
     protected void onDestroy() {
         if (mHandler != null) mHandler.removeCallbacksAndMessages(null);
         super.onDestroy();
+    }
+
+
+
+    class HeartFriendDb{
+        private int heartRate;
+
     }
 
 }

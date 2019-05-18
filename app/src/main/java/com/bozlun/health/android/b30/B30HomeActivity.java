@@ -95,7 +95,7 @@ public class B30HomeActivity extends WatchBaseActivity implements IDeviceControl
 
     private void initViews() {
         b30FragmentList.add(new B30HomeFragment());
-        b30FragmentList.add(new B30DataFragment());
+//        b30FragmentList.add(new B30DataFragment());
 //        b30FragmentList.add(new W30sNewRunFragment());
 //        b30FragmentList.add(new B30RunFragment());   //跑步
         b30FragmentList.add(new B36RunFragment());   //跑步
@@ -114,14 +114,14 @@ public class B30HomeActivity extends WatchBaseActivity implements IDeviceControl
                     case R.id.b30_tab_home: //首页
                         b30ViewPager.setCurrentItem(0, false);
                         break;
-                    case R.id.b30_tab_data: //数据
+//                    case R.id.b30_tab_data: //数据
+//                        b30ViewPager.setCurrentItem(1, false);
+//                        break;
+                    case R.id.b30_tab_set:  //开跑
                         b30ViewPager.setCurrentItem(1, false);
                         break;
-                    case R.id.b30_tab_set:  //开跑
-                        b30ViewPager.setCurrentItem(2, false);
-                        break;
                     case R.id.b30_tab_my:   //我的
-                        b30ViewPager.setCurrentItem(3, false);
+                        b30ViewPager.setCurrentItem(2, false);
                         break;
                 }
             }

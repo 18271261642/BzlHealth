@@ -7,29 +7,26 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import com.bozlun.health.android.Commont;
-import com.bozlun.health.android.LogTestUtil;
 import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.R;
 import com.bozlun.health.android.friend.bean.FrendStepBean;
 import com.bozlun.health.android.siswatch.WatchBaseActivity;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
-import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import com.bozlun.health.android.util.URLs;
-import com.bozlun.health.android.w30s.adapters.CommonRecyclerAdapter;
-import com.bozlun.health.android.w30s.adapters.MyViewHolder;
 import com.bozlun.health.android.w30s.utils.httputils.RequestPressent;
 import com.bozlun.health.android.w30s.utils.httputils.RequestView;
 import com.github.mikephil.charting.charts.BarChart;
@@ -40,10 +37,10 @@ import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.google.gson.Gson;
-
+import com.google.gson.reflect.TypeToken;
+import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -51,11 +48,15 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-
+import java.util.Locale;
+import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+/**
+ * 好友步数详细
+ */
 public class FrendStepActivity extends WatchBaseActivity implements RequestView {
 
     @BindView(R.id.commentB30BackImg)
@@ -85,21 +86,31 @@ public class FrendStepActivity extends WatchBaseActivity implements RequestView 
     LinearLayout line_dis;
     @SuppressLint("SimpleDateFormat")
     private DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+
+    SimpleDateFormat sdf = new SimpleDateFormat("HH:mm",Locale.CHINA);
+
     /**
      * 当前显示的日期(数据根据日期加载)
      */
     private String currDay;
     private RequestPressent requestPressent;
-    List<FrendStepBean.FriendStepNumberBean> friendStepNumber = null;
+    //List<FrendStepBean.FriendStepNumberBean> friendStepNumber = null;
 
     /**
      * 列表数据源
      */
-    private List<FrendStepBean.FriendStepNumberBean> dataList = new ArrayList<>();
+   // private List<FrendStepBean.FriendStepNumberBean> dataList = new ArrayList<>();
+
+
+    //数据返回
+    private List<StepDetailBean> commStepDetailDbList;
+    private StepAdapter stepAdapter;
+
+
     /**
      * 列表适配器
      */
-    private MyAdapter b30StepDetailAdapter;
+    //private MyAdapter b30StepDetailAdapter;
     /**
      * 步数数据
      */
@@ -136,25 +147,13 @@ public class FrendStepActivity extends WatchBaseActivity implements RequestView 
                 .VERTICAL, true);
         b30StepDetailRecyclerView.setLayoutManager(layoutManager);
         b30StepDetailRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        b30StepDetailAdapter = new MyAdapter(this, dataList, R.layout.item_b30_step_detail_layout);
-        b30StepDetailRecyclerView.setAdapter(b30StepDetailAdapter);
-    }
 
 
-    /**
-     * rec---适配器
-     */
-    class MyAdapter extends CommonRecyclerAdapter<FrendStepBean.FriendStepNumberBean> {
+        commStepDetailDbList = new ArrayList<>();
+        stepAdapter = new StepAdapter(this);
+        b30StepDetailRecyclerView.setAdapter(stepAdapter);
 
-        public MyAdapter(Context context, List<FrendStepBean.FriendStepNumberBean> data, int layoutId) {
-            super(context, data, layoutId);
-        }
 
-        @Override
-        public void convert(MyViewHolder holder, final FrendStepBean.FriendStepNumberBean item) {
-            holder.setText(R.id.itemB30StepDetailTimeTv, item.getRtc().substring(11, 16));
-            holder.setText(R.id.itemB30StepDetailKcalTv, item.getStepNumber() + "");
-        }
     }
 
     /**
@@ -230,16 +229,10 @@ public class FrendStepActivity extends WatchBaseActivity implements RequestView 
     @Override
     public void successData(int what, Object object, int daystag) {
         closeLoadingDialog();
-        if (mHandler != null) mHandler.sendEmptyMessage(0x02);
-        if (object != null || !TextUtils.isEmpty(object.toString().trim())) {
-            LogTestUtil.e("-----------朋友--", "获取好友详日细步数返回--" + object.toString());
-            Message message = new Message();
-            message.what = what;
-            message.arg1 = daystag;
-            message.obj = object;
-            if (mHandler != null) mHandler.sendMessage(message);
-        }
+        analysisStepData(object);
+
     }
+
 
     @Override
     public void failedData(int what, Throwable e) {
@@ -252,40 +245,85 @@ public class FrendStepActivity extends WatchBaseActivity implements RequestView 
     }
 
 
-    /**
-     * 显示 图表 和 list
-     *
-     * @param sportData
-     */
-    void showChartAndList(List<FrendStepBean.FriendStepNumberBean> sportData) {
-        dataList.clear();
+    //解析数据
+    private void analysisStepData(Object object) {
+        commStepDetailDbList.clear();
         b30ChartList.clear();
-        if (sportData == null||sportData.isEmpty()) {
-            initBarChart(b30ChartList);
-            b30BarChart.invalidate();
-            b30StepDetailAdapter.notifyDataSetChanged();
-            return;
-        }
-        for (int i = 0; i < sportData.size(); i++) {
-            b30ChartList.add(new BarEntry(i, sportData.get(i).getStepNumber()));
-            if (sportData.get(i).getStepNumber() > 0) {
-                dataList.add(sportData.get(i));
+        try {
+            JSONObject jsonObject = new JSONObject(object.toString());
+            if(jsonObject.getString("resultCode").equals("001")){
+                String friendList = jsonObject.getString("friendStepNumber");
+                Log.e("TAG","-------friendList="+friendList);
+                List<StepDetailBean> lt = new Gson().fromJson(friendList,new TypeToken<List<StepDetailBean>>(){}.getType());
+                if(lt != null && !lt.isEmpty()){
+                    Collections.sort(lt, new Comparator<StepDetailBean>() {
+                        @Override
+                        public int compare(StepDetailBean o1, StepDetailBean o2) {
+                            return o1.getStartDate().compareTo(o2.getStartDate());
+                        }
+                    });
+
+                    commStepDetailDbList.addAll(lt);
+                    stepAdapter.notifyDataSetChanged();
+
+                    //补0操作，
+                    Map<String,String>  maps = WatchUtils.setHalfDateMap();
+                    for(StepDetailBean st : lt){
+                        maps.put(st.getStartDate(),st.getStepNumber()+"");
+                    }
+
+                    showChartViews(maps);
+                }else{
+                    commStepDetailDbList.clear();
+                    stepAdapter.notifyDataSetChanged();
+
+                    initBarChart(b30ChartList);
+                    if (b30BarChart != null) {
+                        b30BarChart.setNoDataTextColor(Color.WHITE);
+                        b30BarChart.invalidate();
+                    }
+                }
+            }else{
+                commStepDetailDbList.clear();
+                stepAdapter.notifyDataSetChanged();
+
+                initBarChart(b30ChartList);
+//                if (b30BarChart != null) {
+//                    b30BarChart.setNoDataTextColor(Color.WHITE);
+//                    b30BarChart.invalidate();
+//                }
             }
+
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
+    }
+
+
+    //显示图表
+    private void showChartViews(Map<String,String>  maps){
+        b30ChartList.clear();
+        List<String> timeList = new ArrayList<>();
+        for(Map.Entry<String,String> mp : maps.entrySet()){
+            timeList.add(mp.getKey().trim());
+        }
+        Collections.sort(timeList, new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                return o1.compareTo(o2);
+            }
+        });
+
+        for(int i = 0;i<timeList.size();i++){
+            b30ChartList.add(new BarEntry(i, Integer.valueOf(maps.get(timeList.get(i)))));
+        }
         if (b30ChartList != null) {
             initBarChart(b30ChartList);
             b30BarChart.invalidate();
         }
-        if (dataList != null && !dataList.isEmpty()) {
-            Collections.sort(dataList, new Comparator<FrendStepBean.FriendStepNumberBean>() {
-                @Override
-                public int compare(FrendStepBean.FriendStepNumberBean o1, FrendStepBean.FriendStepNumberBean o2) {
-                    return o2.getRtc().compareTo(o1.getRtc());
-                }
-            });
-            b30StepDetailAdapter.notifyDataSetChanged();
-        }
+
+
     }
 
 
@@ -349,22 +387,23 @@ public class FrendStepActivity extends WatchBaseActivity implements RequestView 
                         FrendStepBean frendStepBean = new Gson().fromJson(res, FrendStepBean.class);
                         if (!WatchUtils.isEmpty(frendStepBean.getResultCode())
                                 && frendStepBean.getResultCode().equals("001")) {
-                            friendStepNumber = frendStepBean.getFriendStepNumber();
-                            if (friendStepNumber != null && !friendStepNumber.isEmpty()) {
-                                showChartAndList(friendStepNumber);
-                            }
+//                            friendStepNumber = frendStepBean.getFriendStepNumber();
+//                            if (friendStepNumber != null && !friendStepNumber.isEmpty()) {
+//                                showChartAndList(friendStepNumber);
+//                            }
                         }
                         break;
                     case 0x02:
-                        if (friendStepNumber != null) {
-                            friendStepNumber.clear();
-                        } else {
-                            friendStepNumber = new ArrayList<>();
-                        }
-                        showChartAndList(friendStepNumber);
+//                        if (friendStepNumber != null) {
+//                            friendStepNumber.clear();
+//                        } else {
+//                            friendStepNumber = new ArrayList<>();
+//                        }
+//                        showChartAndList(friendStepNumber);
                         break;
                 }
             }catch (Error error){
+                error.printStackTrace();
             }
 
             return false;
@@ -382,4 +421,73 @@ public class FrendStepActivity extends WatchBaseActivity implements RequestView 
         if (mHandler!=null)mHandler.removeCallbacksAndMessages(null);
         super.onDestroy();
     }
+
+
+
+    //适配器
+    private class StepAdapter extends RecyclerView.Adapter<StepAdapter.StepViewHolder> {
+
+        private Context mContext;
+
+        public StepAdapter(Context mContext) {
+            this.mContext = mContext;
+        }
+
+        @NonNull
+        @Override
+        public StepViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(mContext).inflate(R.layout.item_b30_step_detail_layout,parent,false);
+            return new StepViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull StepViewHolder holder, int position) {
+            String time = commStepDetailDbList.get(position).getStartDate();
+            holder.timeTv.setText(time);
+            holder.stepNumTv.setText(commStepDetailDbList.get(position).getStepNumber()+"");
+        }
+
+        @Override
+        public int getItemCount() {
+            return commStepDetailDbList.size();
+        }
+
+        class StepViewHolder extends RecyclerView.ViewHolder{
+            TextView timeTv,stepNumTv;
+
+            public StepViewHolder(View itemView) {
+                super(itemView);
+                timeTv = itemView.findViewById(R.id.itemB30StepDetailTimeTv);
+                stepNumTv = itemView.findViewById(R.id.itemB30StepDetailKcalTv);
+
+
+            }
+        }
+    }
+
+
+    class StepDetailBean{
+        private int stepNumber;
+        private String startDate;
+
+        public int getStepNumber() {
+            return stepNumber;
+        }
+
+        public void setStepNumber(int stepNumber) {
+            this.stepNumber = stepNumber;
+        }
+
+        public String getStartDate() {
+            return startDate;
+        }
+
+        public void setStartDate(String startDate) {
+            this.startDate = startDate;
+        }
+    }
+
+
+
+
 }

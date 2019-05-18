@@ -302,7 +302,7 @@ public class UpdateManager {
      */
     private void showDownloadDialog(String dowUrl) {
         try {
-            File apkFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "RaceFitPro.apk");
+            File apkFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "BzlHealth.apk");
             if (!WatchUtils.isEmpty(apkFile.getPath())) {
                 rmoveFile(apkFile.getPath());
             }
@@ -318,7 +318,7 @@ public class UpdateManager {
             request.setAllowedOverRoaming(false);
 
             //创建目录下载
-            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "RaceFitPro.apk");
+            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "BzlHealth.apk");
             // 把id保存好，在接收者里面要用
             downloadId = mDownloadManager.enqueue(request);
             //设置允许使用的网络类型，这里是移动网络和wifi都可以
@@ -327,7 +327,7 @@ public class UpdateManager {
             request.setMimeType("application/vnd.android.package-archive");
             //通知栏显示
             request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-            request.setTitle("健康天天检");
+            request.setTitle("天天检");
             request.setDescription("Downloading ...");
             request.setVisibleInDownloadsUi(true);
         } catch (Exception e) {
@@ -391,7 +391,7 @@ public class UpdateManager {
      */
     private void installAPK() {
         File apkFile =
-                new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "RaceFitPro.apk");
+                new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "BzlHealth.apk");
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

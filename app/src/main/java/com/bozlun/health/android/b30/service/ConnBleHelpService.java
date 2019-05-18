@@ -8,6 +8,9 @@ import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.b30.bean.B30HalfHourDB;
 import com.bozlun.health.android.b30.bean.B30HalfHourDao;
+import com.bozlun.health.android.bleutil.MyCommandManager;
+import com.bozlun.health.android.commdbserver.CommCalUtils;
+import com.bozlun.health.android.commdbserver.CommDBManager;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
 import com.bozlun.health.android.util.LocalizeTool;
 import com.bozlun.health.android.util.MyLogUtil;
@@ -51,6 +54,7 @@ import com.veepoo.protocol.model.settings.CustomSettingData;
 import com.veepoo.protocol.model.settings.ReadSleepSetting;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -413,6 +417,7 @@ public class ConnBleHelpService {
                 Log.e(TAG,"----------睡眠数据读取结束------="+sleepMap.size());
                 if(sleepMap != null && !sleepMap.isEmpty()){
                     for(Map.Entry<String,SleepData> mp : sleepMap.entrySet()){
+                        //保存详细数据 ，保存详细数据时日期会往后+ 一天
                         B30HalfHourDB db = new B30HalfHourDB();
                         db.setAddress(MyApp.getInstance().getMacAddress());
                         db.setDate(WatchUtils.obtainAroundDate(mp.getValue().getDate(),false));
@@ -420,6 +425,20 @@ public class ConnBleHelpService {
                         db.setOriginData(gson.toJson(mp.getValue()));
                         db.setUpload(0);
                         B30HalfHourDao.getInstance().saveOriginData(db);
+
+                        //保存汇总数据
+                        String bleName = "B31";
+                        if (!WatchUtils.isEmpty(MyCommandManager.DEVICENAME))
+                            bleName = MyCommandManager.DEVICENAME;
+                        //保存睡眠数据
+                        SleepData sleepData = mp.getValue();
+                        //清醒时长=总的睡眠时长-深睡时长-清醒时长
+                        int soberlen = sleepData.getAllSleepTime() - sleepData.getDeepSleepTime() - sleepData.getLowSleepTime();
+                        CommDBManager.getCommDBManager().saveCommSleepDbData(bleName, WatchUtils.getSherpBleMac(MyApp.getContext()), sleepData.getDate(),
+                                sleepData.getDeepSleepTime(), sleepData.getLowSleepTime(), soberlen, sleepData.getAllSleepTime(),
+                                sleepData.getSleepDown().getDateAndClockForSleep(), sleepData.getSleepUp().getDateAndClockForSleep(),
+                                sleepData.getWakeCount());
+
                     }
                 }
 
@@ -593,6 +612,14 @@ public class ConnBleHelpService {
         db.setOriginData(gson.toJson(rateData));
         db.setUpload(0);
         B30HalfHourDao.getInstance().saveOriginData(db);
+
+        String bleName = "B31";
+        if (!WatchUtils.isEmpty(MyCommandManager.DEVICENAME)) bleName = MyCommandManager.DEVICENAME;
+        //保存心率数据
+        Integer[] heartStr = CommCalUtils.calHeartData(rateData);
+        CommDBManager.getCommDBManager().saveCommHeartData(bleName, WatchUtils.getSherpBleMac(MyApp.getContext()),
+                rateData.get(0).date, heartStr[0], heartStr[1], heartStr[2]);
+
     }
 
     /**
@@ -611,6 +638,13 @@ public class ConnBleHelpService {
         db.setUpload(0);
         Log.d("-------血压数据", gson.toJson(bpData));
         B30HalfHourDao.getInstance().saveOriginData(db);
+
+        //保存血压的数据
+        Integer[] bloodStr = CommCalUtils.calBloodData(bpData);
+        Log.e(TAG, "-------血压平均数据=" + Arrays.toString(bloodStr));
+        CommDBManager.getCommDBManager().saveCommBloodDb(WatchUtils.getSherpBleMac(MyApp.getContext()), bpData.get(0).date,
+                bloodStr[0], bloodStr[1], bloodStr[2], bloodStr[3]);
+
     }
 
     /**
@@ -634,6 +668,13 @@ public class ConnBleHelpService {
         } catch (NumberFormatException e) {
             e.printStackTrace();
         }
+
+
+        //保存总步数
+        CommDBManager.getCommDBManager().saveCommCountStepDate("B31", mac, date, stepCurr);
+
+
+
         if (stepCurr > stepLocal) {
             B30HalfHourDB db = new B30HalfHourDB();
             db.setAddress(mac);

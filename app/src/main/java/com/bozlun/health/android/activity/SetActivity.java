@@ -22,8 +22,10 @@ import com.bozlun.health.android.bleutil.MyCommandManager;
 import com.bozlun.health.android.siswatch.bleus.H8ConnstateListener;
 import com.bozlun.health.android.siswatch.bleus.WatchBluetoothService;
 import com.bozlun.health.android.siswatch.utils.HidUtil;
+import com.bozlun.health.android.siswatch.utils.UpdateManager;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
 import com.bozlun.health.android.util.Common;
+import com.bozlun.health.android.util.URLs;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import com.bozlun.health.android.util.ToastUtil;
 import com.umeng.analytics.MobclickAgent;
@@ -44,12 +46,16 @@ public class SetActivity extends BaseActivity {
     TextView tvTitle;
     private String bleMac;
 
+    private UpdateManager updateManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
        // registerReceiver(broadcastReceiver,new IntentFilter(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED));
         registerReceiver(broadcastReceiver,new IntentFilter(WatchUtils.WACTH_DISCONNECT_BLE_ACTION));
         HidUtil.instance = null;
+
+        checkUpdate();
     }
 
     @Override
@@ -59,6 +65,15 @@ public class SetActivity extends BaseActivity {
         bluetoothAdapter = bm.getAdapter();
         bleMac = (String) SharedPreferencesUtils.readObject(SetActivity.this,"mylanmac");
     }
+
+    //检查更新
+    private void checkUpdate(){
+        String upUrl = URLs.HTTPs + URLs.bozlun_health_url;
+        updateManager = new UpdateManager(SetActivity.this, upUrl);
+        updateManager.checkForUpdate(true);
+    }
+
+
 
     @Override
     protected void onResume() {
@@ -179,6 +194,10 @@ public class SetActivity extends BaseActivity {
         MobclickAgent.onProfileSignOff();
 //        startActivity(new Intent(SetActivity.this, LoginActivity.class));
         startActivity(new Intent(SetActivity.this, NewLoginActivity.class));
+
+        //登出
+        MobclickAgent.onProfileSignOff();
+
         finish();
     }
 

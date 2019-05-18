@@ -260,6 +260,7 @@ public class MyApp extends LitePalApplication {
     private DBManager dbManager;
 
     public DBManager getDBManager() {
+        dbManager = DBManager.getInstance(instance);
         return dbManager;
     }
 

@@ -42,7 +42,7 @@ public class B30CusSleepView extends View {
     //线的画笔
     private Paint linPaint;
 
-    private float width;
+    private int width;
 
     private List<Integer> sleepList;
     /**
@@ -91,36 +91,36 @@ public class B30CusSleepView extends View {
         hightPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         hightPaint.setColor(hightSleepColor);
         hightPaint.setAntiAlias(true);
+        hightPaint.setDither(true);
         hightPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        hightPaint.setTextAlign(Paint.Align.LEFT);
-        hightPaint.setStrokeWidth(5f);
+        hightPaint.setStrokeWidth(1f);
 
 
-        deepPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        deepPaint = new Paint(Paint.FILTER_BITMAP_FLAG);
         deepPaint.setColor(deepSleepColor);
-        deepPaint.setAntiAlias(true);
         deepPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        deepPaint.setTextAlign(Paint.Align.LEFT);
-        deepPaint.setStrokeWidth(2f);
+        deepPaint.setAntiAlias(true);
+        deepPaint.setDither(true);
+        deepPaint.setStrokeWidth(1f);
 
 
-        awakePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        awakePaint = new Paint(Paint.FILTER_BITMAP_FLAG);
         awakePaint.setColor(awakeSleepColor);
-        awakePaint.setTextAlign(Paint.Align.LEFT);
-        awakePaint.setStyle(Paint.Style.FILL_AND_STROKE);
         awakePaint.setAntiAlias(true);
-        awakePaint.setStrokeWidth(2f);
+        awakePaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        awakePaint.setDither(true);
+        awakePaint.setStrokeWidth(1f);
 
         emptyPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         emptyPaint.setColor(noDataColor);
-        emptyPaint.setStrokeWidth(2);
+        emptyPaint.setStrokeWidth(1f);
         emptyPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         emptyPaint.setTextSize(sleepEmptyData);
 
 
         linPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         linPaint.setColor(Color.WHITE);
-        linPaint.setStrokeWidth(2);
+        linPaint.setStrokeWidth(1f);
 
     }
 
@@ -129,14 +129,14 @@ public class B30CusSleepView extends View {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         width = getMeasuredWidth();
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
-        // Log.e(TAG,"------width="+width+"--widthSize="+widthSize);
+        Log.e(TAG,"---getMeasuredWidth-="+width);
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         width = getWidth();
-        //Log.e(TAG,"---width-="+width);
+        Log.e(TAG,"---width-="+width);
 
     }
 
@@ -149,7 +149,7 @@ public class B30CusSleepView extends View {
         // canvas.rotate(270);
         canvas.save();
         if (sleepList != null && sleepList.size() > 0) {
-            float mCurrentWidth = width / sleepList.size();
+            int mCurrentWidth = width / sleepList.size();
             //Log.e(TAG,"---size="+sleepList.size()+"-mCurrentWidth="+mCurrentWidth+"==="+sleepList.toString());
             for (int i = 0; i < sleepList.size(); i++) {
                 if (sleepList.get(i) == 0) {  //浅睡

@@ -1023,7 +1023,10 @@ public class BzlGaoDeActivity extends AppCompatActivity implements AMapLocationL
 //                            sportTime.stop();//计时停止
                             if (mHandler != null) mHandler.removeCallbacks(mRunnable);
                             mRunnable = null;
-                            mLocationClient.stopLocation();//停止定位更新
+                            if (mLocationClient!=null&&mLocationClient.isStarted()){
+                                //Log.e(TAG,"=体制定位前，判断师傅开启过定位=="+mLocationClient.isStarted());
+                                mLocationClient.stopLocation();//停止定位更新
+                            }
                             isStart = false;
                             bzlDragView.hideDragCallView();
                             bzlDragView.setDraging(false);

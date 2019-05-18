@@ -33,6 +33,7 @@ import com.veepoo.protocol.model.settings.ContentSmsSetting;
 import com.veepoo.protocol.model.settings.ContentSocailSetting;
 
 import org.greenrobot.eventbus.EventBus;
+import org.w3c.dom.Comment;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -98,12 +99,12 @@ public class AlertService extends MyNotificationListenerService {
         try {
             //获取应用包名
             String packageName = sbn.getPackageName();
-            //Log.d(TAG, "=====kkkk===" + sbn.toString());
-            Log.e(TAG, packageName);
+            Log.e(TAG, "-----packName-----"+packageName);
             //获取notification对象
             Notification notification = sbn.getNotification();
             //获取消息内容
             CharSequence tickerText = notification.tickerText;
+            //Log.e(TAG,"------tickerText="+tickerText);
             if (tickerText != null) {
                 if (MyCommandManager.DEVICENAME == null)
                     return;
@@ -164,7 +165,9 @@ public class AlertService extends MyNotificationListenerService {
                         || packageName.equals(SAMSUNG_MSG_PACKNAME)
                         || packageName.equals(SAMSUNG_MSG_SRVERPCKNAME)) {
 
-                    sendB30Mesage(ESocailMsg.SMS, "MMS", msgCont);
+                    boolean isSMS = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(),Commont.ISMsm,false);
+                    if (isSMS)
+                      sendB30Mesage(ESocailMsg.SMS, "MMS", msgCont);
 
                 } else {
                     //其它

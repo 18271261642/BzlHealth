@@ -341,6 +341,10 @@ public class NewLoginActivity extends BaseActivity implements LoginListenter {
                     UserInfoBean userInfoBean = gson.fromJson(userInfoStr,UserInfoBean.class);
                     Log.e(TAG,"------userInfoBean="+userInfoBean.toString());
                     Common.customer_id = userInfoBean.getUserId();
+
+                    //账号登录统计
+                    MobclickAgent.onProfileSignIn(userInfoBean.getUserId());
+
                     //保存userid
                     SharedPreferencesUtils.saveObject(NewLoginActivity.this, Commont.USER_ID_DATA, userInfoBean.getUserId());
                     SharedPreferencesUtils.saveObject(NewLoginActivity.this, "userInfo", userInfoStr);
@@ -460,6 +464,8 @@ public class NewLoginActivity extends BaseActivity implements LoginListenter {
                 jsonObject.put("sex", "F");
             }
             //Log.d("-----register--", "用户名账号：" + userId + "  头像：" + userIcon + "用户名：" + userName + "  性别：" + userGender);
+
+
             //姓名
             JsonRequest<JSONObject> jsonRequest = new JsonObjectRequest(Request.Method.POST, URLs.HTTPs + URLs.disanfang, jsonObject,
                     new Response.Listener<JSONObject>() {
@@ -474,13 +480,18 @@ public class NewLoginActivity extends BaseActivity implements LoginListenter {
                                     String userId = jsonObject.getString("userId");
                                     Gson gson = new Gson();
                                     BlueUser userInfo = gson.fromJson(shuzhu, BlueUser.class);
+
+                                    //当用户使用第三方账号（如新浪微博）登录时，可以这样统计：
+                                    MobclickAgent.onProfileSignIn("QQ",userId);
+
+
                                     Common.userInfo = userInfo;
                                     Common.customer_id = userId;
                                     //保存userid
                                     SharedPreferencesUtils.saveObject(NewLoginActivity.this, "userId", userInfo.getUserId());
                                     SharedPreferencesUtils.saveObject(NewLoginActivity.this, "userInfo", shuzhu);
                                     SharedPreferencesUtils.saveObject(NewLoginActivity.this,Commont.USER_INFO_DATA,jsonObject.getString("userInfo"));
-                                    MobclickAgent.onProfileSignIn(Common.customer_id);
+                                    MobclickAgent.onProfileSignIn("QQ",Common.customer_id);
                                     //startActivity(new Intent(LoginActivity.this, MainActivity.class));
                                     SharedPreferences userSettings = getSharedPreferences("Login_id", 0);
                                     SharedPreferences.Editor editor = userSettings.edit();

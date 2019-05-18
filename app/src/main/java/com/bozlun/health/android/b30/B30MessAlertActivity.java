@@ -17,6 +17,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -24,6 +25,7 @@ import com.android.internal.telephony.ITelephony;
 import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.R;
+import com.bozlun.health.android.b31.MessageHelpActivity;
 import com.bozlun.health.android.bleutil.MyCommandManager;
 import com.bozlun.health.android.siswatch.WatchBaseActivity;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
@@ -103,6 +105,8 @@ public class B30MessAlertActivity extends WatchBaseActivity {
 
     @BindView(R.id.b30OhterTogg)
     ToggleButton b30OhterTogg;
+    @BindView(R.id.newSearchRightImg1)
+    ImageView newSearchRightImg1;
 
 
     @Override
@@ -358,6 +362,7 @@ public class B30MessAlertActivity extends WatchBaseActivity {
 
     private void initViews() {
         newSearchTitleTv.setText(getResources().getString(R.string.string_ocial_message));//社交小心哦
+        newSearchRightImg1.setVisibility(View.VISIBLE);
         b30SkypeTogg.setOnCheckedChangeListener(new ToggCheckChanageListener());
         b30WhatsAppTogg.setOnCheckedChangeListener(new ToggCheckChanageListener());
         b30FacebookTogg.setOnCheckedChangeListener(new ToggCheckChanageListener());
@@ -380,7 +385,7 @@ public class B30MessAlertActivity extends WatchBaseActivity {
                 finish();
                 break;
             case R.id.newSearchRightImg1:
-
+                startActivity(MessageHelpActivity.class);
                 break;
             case R.id.msgOpenNitBtn:    //打开通知
                 Intent intentr = new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS);
@@ -436,52 +441,42 @@ public class B30MessAlertActivity extends WatchBaseActivity {
                     break;
                 case R.id.b30OhterTogg:     //其它
                     isOther = isChecked;
-                    SharedPreferencesUtils.setParam(B30MessAlertActivity.this,Commont.ISOther,isChecked);
+                    SharedPreferencesUtils.setParam(B30MessAlertActivity.this, Commont.ISOther, isChecked);
                     break;
                 case R.id.b30PhoneTogg: //phone
                     requestPermiss();
                     SharedPreferencesUtils.setParam(B30MessAlertActivity.this, Commont.ISPhone, isChecked);
                     isOpenPhone = isChecked;
                     SharedPreferencesUtils.setParam(B30MessAlertActivity.this, "isCallPhone", isChecked);
-                    MyApp.getInstance().getVpOperateManager().settingDeviceControlPhone(new IDeviceControlPhone() {
-                        @Override
-                        public void rejectPhone() {//TODO 挂电话还没弄好
-
-                            try {
-                                Method method = Class.forName("android.os.ServiceManager")
-                                        .getMethod("getService", String.class);//getSystemService内部就是调用了ServiceManager的getService方法。
-                                IBinder binder = (IBinder) method.invoke(null,
-                                        new Object[]{TELEPHONY_SERVICE});
-                                ITelephony iTelephony = ITelephony.Stub.asInterface(binder);
-                                iTelephony.endCall();
-                                Log.d("call---", "rejectPhone: " + "电话被挂断了");
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-
-
-                        }
-
-                        @Override
-                        public void cliencePhone() {
-                            AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-                            if (audioManager != null) {
-                                audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
-                                audioManager.getStreamVolume(AudioManager.STREAM_RING);
-                                Log.d("call---", "RINGING 已被静音");
-                            }
-                        }
-
-                        @Override
-                        public void knocknotify(int i) {
-
-                        }
-
-                        @Override
-                        public void sos() {
-
-                        }
-
+//                    MyApp.getInstance().getVpOperateManager().settingDeviceControlPhone(new IDeviceControlPhone() {
+//                        @Override
+//                        public void rejectPhone() {//TODO 挂电话还没弄好
+//
+//                            try {
+//                                Method method = Class.forName("android.os.ServiceManager")
+//                                        .getMethod("getService", String.class);//getSystemService内部就是调用了ServiceManager的getService方法。
+//                                IBinder binder = (IBinder) method.invoke(null,
+//                                        new Object[]{TELEPHONY_SERVICE});
+//                                ITelephony iTelephony = ITelephony.Stub.asInterface(binder);
+//                                iTelephony.endCall();
+//                                Log.d("call---", "rejectPhone: " + "电话被挂断了");
+//                            } catch (Exception e) {
+//                                e.printStackTrace();
+//                            }
+//
+//
+//                        }
+//
+//                        @Override
+//                        public void cliencePhone() {
+//                            AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+//                            if (audioManager != null) {
+//                                audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+//                                audioManager.getStreamVolume(AudioManager.STREAM_RING);
+//                                Log.d("call---", "RINGING 已被静音");
+//                            }
+//                        }
+//
 //                        @Override
 //                        public void knocknotify(int i) {
 //
@@ -491,7 +486,17 @@ public class B30MessAlertActivity extends WatchBaseActivity {
 //                        public void sos() {
 //
 //                        }
-                    });
+//
+////                        @Override
+////                        public void knocknotify(int i) {
+////
+////                        }
+////
+////                        @Override
+////                        public void sos() {
+////
+////                        }
+//                    });
 
                     break;
             }
@@ -579,9 +584,9 @@ public class B30MessAlertActivity extends WatchBaseActivity {
         socailMsgData.setGmail(EFunctionStatus.SUPPORT_OPEN);
 
         //other
-        if(isOther){
+        if (isOther) {
             socailMsgData.setOther(EFunctionStatus.SUPPORT_OPEN);
-        }else{
+        } else {
             socailMsgData.setOther(EFunctionStatus.SUPPORT_CLOSE);
         }
 

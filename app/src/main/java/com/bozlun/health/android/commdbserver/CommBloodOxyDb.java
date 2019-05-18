@@ -53,6 +53,12 @@ public class  CommBloodOxyDb extends LitePalSupport {
      */
     private int avgbloodoxygen;
 
+    /**
+     * 是否已经上传
+     * @return
+     */
+    private boolean isUpload;
+
     public String getUserid() {
         return userid;
     }
@@ -109,6 +115,14 @@ public class  CommBloodOxyDb extends LitePalSupport {
         this.bleName = bleName;
     }
 
+    public boolean isUpload() {
+        return isUpload;
+    }
+
+    public void setUpload(boolean upload) {
+        isUpload = upload;
+    }
+
     @Override
     public String toString() {
         return "CommBloodOxyDb{" +
@@ -119,6 +133,7 @@ public class  CommBloodOxyDb extends LitePalSupport {
                 ", maxbloodoxygen=" + maxbloodoxygen +
                 ", minbloodoxygen=" + minbloodoxygen +
                 ", avgbloodoxygen=" + avgbloodoxygen +
+                ", isUpload=" + isUpload +
                 '}';
     }
 }

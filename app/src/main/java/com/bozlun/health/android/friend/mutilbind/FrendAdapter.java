@@ -85,7 +85,7 @@ public class FrendAdapter extends RecyclerView.Adapter<FrendAdapter.ViewHodler> 
                         @Override
                         public void onClick(View view) {
                             if (mOnItemListenter != null)
-                                mOnItemListenter.ItemOnClick(view, myfriendsBean.getUserId(), myfriendsBean.getStepNumber(), myfriendsBean.getHeight(), position);
+                                mOnItemListenter.ItemOnClick(view, myfriendsBean.getUserId(), myfriendsBean.getStepNumber(), myfriendsBean.getHeight(), position,myfriendsBean.getDeviceCode());
                         }
                     });
                     //item长按
@@ -193,7 +193,7 @@ public class FrendAdapter extends RecyclerView.Adapter<FrendAdapter.ViewHodler> 
     public interface OnItemListenter {
         void ItemLoveOnClick(View view, String applicant);
 
-        void ItemOnClick(View view, String applicant, int stepNumber, String frendHeight, int postion);
+        void ItemOnClick(View view, String applicant, int stepNumber, String frendHeight, int postion,String bleMac);
 
         void ItemOnClickMine(int postion);
 

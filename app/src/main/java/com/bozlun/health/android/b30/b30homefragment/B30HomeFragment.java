@@ -42,6 +42,7 @@ import com.bozlun.health.android.b30.service.ConnBleHelpService;
 import com.bozlun.health.android.b30.women.WomenDetailActivity;
 import com.bozlun.health.android.b31.InternalTestActivity;
 import com.bozlun.health.android.bleutil.MyCommandManager;
+import com.bozlun.health.android.commdbserver.CommentDataActivity;
 import com.bozlun.health.android.h9.h9monitor.UpDatasBase;
 import com.bozlun.health.android.h9.settingactivity.SharePosterActivity;
 import com.bozlun.health.android.siswatch.LazyFragment;
@@ -1076,10 +1077,11 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
             case R.id.battery_watchRecordShareImg:  //分享
                 if (getActivity() == null || getActivity().isFinishing())
                     return;
-                Intent intent = new Intent(getmContext(), SharePosterActivity.class);
-                intent.putExtra("is18i", "B36");
-                intent.putExtra("stepNum", defaultSteps + "");
-                startActivity(intent);
+//                Intent intent = new Intent(getmContext(), SharePosterActivity.class);
+//                intent.putExtra("is18i", "B36");
+//                intent.putExtra("stepNum", defaultSteps + "");
+//                startActivity(intent);
+                startActivity(new Intent(getmContext(),CommentDataActivity.class));
                 break;
             case R.id.b36WomenStatusLin:    //女性功能
                 startActivity(new Intent(getmContext(), WomenDetailActivity.class));

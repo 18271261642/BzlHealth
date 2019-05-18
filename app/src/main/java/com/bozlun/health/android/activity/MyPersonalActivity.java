@@ -171,7 +171,7 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
     /**
      * 请求回来的参数,或者要提交的
      */
-    private UserInfo mUserInfo;
+    private UserInfo mUserInfo = null;
     /**
      * Json帮助类
      */
@@ -405,6 +405,8 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
             } else {
                 switch (view.getId()) {
                     case R.id.personal_avatar_relayout://  修改头像
+                        if(mUserInfo == null)
+                            return;
                         if (AndPermission.hasAlwaysDeniedPermission(MyPersonalActivity.this, Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                             chooseImgForUserHead(); //选择图片来源
                         } else {
@@ -427,12 +429,18 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
                         }
                         break;
                     case R.id.nickname_relayout_personal:
+                        if(mUserInfo == null)
+                            return;
                         startActivityForResult(new Intent(MyPersonalActivity.this, ModifyNickNameActivity.class), 1000);
                         break;
                     case R.id.sex_relayout:
+                        if(mUserInfo == null)
+                            return;
                         showSexDialog();
                         break;
                     case R.id.height_relayout:      // 身高
+                        if(mUserInfo == null)
+                            return;
                         if (w30sunit) { //公制
                             ProfessionPick professionPopWin = new ProfessionPick.Builder(MyPersonalActivity.this, new ProfessionPick.OnProCityPickedListener() {
                                 @Override
@@ -492,6 +500,8 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
 
                         break;
                     case R.id.weight_relayout:  //体重
+                        if(mUserInfo == null)
+                            return;
                         if (w30sunit) { //公制
                             ProfessionPick weightPopWin = new ProfessionPick.Builder(MyPersonalActivity.this, new ProfessionPick.OnProCityPickedListener() {
                                 @Override
@@ -549,7 +559,8 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
 
                         break;
                     case R.id.birthday_relayout:    //生日
-
+                        if(mUserInfo == null)
+                            return;
                         DatePick pickerPopWin = new DatePick.Builder(MyPersonalActivity.this, new DatePick.OnDatePickedListener() {
                             @Override
                             public void onDatePickCompleted(int year, int month, int day, String dateDesc) {
@@ -599,6 +610,8 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
                         });
                         break;
                     case R.id.personal_UnitLin:     //公英制单位
+                        if(mUserInfo == null)
+                            return;
                         showChooseH8Unit();
                         break;
                     case R.id.persionQrcodeRel:     //我的二维码显示
@@ -898,6 +911,8 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
 
     //完善用户资料
     private void modifyPersonData(String val) {
+        if(mUserInfo == null)
+            return;
         isSubmit = true;
         HashMap<String, Object> map = new HashMap<>();
         map.put("userId", SharedPreferencesUtils.readObject(MyApp.getContext(), "userId"));
@@ -927,7 +942,7 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
         if (mUserInfo == null) return;
         SharedPreferencesUtils.saveObject(MyPersonalActivity.this,Commont.USER_INFO_DATA,gson.toJson(mUserInfo));
         Glide.with(this).load(mUserInfo.image).into(mineLogoIv);//头像
-        nicknameTv.setText(mUserInfo.nickName);// 昵称
+        nicknameTv.setText(resultVo.userInfo.nickName+"");// 昵称
         int sexRes = "M".equals(mUserInfo.sex) ? R.string.sex_nan : R.string.sex_nv;
         sexTv.setText(sexRes);// 性别
 

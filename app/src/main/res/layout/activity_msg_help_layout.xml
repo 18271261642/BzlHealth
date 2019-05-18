@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include layout="@layout/comment_b30_title_layout"/>
+
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:padding="8dp"
+            android:orientation="vertical"
+            android:layout_height="wrap_content">
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:text="实现消息提醒的基本要求"
+                android:textSize="20sp"
+                android:padding="5dp"
+                android:textColor="@color/title_background"
+                android:layout_height="wrap_content" />
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:textSize="17sp"
+                android:padding="3dp"
+                android:text="1.确认 天天检 处于运行状态并与设备连接"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:textSize="17sp"
+                android:padding="3dp"
+                android:text="2.确认 天天检 已设置耗电保护"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:textSize="17sp"
+                android:padding="3dp"
+                android:text="3.确认 天天检 已设置自动启动权限"
+                android:layout_height="wrap_content" />
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:textSize="17sp"
+                android:padding="3dp"
+                android:text="4.确认 天天检 已设置系统或手机管家白名单保护"
+                android:layout_height="wrap_content" />
+
+
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:text="Q:FaceBook、QQ、Wechat等应用没有消息提醒?"
+                android:textSize="20sp"
+                android:padding="5dp"
+                android:layout_marginTop="15dp"
+                android:textColor="@color/title_background"
+                android:layout_height="wrap_content" />
+
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:textSize="17sp"
+                android:padding="3dp"
+                android:text="1.确认FaceBook、QQ、Wechat等应用允许在通知栏上显示消息"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:textSize="17sp"
+                android:padding="3dp"
+                android:text="2.确认 天天检 已设置自动启动权限"
+                android:layout_height="wrap_content" />
+
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:textSize="17sp"
+                    android:padding="3dp"
+                    android:layout_gravity="center"
+                    android:text="3.关闭 天天检 通知使用权限后重新打开"
+                    android:layout_height="wrap_content" />
+
+
+                <TextView
+                    android:id="@+id/helpNotificationTv"
+                    android:layout_width="wrap_content"
+                    android:text="去重启"
+                    android:layout_gravity="center"
+                    android:padding="3dp"
+                    android:textColor="@color/blue"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:text="Q:来电没有提醒?"
+                android:textSize="20sp"
+                android:padding="5dp"
+                android:layout_marginTop="15dp"
+                android:textColor="@color/title_background"
+                android:layout_height="wrap_content" />
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:textSize="17sp"
+                    android:padding="3dp"
+                    android:layout_gravity="center"
+                    android:text="1.确认开启了联系人/通讯录权限"
+                    android:layout_height="wrap_content" />
+
+
+                <TextView
+                    android:id="@+id/helpContPermissionTv"
+                    android:layout_width="wrap_content"
+                    android:text="去开启"
+                    android:layout_gravity="center"
+                    android:padding="3dp"
+                    android:textColor="@color/blue"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:textSize="17sp"
+                    android:padding="3dp"
+                    android:layout_gravity="center"
+                    android:text="2.确认开启了电话权限"
+                    android:layout_height="wrap_content" />
+
+
+                <TextView
+                    android:id="@+id/helpPhonePermissionTv"
+                    android:layout_width="wrap_content"
+                    android:text="去开启"
+                    android:layout_gravity="center"
+                    android:padding="3dp"
+                    android:textColor="@color/blue"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:textSize="17sp"
+                    android:padding="3dp"
+                    android:layout_gravity="center"
+                    android:text="3.确认开启了通话记录权限"
+                    android:layout_height="wrap_content" />
+
+
+                <TextView
+                    android:id="@+id/helpCallLogPermissionTv"
+                    android:layout_width="wrap_content"
+                    android:text="去开启"
+                    android:layout_gravity="center"
+                    android:padding="3dp"
+                    android:textColor="@color/blue"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:text="Q:短信没有提醒?"
+                android:textSize="20sp"
+                android:padding="5dp"
+                android:layout_marginTop="15dp"
+                android:textColor="@color/title_background"
+                android:layout_height="wrap_content" />
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:textSize="17sp"
+                    android:padding="3dp"
+                    android:layout_gravity="center"
+                    android:text="1.确认开启了联系人/通讯录权限"
+                    android:layout_height="wrap_content" />
+
+
+                <TextView
+                    android:id="@+id/helpContPermission2Tv"
+                    android:layout_width="wrap_content"
+                    android:text="去开启"
+                    android:layout_gravity="center"
+                    android:padding="3dp"
+                    android:textColor="@color/blue"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:textSize="17sp"
+                    android:padding="3dp"
+                    android:layout_gravity="center"
+                    android:text="2.确认开启了短信权限"
+                    android:layout_height="wrap_content" />
+
+
+                <TextView
+                    android:id="@+id/helpSMSPermissionTv"
+                    android:layout_width="wrap_content"
+                    android:text="去开启"
+                    android:layout_gravity="center"
+                    android:padding="3dp"
+                    android:textColor="@color/blue"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="25dp"/>
+
+
+        </LinearLayout>
+
+
+    </android.support.v4.widget.NestedScrollView>
+
+</LinearLayout>

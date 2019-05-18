@@ -6,10 +6,6 @@
         id="@+id/b30_tab_home"
         title="@string/recording" />
 
-    <tab
-        icon="@mipmap/draw_data_item"
-        id="@+id/b30_tab_data"
-        title="@string/data" />
 
     <tab
         icon="@mipmap/paobu_icon_sel"

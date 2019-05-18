@@ -349,6 +349,13 @@ public class B31HrvDetailActivity extends WatchBaseActivity {
 
         List<Map<String, Float>> tenMinuteData = mHrvOriginUtil.getTenMinuteData();
 
+        for(Map<String,Float> map : tenMinuteData){
+            Log.e(TAG,"---------map="+map.toString());
+        }
+
+
+
+
         ChartViewUtil chartViewUtil = new ChartViewUtil(b31HrvDetailTopChart, mMarkviewHrv, true,
                 CHART_MAX_HRV, CHART_MIN_HRV, "No Data", TYPE_HRV);
         chartViewUtil.updateChartView(tenMinuteData);
@@ -547,6 +554,14 @@ public class B31HrvDetailActivity extends WatchBaseActivity {
                 spo2SecondDialogView = new Spo2SecondDialogView(B31HrvDetailActivity.this);
             }
             List<Map<String,Float>> lt = mHrvOriginUtil.getDetailList(listMap.size()-position-1);
+
+
+            for(Map<String,Float> mm : lt){
+                Log.e(TAG,"-------mm="+mm.toString());
+            }
+
+
+
             spo2SecondDialogView.show();
             spo2SecondDialogView.setSpo2Type(555);
             spo2SecondDialogView.setMapList(lt);

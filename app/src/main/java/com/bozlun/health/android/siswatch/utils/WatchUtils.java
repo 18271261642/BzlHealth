@@ -39,6 +39,9 @@ import com.veepoo.protocol.model.settings.AllSetSetting;
 import com.veepoo.protocol.model.settings.CustomSetting;
 import com.veepoo.protocol.model.settings.CustomSettingData;
 import org.apache.commons.lang.StringUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -46,9 +49,11 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -693,6 +698,29 @@ public class WatchUtils {
     public static double getKcal(int step, int height) {
         double distans = WatchUtils.div(WatchUtils.mul(Double.valueOf(step), getStepLong(height)), Double.valueOf(1000), 5);
         return WatchUtils.mul(distans, 65.4);
+    }
+
+
+    /**
+     * 判断请求返回是否成功200成功
+     *
+     * @param str
+     * @return
+     */
+    public static boolean isNetRequestSuccess(String str) {
+        if(isEmpty(str))
+            return false;
+        boolean isSuccess = false;
+        try {
+            JSONObject jsonObject = new JSONObject(str);
+            int resultCode = jsonObject.getInt("code");
+            if (resultCode == 200)
+                isSuccess = true;
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return isSuccess;
     }
 
 
@@ -1662,6 +1690,21 @@ public class WatchUtils {
 
     }
 
+
+    static String[] timeStr = new String[]{"00:00","00:30","01:00","01:30","02:00","02:30","03:00","03:30","04:00","04:30","05:00","05:30","06:00",
+            "06:30","07:00","07:30","08:00","08:30","09:00","09:30","10:00","10:30","11:00","11:30","12:00","12:30","13:00","13:30","14:00",
+            "14:30","15:00","15:30","16:00","16:30","17:00","17:30","18:00","18:30","19:00","19:30","20:00","20:30","21:00","21:30","22:00",
+            "22:30","23:00","23:30"};
+
+
+    public static Map<String,String> setHalfDateMap(){
+        Map<String,String>  map = new HashMap<>();
+        for(int i = 0;i<timeStr.length;i++){
+            map.put(timeStr[i],0+"");
+        }
+        return map;
+
+    }
 
 
 

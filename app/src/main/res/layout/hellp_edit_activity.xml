@@ -110,7 +110,7 @@
                         android:layout_below="@+id/t_one"
                         android:layout_toRightOf="@+id/text_user_name_one"
                         android:text=""
-                        android:hint="长按编辑"
+                        android:hint="长按编辑紧急内容"
                         android:textColor="#B8B2B2"
                         android:textSize="@dimen/text_size_14" />
 

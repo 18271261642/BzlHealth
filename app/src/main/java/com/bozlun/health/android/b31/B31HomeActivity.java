@@ -3,6 +3,7 @@ package com.bozlun.health.android.b31;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -12,6 +13,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -38,6 +40,7 @@ import com.bozlun.health.android.b31.record.B31RecordFragment;
 import com.bozlun.health.android.bleutil.MyCommandManager;
 import com.bozlun.health.android.bzlmaps.sos.GPSGaoDeUtils;
 import com.bozlun.health.android.bzlmaps.sos.GPSGoogleUtils;
+import com.bozlun.health.android.bzlmaps.sos.SendSMSBroadCast;
 import com.bozlun.health.android.siswatch.WatchBaseActivity;
 import com.bozlun.health.android.siswatch.mine.WatchMineFragment;
 import com.bozlun.health.android.siswatch.utils.PhoneUtils;
@@ -83,6 +86,8 @@ public class B31HomeActivity extends WatchBaseActivity implements IDeviceControl
     //列设备验证密码提示框
     CusInputDialogView cusInputDialogView;
 
+    private SendSMSBroadCast sendSMSBroadCast;
+
 
     @SuppressLint("HandlerLeak")
     Handler handler = new Handler() {
@@ -111,6 +116,11 @@ public class B31HomeActivity extends WatchBaseActivity implements IDeviceControl
 
         initViews();
         registerReceiver(broadcastReceiver, new IntentFilter("com.example.bozhilun.android.siswatch.CHANGEPASS"));
+        sendSMSBroadCast = new SendSMSBroadCast();
+        IntentFilter intentFilter = new IntentFilter("com.example.bozhilun.android.sos.SENDSMS");
+        registerReceiver(sendSMSBroadCast,intentFilter);
+
+
 //        MyApp.getInstance().getVpOperateManager().settingDeviceControlPhone(this);
         MyApp.getInstance().getVpOperateManager().settingDeviceControlPhone(MyApp.getPhoneSosOrDisPhone());
 
@@ -124,7 +134,7 @@ public class B31HomeActivity extends WatchBaseActivity implements IDeviceControl
 
     private void initViews() {
         fragmentList.add(new B31RecordFragment());
-        fragmentList.add(new B30DataFragment());
+        //fragmentList.add(new B30DataFragment());
         fragmentList.add(new B36RunFragment());
         fragmentList.add(new WatchMineFragment());
         FragmentStatePagerAdapter fragmentPagerAdapter = new FragmentAdapter(getSupportFragmentManager(), fragmentList);
@@ -140,14 +150,14 @@ public class B31HomeActivity extends WatchBaseActivity implements IDeviceControl
                     case R.id.b30_tab_home: //首页
                         b31ViewPager.setCurrentItem(0, false);
                         break;
-                    case R.id.b30_tab_data: //数据
+//                    case R.id.b30_tab_data: //数据
+//                        b31ViewPager.setCurrentItem(1, false);
+//                        break;
+                    case R.id.b30_tab_set:  //开跑
                         b31ViewPager.setCurrentItem(1, false);
                         break;
-                    case R.id.b30_tab_set:  //开跑
-                        b31ViewPager.setCurrentItem(2, false);
-                        break;
                     case R.id.b30_tab_my:   //我的
-                        b31ViewPager.setCurrentItem(3, false);
+                        b31ViewPager.setCurrentItem(2, false);
                         break;
                 }
             }
@@ -178,8 +188,8 @@ public class B31HomeActivity extends WatchBaseActivity implements IDeviceControl
     public void startUploadDate() {
         boolean uploading = MyApp.getInstance().isUploadDate();
         if (!uploading) {// 判断一下是否正在上传数据
-            startService(new Intent(this, CommVpDateUploadService.class));
-            startService(new Intent(this, DateUploadService.class));
+            //startService(new Intent(this, CommVpDateUploadService.class));
+           // startService(new Intent(this, DateUploadService.class));
 
         }
 
@@ -190,6 +200,8 @@ public class B31HomeActivity extends WatchBaseActivity implements IDeviceControl
         super.onDestroy();
         if (broadcastReceiver != null)
             unregisterReceiver(broadcastReceiver);
+        if(sendSMSBroadCast != null)
+            unregisterReceiver(sendSMSBroadCast);
         if (cusInputDialogView != null)
             cusInputDialogView.cancel();
     }
@@ -288,12 +300,18 @@ public class B31HomeActivity extends WatchBaseActivity implements IDeviceControl
     //手环静音提示
     @Override
     public void cliencePhone() {
-        AudioManager audioManager = (AudioManager) MyApp.getInstance().getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-        if (audioManager != null) {
-            audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
-            audioManager.getStreamVolume(AudioManager.STREAM_RING);
-            Log.d("call---", "RINGING 已被静音");
+        getDoNotDisturb();
+        try {
+            AudioManager audioManager = (AudioManager) MyApp.getInstance().getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+            if (audioManager != null) {
+                audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                audioManager.getStreamVolume(AudioManager.STREAM_RING);
+                Log.d("call---", "RINGING 已被静音");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
+
     }
 
     @Override
@@ -530,4 +548,24 @@ public class B31HomeActivity extends WatchBaseActivity implements IDeviceControl
                     }
                 }).start();
     }
+
+
+    //获取Do not disturb权限,才可进行音量操作
+    private void getDoNotDisturb(){
+        NotificationManager notificationManager =
+                (NotificationManager) MyApp.getInstance().getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        if(notificationManager == null)
+            return;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
+                && !notificationManager.isNotificationPolicyAccessGranted()) {
+
+            Intent intent = new Intent(
+                    android.provider.Settings
+                            .ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+
+            MyApp.getInstance().getApplicationContext().startActivity(intent);
+        }
+
+    }
+
 }

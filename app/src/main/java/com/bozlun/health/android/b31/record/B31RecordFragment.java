@@ -35,6 +35,7 @@ import com.bozlun.health.android.b30.b30view.B30CusSleepView;
 import com.bozlun.health.android.b30.bean.B30HalfHourDB;
 import com.bozlun.health.android.b30.bean.B30HalfHourDao;
 import com.bozlun.health.android.b30.service.ConnBleHelpService;
+import com.bozlun.health.android.b30.service.FriendsUploadServices;
 import com.bozlun.health.android.b31.B31HomeActivity;
 import com.bozlun.health.android.b31.B31ManFatigueActivity;
 import com.bozlun.health.android.b31.B31ManSpO2Activity;
@@ -49,7 +50,8 @@ import com.bozlun.health.android.b31.hrv.B31HrvDetailActivity;
 import com.bozlun.health.android.b31.model.B31HRVBean;
 import com.bozlun.health.android.b31.model.B31Spo2hBean;
 import com.bozlun.health.android.bleutil.MyCommandManager;
-import com.bozlun.health.android.h9.settingactivity.SharePosterActivity;
+import com.bozlun.health.android.commdbserver.CommDBManager;
+import com.bozlun.health.android.commdbserver.CommentDataActivity;
 import com.bozlun.health.android.siswatch.LazyFragment;
 import com.bozlun.health.android.siswatch.utils.WatchConstants;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
@@ -298,6 +300,9 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
                     if (getActivity() != null && !getActivity().isFinishing()) {
                         handler.removeMessages(1001);// 正常关闭就移除延时口令
                         syncStatusTv.setVisibility(View.VISIBLE);
+
+                        startUploadDbService();
+
                         startReadDeviceService();
                     }
 
@@ -367,6 +372,8 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
             }
         }
     };
+
+
 
 
     @Override
@@ -452,8 +459,6 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
             b31GoalStepTv.setText(getResources().getString(R.string.goal_step) + goalStep + getResources().getString(R.string.steps));
         ivTop.setImageResource(R.mipmap.ic_home_top_b31);
 
-        //暂时屏蔽分享
-        batteryWatchRecordShareImg.setVisibility(View.GONE);
 
 
         //进度圆显示默认的步数
@@ -487,7 +492,10 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
         b30TopDateTv.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                startActivity(new Intent(getmContext(), InternalTestActivity.class));
+                //startActivity(new Intent(getmContext(), InternalTestActivity.class));
+                //上传缓存的详细数据
+                Intent intent1 = new Intent(getmContext(),FriendsUploadServices.class);
+                getmContext().startService(intent1);
                 return true;
             }
         });
@@ -628,12 +636,13 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.battery_watchRecordShareImg:  //分享
-                if (getActivity() == null || getActivity().isFinishing())
-                    return;
-                Intent intent = new Intent(getActivity(), SharePosterActivity.class);
-                intent.putExtra("is18i", "B31");
-                intent.putExtra("stepNum", defaultSteps + "");
-                startActivity(intent);
+//                if (getActivity() == null || getActivity().isFinishing())
+//                    return;
+//                Intent intent = new Intent(getActivity(), SharePosterActivity.class);
+//                intent.putExtra("is18i", "B31");
+//                intent.putExtra("stepNum", defaultSteps + "");
+//                startActivity(intent);
+                startActivity(new Intent(getmContext(),CommentDataActivity.class));
                 break;
             case R.id.b31HomeTodayTv:   //当天的数据
                 clearDataStyle(0);
@@ -908,15 +917,20 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
      * 取出本地运动数据
      */
     private void updateSportData(String mac, String date) {
-        String sport = B30HalfHourDao.getInstance().findOriginData(mac, date, B30HalfHourDao
-                .TYPE_SPORT);
-        List<HalfHourSportData> sportData = gson.fromJson(sport, new TypeToken<List<HalfHourSportData>>() {
-        }.getType());
+        try {
+            String sport = B30HalfHourDao.getInstance().findOriginData(mac, date, B30HalfHourDao
+                    .TYPE_SPORT);
+            List<HalfHourSportData> sportData = gson.fromJson(sport, new TypeToken<List<HalfHourSportData>>() {
+            }.getType());
 
-        Message message = handler.obtainMessage();
-        message.what = 1002;
-        message.obj = sportData;
-        handler.sendMessage(message);//发送消息，展示步数图标
+            Message message = handler.obtainMessage();
+            message.what = 1002;
+            message.obj = sportData;
+            handler.sendMessage(message);//发送消息，展示步数图标
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
     }
 
@@ -924,29 +938,38 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
      * 取出本地心率数据
      */
     private void updateRateData(String mac, String date) {
-        String rate = B30HalfHourDao.getInstance().findOriginData(mac, date, B30HalfHourDao
-                .TYPE_RATE);
-        List<HalfHourRateData> rateData = gson.fromJson(rate, new TypeToken<List<HalfHourRateData>>() {
-        }.getType());
-        Message message = handler.obtainMessage();
-        message.what = 1003;
-        message.obj = rateData;
-        handler.sendMessage(message);//发送消息，展示心率的图表
-//        showSportHeartData(rateData);//展示心率的图表
+        try {
+            String rate = B30HalfHourDao.getInstance().findOriginData(mac, date, B30HalfHourDao
+                    .TYPE_RATE);
+            List<HalfHourRateData> rateData = gson.fromJson(rate, new TypeToken<List<HalfHourRateData>>() {
+            }.getType());
+            Message message = handler.obtainMessage();
+            message.what = 1003;
+            message.obj = rateData;
+            handler.sendMessage(message);//发送消息，展示心率的图表
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
     /**
      * 取出本地睡眠数据
      */
     private void updateSleepData(String mac, String date) {
-        Log.d("-------数据时间----", date);
-        String sleep = B30HalfHourDao.getInstance().findOriginData(mac, date, B30HalfHourDao
-                .TYPE_SLEEP);
-        SleepData sleepData = gson.fromJson(sleep, SleepData.class);
-        Message message = handler.obtainMessage();
-        message.what = 1004;
-        message.obj = sleepData;
-        handler.sendMessage(message);//发送消息，展示睡眠的图表
+        try {
+            Log.d("-------数据时间----", date);
+            String sleep = B30HalfHourDao.getInstance().findOriginData(mac, date, B30HalfHourDao
+                    .TYPE_SLEEP);
+            SleepData sleepData = gson.fromJson(sleep, SleepData.class);
+            Message message = handler.obtainMessage();
+            message.what = 1004;
+            message.obj = sleepData;
+            handler.sendMessage(message);//发送消息，展示睡眠的图表
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
 
@@ -954,14 +977,17 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
      * 取出本地血压数据
      */
     private void updateBpData(String mac, String date) {
-        String bp = B30HalfHourDao.getInstance().findOriginData(mac, date, B30HalfHourDao.TYPE_BP);
-        List<HalfHourBpData> bpData = gson.fromJson(bp, new TypeToken<List<HalfHourBpData>>() {
-        }.getType());
-        Message message = new Message();
-        message.what = 1005;
-        message.obj = bpData;
-        handler.sendMessage(message);//发送消息，展示血压的图表
-
+        try {
+            String bp = B30HalfHourDao.getInstance().findOriginData(mac, date, B30HalfHourDao.TYPE_BP);
+            List<HalfHourBpData> bpData = gson.fromJson(bp, new TypeToken<List<HalfHourBpData>>() {
+            }.getType());
+            Message message = new Message();
+            message.what = 1005;
+            message.obj = bpData;
+            handler.sendMessage(message);//发送消息，展示血压的图表
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
 
@@ -1083,45 +1109,48 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
 
     //显示血氧的图
     private void updateSpo2View(List<Spo2hOriginData> dataList) {
+        try {
+            Log.e(TAG, "----------血氧展示=" + dataList.size());
+            if(dataList.size() ==0 || dataList.size()>420)
+                return;
+            List<Spo2hOriginData> data0To8 = getSpo2MoringData(dataList);
+            Spo2hOriginUtil spo2hOriginUtil = new Spo2hOriginUtil(data0To8);
+            //获取处理完的血氧数据
+            final List<Map<String, Float>> tenMinuteDataBreathBreak = spo2hOriginUtil.getTenMinuteData(TYPE_BEATH_BREAK);
+            final List<Map<String, Float>> tenMinuteDataSpo2h = spo2hOriginUtil.getTenMinuteData(TYPE_SPO2H);
+            //平均值
+            int onedayDataArr[] = spo2hOriginUtil.getOnedayDataArr(ESpo2hDataType.TYPE_SPO2H);
+            b31Spo2AveTv.setText(getResources().getString(R.string.ave_value) + "\n" + onedayDataArr[2]);
 
-        Log.e(TAG, "----------血氧展示=" + dataList.size());
+            initSpo2hUtil();
+            vpSpo2hUtil.setData(dataList);
+            vpSpo2hUtil.showAllChartView();
 
-        List<Spo2hOriginData> data0To8 = getSpo2MoringData(dataList);
-        Spo2hOriginUtil spo2hOriginUtil = new Spo2hOriginUtil(data0To8);
-        //获取处理完的血氧数据
-        final List<Map<String, Float>> tenMinuteDataBreathBreak = spo2hOriginUtil.getTenMinuteData(TYPE_BEATH_BREAK);
-        final List<Map<String, Float>> tenMinuteDataSpo2h = spo2hOriginUtil.getTenMinuteData(TYPE_SPO2H);
-        //平均值
-        int onedayDataArr[] = spo2hOriginUtil.getOnedayDataArr(ESpo2hDataType.TYPE_SPO2H);
-        b31Spo2AveTv.setText(getResources().getString(R.string.ave_value) + "\n" + onedayDataArr[2]);
+            if (getActivity() == null)
+                return;
+            ChartViewUtil spo2ChartViewUtilHomes = new ChartViewUtil(homeSpo2LinChartView, null, true,
+                    CHART_MAX_SPO2H, CHART_MIN_SPO2H, "No Data", TYPE_SPO2H);
+            spo2ChartViewUtilHomes.setxColor(R.color.head_text);
+            spo2ChartViewUtilHomes.setNoDataColor(R.color.head_text);
+            //更新血氧数据的图表
+            spo2ChartViewUtilHomes.setBeathBreakData(tenMinuteDataBreathBreak);
+            spo2ChartViewUtilHomes.updateChartView(tenMinuteDataSpo2h);
+            spo2ChartViewUtilHomes.setBeathBreakData(tenMinuteDataBreathBreak);
 
-        initSpo2hUtil();
-        vpSpo2hUtil.setData(dataList);
-        vpSpo2hUtil.showAllChartView();
+            homeSpo2LinChartView.getAxisLeft().removeAllLimitLines();
+            homeSpo2LinChartView.getAxisLeft().setDrawLabels(false);
 
-        if (getActivity() == null)
-            return;
-        ChartViewUtil spo2ChartViewUtilHomes = new ChartViewUtil(homeSpo2LinChartView, null, true,
-                CHART_MAX_SPO2H, CHART_MIN_SPO2H, "No Data", TYPE_SPO2H);
-        spo2ChartViewUtilHomes.setxColor(R.color.head_text);
-        spo2ChartViewUtilHomes.setNoDataColor(R.color.head_text);
-        //更新血氧数据的图表
-        spo2ChartViewUtilHomes.setBeathBreakData(tenMinuteDataBreathBreak);
-        spo2ChartViewUtilHomes.updateChartView(tenMinuteDataSpo2h);
-        spo2ChartViewUtilHomes.setBeathBreakData(tenMinuteDataBreathBreak);
+            LineData data = homeSpo2LinChartView.getData();
+            if (data == null)
+                return;
+            LineDataSet dataSetByIndex = (LineDataSet) data.getDataSetByIndex(0);
+            if (dataSetByIndex != null) {
+                dataSetByIndex.setDrawFilled(false);
+                dataSetByIndex.setColor(Color.parseColor("#17AAE2"));
+            }
+        }catch (Exception e){
 
-        homeSpo2LinChartView.getAxisLeft().removeAllLimitLines();
-        homeSpo2LinChartView.getAxisLeft().setDrawLabels(false);
-
-        LineData data = homeSpo2LinChartView.getData();
-        if (data == null)
-            return;
-        LineDataSet dataSetByIndex = (LineDataSet) data.getDataSetByIndex(0);
-        if (dataSetByIndex != null) {
-            dataSetByIndex.setDrawFilled(false);
-            dataSetByIndex.setColor(Color.parseColor("#17AAE2"));
         }
-
 
     }
 
@@ -1362,10 +1391,12 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
     //显示HRV的数据
     private void showHrvData(List<HRVOriginData> dataList) {
         //Log.e(TAG,"----显示HRV="+dataList.size());
-        List<HRVOriginData> data0to8 = getMoringData(dataList);
-        HRVOriginUtil mHrvOriginUtil = new HRVOriginUtil(data0to8);
-        HrvScoreUtil hrvScoreUtil = new HrvScoreUtil();
-        if (dataList != null) {
+        try {
+            if(dataList.size()==0 || dataList.size()>420)
+                return;
+            List<HRVOriginData> data0to8 = getMoringData(dataList);
+            HRVOriginUtil mHrvOriginUtil = new HRVOriginUtil(data0to8);
+            HrvScoreUtil hrvScoreUtil = new HrvScoreUtil();
             int heartSocre = hrvScoreUtil.getSocre(dataList);
             hrvHeartSocreTv.setText(getResources().getString(R.string.heart_health_sorce) + " " + heartSocre);
             final List<Map<String, Float>> tenMinuteData = mHrvOriginUtil.getTenMinuteData();
@@ -1378,6 +1409,8 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
                     showHomeView(tenMinuteData);
                 }
             });
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
     }
@@ -1469,5 +1502,17 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
         intentFilter.addAction(WatchUtils.B31_HRV_COMPLETE);
         intentFilter.addAction(WatchUtils.B31_SPO2_COMPLETE);
         return intentFilter;
+    }
+
+
+    //开始上传本地缓存的数据，汇总数据和详细数据
+    private void startUploadDbService() {
+        //开始上传本地缓存的数据
+        CommDBManager.getCommDBManager().startUploadDbService(getmContext());
+
+        //上传缓存的详细数据
+        Intent intent1 = new Intent(getmContext(),FriendsUploadServices.class);
+        getmContext().startService(intent1);
+
     }
 }

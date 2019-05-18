@@ -11,12 +11,14 @@ import android.webkit.WebViewClient;
 import android.widget.TextView;
 
 import com.bozlun.health.android.R;
+import com.bozlun.health.android.b31.MessageHelpActivity;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
 
 import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by Administrator on 2017/11/3.
@@ -43,16 +45,16 @@ public class SearchExplainActivity extends WatchBaseActivity {
 
         Locale locales = getResources().getConfiguration().locale;
         String country = locales.getCountry();
-        if(!WatchUtils.isEmpty(country)){
-            if(country.equals("CN")){
+        if (!WatchUtils.isEmpty(country)) {
+            if (country.equals("CN")) {
                 url = "file:///android_asset/search_explain_zh.html";
-            }else{
+            } else {
                 url = "file:///android_asset/search_explain_en.html";
             }
-        }else{
+        } else {
             url = "file:///android_asset/search_explain_en.html";
         }
-        searchExplainWV.setWebViewClient(new WebViewClient(){
+        searchExplainWV.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
 
@@ -76,5 +78,10 @@ public class SearchExplainActivity extends WatchBaseActivity {
         webSettings.setJavaScriptEnabled(false);
         webSettings.setSupportZoom(false);
 
+    }
+
+    @OnClick(R.id.moreHelpTv)
+    public void onClick() {
+        startActivity(MessageHelpActivity.class);
     }
 }

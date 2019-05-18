@@ -96,10 +96,22 @@ public class Spo2SecondDialogView extends AlertDialog {
             calList.add(calMap.get("value"));
             hrvSum = hrvSum + calMap.get("value");
         }
-        DecimalFormat decimalFormat = new DecimalFormat("#");    //不保留小数
-        maxVTv.setText(context.getResources().getString(R.string.max_value)+"="+decimalFormat.format(Collections.max(calList))
-                +","+context.getResources().getString(R.string.min_value)+"="+decimalFormat.format(Collections.min(calList))+","+
-                context.getResources().getString(R.string.ave_value)+"="+decimalFormat.format(hrvSum/calList.size()));
+
+
+
+
+        Log.e(TAG,"--------calList="+calList.size());
+
+        try {
+            DecimalFormat decimalFormat = new DecimalFormat("#");    //不保留小数
+            maxVTv.setText(context.getResources().getString(R.string.max_value)+"="+decimalFormat.format(Collections.max(calList))
+                    +","+context.getResources().getString(R.string.min_value)+"="+decimalFormat.format(Collections.min(calList))+","+
+                    context.getResources().getString(R.string.ave_value)+"="+decimalFormat.format(hrvSum/calList.size()));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
     }
 
     //设置显示最大值，最小值和平均值数据

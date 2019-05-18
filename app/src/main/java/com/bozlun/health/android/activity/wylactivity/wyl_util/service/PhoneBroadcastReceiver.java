@@ -78,6 +78,11 @@ public class PhoneBroadcastReceiver extends BroadcastReceiver {
         }
         if(WatchUtils.isEmpty(action))
             return;
+
+        //判断一下是否为空
+        if(MyCommandManager.DEVICENAME == null)
+            return;
+
         //呼入电话
         if (action.equals(B_PHONE_STATE) || action.equals("android.intent.action.PHONE_STATE")) {
             //Log.d(TAG, "---1111----");
@@ -169,7 +174,7 @@ public class PhoneBroadcastReceiver extends BroadcastReceiver {
         //判断是否有读取联系人和通讯录的权限
         if(!AndPermission.hasPermissions(MyApp.getContext(),Manifest.permission.READ_CONTACTS,Manifest.permission.READ_CALL_LOG)){
             AndPermission.with(MyApp.getContext()).runtime().permission(Manifest.permission.READ_CONTACTS
-                    ,Manifest.permission.READ_CALL_LOG,Manifest.permission.WRITE_CALL_LOG).start();
+                    ,Manifest.permission.READ_CALL_LOG).start();
         }else{
             getPhoneContacts(phoneNumber, tag);
         }
@@ -430,16 +435,24 @@ public class PhoneBroadcastReceiver extends BroadcastReceiver {
     private void setB30DisPhone() {
         if(MyCommandManager.DEVICENAME != null){
             MyApp.getInstance().getVpOperateManager().offhookOrIdlePhone(iBleWriteResponse);
-        }
-        boolean isTrue = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(),"phone_status",false);
-        if(isTrue){
-            AudioManager audioManager = (AudioManager) MyApp.getInstance().getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-            if(audioManager != null){
-                audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
-                // audioManager.getStreamVolume(AudioManager.STREAM_RING);
-                Log.d("SilentListenerService", "RINGING 取消静音");
+            getDoNotDisturb();
+            boolean isTrue = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(),"phone_status",false);
+            if(isTrue){
+                try {
+                    AudioManager audioManager = (AudioManager) MyApp.getInstance().getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                    if(audioManager != null){
+                        audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+                        // audioManager.getStreamVolume(AudioManager.STREAM_RING);
+                        Log.d("SilentListenerService", "RINGING 取消静音");
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+
             }
+
         }
+
 
 
     }

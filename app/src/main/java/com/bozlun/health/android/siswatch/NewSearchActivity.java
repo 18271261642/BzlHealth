@@ -401,6 +401,7 @@ public class NewSearchActivity extends GetUserInfoActivity implements CustomBlue
         //跑马灯效果
         searchAlertTv.setSelected(true);
         newSearchTitleTv.setText(getResources().getString(R.string.search_device));
+        newSearchRightImg1.setVisibility(View.VISIBLE);
         //设置RecyclerView相关
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -518,71 +519,6 @@ public class NewSearchActivity extends GetUserInfoActivity implements CustomBlue
         }
     }
 
-
-   /* //绑定按钮的点击事件
-    @Override
-    public void doBindOperator(int position) {
-        try {
-            if (bluetoothAdapter != null && !bluetoothAdapter.isDiscovering()) {
-                scanBlueDevice(false);
-            }
-            if (customDeviceList != null) {
-                customBlueDevice = customDeviceList.get(position);
-            }
-            String bleName = customBlueDevice.getBluetoothDevice().getName();
-            if (customBlueDevice == null || WatchUtils.isEmpty(bleName))
-                return;
-            //H8手表
-            if (customBlueDevice.getCompanyId() == 160 || bleName.substring(0, 2).equals("H8")) {
-                new AlertDialog.Builder(this)
-                        .setTitle(R.string.prompt)
-                        .setMessage(getResources().getString(R.string.setting_pair))
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.dismiss();
-                                //连接H8手表
-                                connectH8Watch(customBlueDevice);
-                            }
-                        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                }).create().show();
-                return;
-            }
-            //H9
-            if (bleName.substring(0, 2).equals(H9_BLENAME) || bleName.substring(0, 4).equals("W06X")) {
-                showLoadingDialog("connection...");
-                String h9Address = customBlueDevice.getBluetoothDevice().getAddress().trim();
-                if (!WatchUtils.isEmpty(h9Address)) {
-                    AppsBluetoothManager.getInstance(this).connectDevice(h9Address);
-                    AppsBluetoothManager.getInstance(this).cancelDiscovery();
-                }
-                return;
-            }
-            //W30手表
-            if (bleName.substring(0, 3).equals("W30")) {
-                showLoadingDialog("connection...");
-                String W30address = customBlueDevice.getBluetoothDevice().getAddress();
-                if (!WatchUtils.isEmpty(W30address)) {
-                    W30SBLEManage.mW30SBLEServices.connectBle(W30address);
-                }
-                return;
-            }
-            //B30，B36，Ringmiihx手表
-            if (bleName.equals(WatchUtils.B30_NAME) || bleName.equals(WatchUtils.B36_NAME)
-                    || bleName.equals("Ringmii") || bleName.equals(B31_NAME)) {
-                connectB30(customBlueDevice.getBluetoothDevice().getAddress().trim(), bleName);
-            }
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-*/
 
     //连接B30手环
     private void connectB30(final String b30Mac, String bleName) {

@@ -18,7 +18,8 @@ public class CommStepCountDb extends LitePalSupport {
     /**
      * 日期 yyyy-MM-dd格式
      */
-    private String date;
+
+    private String dateStr;
 
     /**
      * 步数总数
@@ -53,12 +54,12 @@ public class CommStepCountDb extends LitePalSupport {
         this.userid = userid;
     }
 
-    public String getDate() {
-        return date;
+    public String getDateStr() {
+        return dateStr;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setDateStr(String dateStr) {
+        this.dateStr = dateStr;
     }
 
     public int getStepnumber() {
@@ -105,7 +106,7 @@ public class CommStepCountDb extends LitePalSupport {
     public String toString() {
         return "CommStepCountDb{" +
                 "userid='" + userid + '\'' +
-                ", date='" + date + '\'' +
+                ", dateStr='" + dateStr + '\'' +
                 ", stepnumber=" + stepnumber +
                 ", count=" + count +
                 ", devicecode='" + devicecode + '\'' +

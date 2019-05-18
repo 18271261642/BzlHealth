@@ -55,7 +55,7 @@
                             app:b30SleepNoDataColor="#FFFFFF"
                             android:layout_gravity="center"
                             app:lightSleepColor="#8898E6"
-                            app:sleepEmptyData="@dimen/sp_8" />
+                            app:sleepEmptyData="@dimen/sp_15" />
 
 
                         <SeekBar

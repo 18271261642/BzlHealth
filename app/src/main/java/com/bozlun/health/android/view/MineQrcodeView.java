@@ -44,8 +44,8 @@ public class MineQrcodeView extends Dialog {
         String userId = (String) SharedPreferencesUtils.readObject(MyApp.getContext(),Commont.USER_ID_DATA);
         if(WatchUtils.isEmpty(userId))
             return;
-        if(userId.equals("9278cc399ab147d0ad3ef164ca156bf0"))  //游客
-            return;
+//        if(userId.equals("9278cc399ab147d0ad3ef164ca156bf0"))  //游客
+//            return;
         Bitmap bitmap = null;
         try {
             /*

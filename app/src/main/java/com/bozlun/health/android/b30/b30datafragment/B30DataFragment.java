@@ -12,6 +12,7 @@ import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -28,7 +29,6 @@ import com.bozlun.health.android.siswatch.bean.WatchDataDatyBean;
 import com.bozlun.health.android.siswatch.data.BarXFormartValue;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
 import com.bozlun.health.android.util.NetUtils;
-import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
@@ -38,6 +38,7 @@ import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -62,6 +63,8 @@ import butterknife.Unbinder;
 public class B30DataFragment extends LazyFragment implements B30DataServer.B30DataServerListener {
 
     private static final String TAG = "B30DataFragment";
+    @BindView(R.id.commentB30BackImg)
+    ImageView commentB30BackImg;
     private Runnable runnableStep = null;
     private Runnable runnableSleep = null;
     private Runnable runnableHeart = null;
@@ -175,7 +178,6 @@ public class B30DataFragment extends LazyFragment implements B30DataServer.B30Da
 //        Log.e(TAG, "----onCreateView---");
 
 
-
         initViews();
         initData();
 
@@ -188,10 +190,11 @@ public class B30DataFragment extends LazyFragment implements B30DataServer.B30Da
 
     private void initViews() {
         commentB30TitleTv.setText(getResources().getString(R.string.data));
-        if(getActivity() == null || getActivity().isFinishing())
+        commentB30BackImg.setVisibility(View.VISIBLE);
+        if (getActivity() == null || getActivity().isFinishing())
             return;
         String bleName = WatchUtils.getSherpBleName(getActivity());
-        if(WatchUtils.isEmpty(bleName))
+        if (WatchUtils.isEmpty(bleName))
             return;
         if (bleName.equals("B30")
                 || bleName.equals("Ringmii")
@@ -199,9 +202,9 @@ public class B30DataFragment extends LazyFragment implements B30DataServer.B30Da
                 || bleName.equals("500S")) { //目前B30和盖德的B30有血压功能
             b30BloadChartLin.setVisibility(View.VISIBLE);
         } else {
-            if(bleName.equals("B31")){
-                boolean isB31HasBp = (boolean) SharedPreferencesUtils.getParam(getActivity(),Commont.IS_B31_HAS_BP_KEY,false);
-                b30BloadChartLin.setVisibility(isB31HasBp?View.VISIBLE:View.GONE);
+            if (bleName.equals("B31")) {
+                boolean isB31HasBp = (boolean) SharedPreferencesUtils.getParam(getActivity(), Commont.IS_B31_HAS_BP_KEY, false);
+                b30BloadChartLin.setVisibility(isB31HasBp ? View.VISIBLE : View.GONE);
                 return;
             }
 
@@ -247,8 +250,8 @@ public class B30DataFragment extends LazyFragment implements B30DataServer.B30Da
         //保存的时间
         String tmpSaveTime = (String) SharedPreferencesUtils.getParam(getActivity(), "saveDate", "");
         long diffTime = (currentTime - Long.valueOf(tmpSaveTime));
-        Log.e(TAG,"----------diffTime="+diffTime);
-        if(isVisible && diffTime >=20){  //30s
+        Log.e(TAG, "----------diffTime=" + diffTime);
+        if (isVisible && diffTime >= 20) {  //30s
             SharedPreferencesUtils.setParam(getActivity(), "saveDate", System.currentTimeMillis() / 1000 + "");
             setClearStyle(0);
         }
@@ -263,7 +266,8 @@ public class B30DataFragment extends LazyFragment implements B30DataServer.B30Da
 
     }
 
-    @OnClick({R.id.b30DataWeekTv, R.id.b30DataMonthTv, R.id.b30DataYearTv})
+    @OnClick({R.id.b30DataWeekTv, R.id.b30DataMonthTv,
+            R.id.b30DataYearTv,R.id.commentB30BackImg})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.b30DataWeekTv:    //日
@@ -274,6 +278,9 @@ public class B30DataFragment extends LazyFragment implements B30DataServer.B30Da
                 break;
             case R.id.b30DataYearTv:    //年
                 setClearStyle(2);
+                break;
+            case R.id.commentB30BackImg:    //返回
+                getActivity().finish();
                 break;
         }
     }
@@ -368,7 +375,7 @@ public class B30DataFragment extends LazyFragment implements B30DataServer.B30Da
     // 步数返回
     @Override
     public void b30StepData(final String stepStr, final int code) {
-        Log.e(TAG,"-----------stepStr="+stepStr);
+        Log.e(TAG, "-----------stepStr=" + stepStr);
 
 
         if (runnableStep != null)
@@ -480,7 +487,7 @@ public class B30DataFragment extends LazyFragment implements B30DataServer.B30Da
 
     // 展示步数图表
     private void showStepsChat(List<Integer> mValues, List<String> xList) {
-        if(getActivity() == null || getActivity().isFinishing())
+        if (getActivity() == null || getActivity().isFinishing())
             return;
         pointbar.clear();
         for (int i = 0; i < mValues.size(); i++) {
@@ -629,7 +636,7 @@ public class B30DataFragment extends LazyFragment implements B30DataServer.B30Da
 
     //展示心率图表
     private void showHeartChart(List<Integer> heartList, List<String> xlt) {
-        if(getActivity() == null || getActivity().isFinishing())
+        if (getActivity() == null || getActivity().isFinishing())
             return;
         heartBarEntryList.clear();
         for (int i = 0; i < heartList.size(); i++) {
@@ -804,7 +811,7 @@ public class B30DataFragment extends LazyFragment implements B30DataServer.B30Da
 
     //展示睡眠图表
     private void showSleepChart(List<Float> sleepVlaues, List<String> sleepXList) {
-        if(getActivity() == null || getActivity().isFinishing())
+        if (getActivity() == null || getActivity().isFinishing())
             return;
         sleepBarEntryList.clear();
         for (int i = 0; i < sleepVlaues.size(); i++) {
@@ -883,7 +890,7 @@ public class B30DataFragment extends LazyFragment implements B30DataServer.B30Da
     //血压返回
     @Override
     public void b30BloadData(final String bloadStr, final int code) {
-        Log.d("----血压返回---",bloadStr);
+        Log.d("----血压返回---", bloadStr);
         if (runnableBlue != null)
             mHandler.removeCallbacks(runnableBlue);
         runnableBlue = new Runnable() {

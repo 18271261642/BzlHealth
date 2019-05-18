@@ -517,7 +517,7 @@
 
 
 
-    <string name="app_name">健康天天检</string>
+    <string name="app_name">天天检</string>
     <string name="input_password">Введите пароль</string>
     <string name="input_code">Пожалуйста, введите  код проверки</string>
     <string name="input_nickname">Пожалуйста, введите  прозвище</string>

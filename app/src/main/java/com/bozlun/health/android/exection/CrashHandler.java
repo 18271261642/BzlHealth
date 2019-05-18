@@ -251,7 +251,7 @@ public class CrashHandler implements UncaughtExceptionHandler {
 
     //异常日志上传后台请求
     private void sendLog(final String jsonMap) {
-        Log.e("CrashHandler", "-----错误信息收集----" + jsonMap.toString());
+        Log.e("CrashHandler", "-----错误信息收集----" + jsonMap);
         MobclickAgent.reportError(MyApp.getContext(), jsonMap);
         //String url = "http://dgxw.gqwap.com/logMobile/exceptionLog";
         String url = "http://ctcheck.suchkj.com/appExceptionApi/submitException";
@@ -259,7 +259,7 @@ public class CrashHandler implements UncaughtExceptionHandler {
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                Log.e("CrashHandler", "---日志上传成功返回---" + response.toString());
+                Log.e("CrashHandler", "---日志上传成功返回---" + response);
             }
         }, new Response.ErrorListener() {
             @Override

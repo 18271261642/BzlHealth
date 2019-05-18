@@ -55,6 +55,12 @@ public class CommBloodDb extends LitePalSupport {
      */
     private int avgsystolic;
 
+    /**
+     * 是否已上传
+     * @return
+     */
+    private boolean isUpload;
+
     public String getUserid() {
         return userid;
     }
@@ -111,6 +117,14 @@ public class CommBloodDb extends LitePalSupport {
         this.avgsystolic = avgsystolic;
     }
 
+    public boolean isUpload() {
+        return isUpload;
+    }
+
+    public void setUpload(boolean upload) {
+        isUpload = upload;
+    }
+
     @Override
     public String toString() {
         return "CommBloodDb{" +
@@ -121,6 +135,7 @@ public class CommBloodDb extends LitePalSupport {
                 ", minsystolic=" + minsystolic +
                 ", avgdiastolic=" + avgdiastolic +
                 ", avgsystolic=" + avgsystolic +
+                ", isUpload=" + isUpload +
                 '}';
     }
 }

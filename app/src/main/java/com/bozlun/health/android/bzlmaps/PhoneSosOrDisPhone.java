@@ -12,7 +12,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
-
 import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.bzlmaps.sos.GPSGaoDeUtils;
@@ -23,6 +22,8 @@ import com.bozlun.health.android.util.ToastUtil;
 import com.bozlun.health.android.util.VerifyUtil;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import com.veepoo.protocol.listener.data.IDeviceControlPhone;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PhoneSosOrDisPhone implements IDeviceControlPhone {
 
@@ -104,17 +105,15 @@ public class PhoneSosOrDisPhone implements IDeviceControlPhone {
                 Commont.GPSCOUNT = 0;
 //                Commont.isGPSed = true;
                 Log.e("===", "======开始定位");
+                if (initPermission(MyApp.getInstance())) {
+                    getGps();
 
-                getGps();
-
-                Log.e("===", "======5 秒后打电话");
-                handler.sendEmptyMessageAtTime(0x01, 5000);
-//                if (lacksPermissions(MyApp.getInstance(), permissionsREAD)) {
-//
-//                }else {
-//                    Commont.isSosOpen = false;
-//                    ToastUtil.showShort(MyApp.getContext(), "SOS 相关权限未打开");
-//                }
+                    Log.e("===", "======5 秒后打电话");
+                    handler.sendEmptyMessageAtTime(0x01, 5000);
+                } else {
+                    Commont.isSosOpen = false;
+                    ToastUtil.showShort(MyApp.getContext(), "SOS相关权限未打开");
+                }
                 //handler.sendEmptyMessageAtTime(0x02, 1000 * 60 * 3);
             } else {
                 Commont.isSosOpen = false;
@@ -131,7 +130,6 @@ public class PhoneSosOrDisPhone implements IDeviceControlPhone {
      * 获取定位以及发送短信
      */
     void getGps() {
-
 
         boolean zh = VerifyUtil.isZh(MyApp.getInstance());
         if (zh) {
@@ -171,13 +169,49 @@ public class PhoneSosOrDisPhone implements IDeviceControlPhone {
      */
     //点击事件调用的类
     protected void call(final String tel) {
-
-        Uri uri = Uri.parse("tel:" + tel);
-        Intent intent = new Intent(Intent.ACTION_CALL, uri);
-        if (ActivityCompat.checkSelfPermission(MyApp.getContext(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-            return;
+        try {
+            Uri uri = Uri.parse("tel:" + tel);
+            Intent intent = new Intent(Intent.ACTION_CALL, uri);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            if (ActivityCompat.checkSelfPermission(MyApp.getContext(), Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            MyApp.getContext().startActivity(intent);
+        }catch (Exception e){
+            e.printStackTrace();
         }
-        MyApp.getContext().startActivity(intent);
+    }
+
+
+    /**
+     * 判断权限集合
+     * permissions 权限数组
+     * return true-表示没有改权限 false-表示权限已开启
+     */
+    List<String> mPermissionList = null;
+
+    //4、权限判断和申请
+    private boolean initPermission(Context mContexts) {
+        boolean isOk = false;
+        if (mPermissionList == null) {
+            mPermissionList = new ArrayList<>();
+        } else mPermissionList.clear();//清空已经允许的没有通过的权限
+        //逐个判断是否还有未通过的权限
+        for (int i = 0; i < permissionsREAD.length; i++) {
+            if (ContextCompat.checkSelfPermission(mContexts, permissionsREAD[i]) !=
+                    PackageManager.PERMISSION_GRANTED) {
+                mPermissionList.add(permissionsREAD[i]);//添加还未授予的权限到mPermissionList中
+            }
+        }
+        //申请权限
+        if (mPermissionList.size() > 0) {//有权限没有通过，需要申请
+            isOk = false;
+        } else {
+            //权限已经都通过了，可以将程序继续打开了
+            Log.e("=======", "权限请求完成A");
+            isOk = true;
+        }
+        return isOk;
     }
 
 
@@ -189,32 +223,10 @@ public class PhoneSosOrDisPhone implements IDeviceControlPhone {
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.SEND_SMS,
             Manifest.permission.CALL_PHONE,
-            Manifest.permission.READ_PHONE_STATE,
-            Manifest.permission.READ_CONTACTS,
-            Manifest.permission.READ_CALL_LOG,
+            Manifest.permission.READ_PHONE_STATE,//
+            Manifest.permission.READ_CONTACTS,//
+            Manifest.permission.READ_CALL_LOG,//
             Manifest.permission.USE_SIP
     };
-
-    /**
-     * 判断权限集合
-     * permissions 权限数组
-     * return true-表示没有改权限 false-表示权限已开启
-     */
-    public static boolean lacksPermissions(Context mContexts, String[] permissions) {
-        for (String permission : permissions) {
-            if (lacksPermission(mContexts, permission)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * 判断是否缺少权限
-     */
-    private static boolean lacksPermission(Context mContexts, String permission) {
-        return ContextCompat.checkSelfPermission(mContexts, permission) ==
-                PackageManager.PERMISSION_DENIED;
-    }
 
 }

@@ -14,7 +14,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-
 import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.R;
@@ -26,18 +25,15 @@ import com.bozlun.health.android.friend.mutilbind.NewApplyDataBind;
 import com.bozlun.health.android.friend.mutilbind.NewFrendApplyDataBind;
 import com.bozlun.health.android.friend.mutilbind.TextItemViewBinder;
 import com.bozlun.health.android.siswatch.WatchBaseActivity;
-import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import com.bozlun.health.android.util.ToastUtil;
 import com.bozlun.health.android.util.URLs;
 import com.bozlun.health.android.w30s.utils.httputils.RequestPressent;
 import com.bozlun.health.android.w30s.utils.httputils.RequestView;
 import com.google.gson.Gson;
-
+import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import me.drakeet.multitype.Items;

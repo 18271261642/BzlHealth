@@ -98,11 +98,11 @@
 
         <ImageView
             android:id="@+id/battery_watchRecordShareImg"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_gravity="center_vertical|end"
             android:padding="2dp"
-            android:src="@mipmap/fenxiang"
+            android:src="@drawable/ic_home_data_img"
             android:visibility="visible"
             tools:ignore="ContentDescription" />
 

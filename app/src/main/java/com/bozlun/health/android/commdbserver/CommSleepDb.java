@@ -22,7 +22,7 @@ public class CommSleepDb extends LitePalSupport {
     /**
      * 日期 yyyy-MM-dd
      */
-    private String rtc;
+    private String dateStr;
 
     /**
      * 清醒时长 分钟
@@ -64,6 +64,12 @@ public class CommSleepDb extends LitePalSupport {
      */
     private int wakecount;
 
+    /**
+     * 是否已经上传
+     * @return
+     */
+    private boolean isUpload;
+
     public String getUserid() {
         return userid;
     }
@@ -80,12 +86,12 @@ public class CommSleepDb extends LitePalSupport {
         this.devicecode = devicecode;
     }
 
-    public String getRtc() {
-        return rtc;
+    public String getDateStr() {
+        return dateStr;
     }
 
-    public void setRtc(String rtc) {
-        this.rtc = rtc;
+    public void setDateStr(String dateStr) {
+        this.dateStr = dateStr;
     }
 
     public int getSoberlen() {
@@ -136,14 +142,6 @@ public class CommSleepDb extends LitePalSupport {
         this.waketime = waketime;
     }
 
-    public int getWakecount() {
-        return wakecount;
-    }
-
-    public void setWakecount(int wakecount) {
-        this.wakecount = wakecount;
-    }
-
     public String getBleName() {
         return bleName;
     }
@@ -152,12 +150,28 @@ public class CommSleepDb extends LitePalSupport {
         this.bleName = bleName;
     }
 
+    public int getWakecount() {
+        return wakecount;
+    }
+
+    public void setWakecount(int wakecount) {
+        this.wakecount = wakecount;
+    }
+
+    public boolean isUpload() {
+        return isUpload;
+    }
+
+    public void setUpload(boolean upload) {
+        isUpload = upload;
+    }
+
     @Override
     public String toString() {
         return "CommSleepDb{" +
                 "userid='" + userid + '\'' +
                 ", devicecode='" + devicecode + '\'' +
-                ", rtc='" + rtc + '\'' +
+                ", dateStr='" + dateStr + '\'' +
                 ", soberlen=" + soberlen +
                 ", deepsleep=" + deepsleep +
                 ", shallowsleep=" + shallowsleep +
@@ -166,6 +180,7 @@ public class CommSleepDb extends LitePalSupport {
                 ", waketime='" + waketime + '\'' +
                 ", bleName='" + bleName + '\'' +
                 ", wakecount=" + wakecount +
+                ", isUpload=" + isUpload +
                 '}';
     }
 }
