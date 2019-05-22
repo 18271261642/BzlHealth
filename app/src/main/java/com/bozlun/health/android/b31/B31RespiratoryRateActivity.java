@@ -61,6 +61,13 @@ public class B31RespiratoryRateActivity extends WatchBaseActivity {
                 BreathData breathData = (BreathData) msg.obj;
                 if(breathData == null)
                     return;
+                if(breathData.getDeviceState() != 0){
+                    showB31RateStateTv.setText(WatchUtils.setBusyDesicStr());
+                    b31MeaureRateProgressView.stopAnim();
+                    stopMan();
+                    return;
+                }
+
                 if(breathData.getProgressValue() == 100){
                     stopMan();
                     b31MeaureRateProgressView.setTmpTxt(breathData.getValue()+"次/分");

@@ -83,10 +83,20 @@ public class UploadCommDbServices extends IntentService {
 //        Log.e(TAG, "=== 开始查询步数 是否有 " + ((uploadStepList == null || uploadStepList.isEmpty()) ? "无" : "有"));
         if (uploadStepList != null) {
             Log.e(TAG,"---------间隔大小="+uploadStepList.size());
+            //用户的身高
+            String userHeight = (String) SharedPreferencesUtils.getParam(this, Commont.USER_HEIGHT, "170");
+            if(WatchUtils.isEmpty(userHeight))
+                userHeight = "170";
+            int uHeight = Integer.valueOf(userHeight.trim());
+            //目标步数
+            int goalStep = (int) SharedPreferencesUtils.getParam(this,"b30Goal",8000);
             List<Map<String, String>> parmListMap = new ArrayList<>();
             for (CommStepCountDb countDb : uploadStepList) {
                 Log.e(TAG,"-------countDb="+countDb.toString());
-                //Log.e(TAG,"--------查询需要上传的步数="+countDb.toString());
+                //计算里程
+                String dis = WatchUtils.getDistants(countDb.getStepnumber(),uHeight)+"";
+                //卡路里
+                String kcal = WatchUtils.getKcal(countDb.getStepnumber(),uHeight)+"";
                 Map<String, String> mp = new HashMap<>();
                 if(countDb.getDateStr().equals(WatchUtils.getCurrentDate())){
                     mp.put("userid", countDb.getUserid());
@@ -94,6 +104,9 @@ public class UploadCommDbServices extends IntentService {
                     mp.put("date", countDb.getDateStr());
                     mp.put("devicecode", countDb.getDevicecode());
                     mp.put("count", countDb.getCount() + "");
+                    mp.put("distance",dis);
+                    mp.put("calorie",kcal);
+                    mp.put("reach",(goalStep<=countDb.getStepnumber()?1:0)+"");
                     parmListMap.add(mp);
 
                 }else{
@@ -103,6 +116,9 @@ public class UploadCommDbServices extends IntentService {
                         mp.put("date", countDb.getDateStr());
                         mp.put("devicecode", countDb.getDevicecode());
                         mp.put("count", countDb.getCount() + "");
+                        mp.put("reach",(goalStep<=countDb.getStepnumber()?1:0)+"");
+                        mp.put("distance",dis);
+                        mp.put("calorie",kcal);
                         parmListMap.add(mp);
                     }
                 }

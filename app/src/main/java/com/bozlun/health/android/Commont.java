@@ -135,7 +135,7 @@ public class Commont {
     public static final String FrendStepToDayData = "/friend/friendStepNumber";//好友日步数详细
     public static final String FrendSLeepToDayData = "/friend/friendSleepData";//好友日睡眠详细
     public static final String FrendHeartToDayData = "/friend/friendHeartRate";//好友日心率详细
-    public static final String FrendBpToDayData = "/friend/friendBloodPerssure";//好友日血压详细
+    public static final String FrendBpToDayData = "/friend/friendBloodPressure";//好友日血压详细
     //8c4c511a45374bb595e6fdf30bb878b7  d3546a77d5bb44d2805c6bf40508ad2e
     public static final String FrendLastData = "/friend/friendInfo";//好友首页：昨日的睡眠，心率，步数
     public static final String FrendLoveMine = "/friend/ThumbsTodayFriends";//返回今日已赞我的好友

@@ -23,6 +23,7 @@ import com.bozlun.health.android.siswatch.utils.WatchUtils;
 import com.veepoo.protocol.listener.base.IBleWriteResponse;
 import com.veepoo.protocol.listener.data.IHeartDataListener;
 import com.veepoo.protocol.model.datas.HeartData;
+import com.veepoo.protocol.model.enums.EHeartStatus;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -71,9 +72,14 @@ public class ManualMeaureHeartActivity extends WatchBaseActivity {
             switch (msg.what){
                 case 1001:
                     HeartData heartData = (HeartData) msg.obj;
-                    Log.e(TAG,"----heartData-="+heartData.toString());
-                    b30MeaureHeartValueTv.setText(heartData.getData()+"");
-
+                    if(heartData != null){
+                        if(heartData.getHeartStatus() == EHeartStatus.STATE_HEART_BUSY){
+                            Log.e(TAG, "----heartData-=" + heartData.toString());
+                            b30StopDetchHeart();
+                            return;
+                        }
+                        b30MeaureHeartValueTv.setText(heartData.getData()+"");
+                    }
                     break;
             }
 
@@ -210,6 +216,14 @@ public class ManualMeaureHeartActivity extends WatchBaseActivity {
         isMeaure = false;
         stopAllAnimat(b30ScaleLin,b30cirImg);
         b30finishTv.setText("测量完毕");
+        MyApp.getInstance().getVpOperateManager().stopDetectHeart(iBleWriteResponse);
+    }
+
+    private void b30StopDetchHeart(){
+        b30MeaureHeartStartBtn.setImageResource(R.drawable.detect_heart_start);
+        isMeaure = false;
+        stopAllAnimat(b30ScaleLin, b30cirImg);
+        b30finishTv.setText(WatchUtils.setBusyDesicStr());
         MyApp.getInstance().getVpOperateManager().stopDetectHeart(iBleWriteResponse);
     }
 }

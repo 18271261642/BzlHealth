@@ -22,6 +22,8 @@ import com.bozlun.health.android.siswatch.utils.WatchUtils;
 import com.veepoo.protocol.listener.base.IBleWriteResponse;
 import com.veepoo.protocol.listener.data.ISpo2hDataListener;
 import com.veepoo.protocol.model.datas.Spo2hData;
+import com.veepoo.protocol.model.enums.EDeviceStatus;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -66,6 +68,14 @@ public class B31ManSpO2Activity extends WatchBaseActivity {
                 Spo2hData spo2hData = (Spo2hData) msg.obj;
                 if (spo2hData == null)
                     return;
+                if(spo2hData.getDeviceState() != EDeviceStatus.FREE){
+                    showSpo2ResultTv.setText(WatchUtils.setBusyDesicStr());
+                    isStart = true;
+                    startOrStopManSpo2();
+                    return;
+                }
+
+
                 if (spo2hData.getCheckingProgress() == 0x00 && !spo2hData.isChecking()) {
                     b31MeaureSpo2ProgressView.setTmpTxt(spo2hData.getValue() + "%");
                     showSpo2ResultTv.setText(verSpo2Status(spo2hData.getValue()));

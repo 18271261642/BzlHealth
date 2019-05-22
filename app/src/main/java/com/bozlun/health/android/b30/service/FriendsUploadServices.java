@@ -127,19 +127,20 @@ public class FriendsUploadServices extends IntentService {
             }
 
 
+            //汇总的数据
+            List<Map<String,String>> countStepList = new ArrayList<>();
             Map<String, String> params = new HashMap<>();
-            params.put("userId", userId);
-            params.put("deviceCode", bleMac);
-            params.put("stepNumber", countStep + "");
-            params.put("distance", countDis + "");
-            params.put("calories", countKcal + "");
-            params.put("timeLen", "11");
+            params.put("userid", userId);
+            params.put("stepnumber", countStep + "");
             params.put("date", currDayStr);
-            params.put("status", (countStep >= goalStep ? 1 : 0) + "");
-
-//            Log.e(TAG,"----------当天的详细数据="+gson.toJson(params));
-
-            OkHttpTool.getInstance().doRequest(URLs.HTTPs + URLs.upSportData, gson.toJson(params), "55", new OkHttpTool.HttpResult() {
+            params.put("devicecode", bleMac);
+            params.put("count", "111");
+            params.put("distance",countDis+"");
+            params.put("calorie",countKcal+"");
+            params.put("reach",(goalStep<=countStep?1:0)+"");
+            countStepList.add(params);
+            //Log.e(TAG,"--------上传当天汇总的步数="+gson.toJson(countStepList));
+            OkHttpTool.getInstance().doRequest(SyncDbUrls.uploadCountStepUrl(), gson.toJson(countStepList), "55", new OkHttpTool.HttpResult() {
                 @Override
                 public void onResult(String result) {
                     Log.e(TAG, "-------上传是否达标=" + result);
@@ -204,7 +205,7 @@ public class FriendsUploadServices extends IntentService {
         detailHeartMap.put("heartRateList",commHeartDetailDbsLt);
         heartLit.add(detailHeartMap);
         String jsonStr = gson.toJson(heartLit);
-        Log.e(TAG,"----当天心率---jsonStr="+jsonStr);
+        //Log.e(TAG,"----当天心率---jsonStr="+jsonStr);
         OkHttpTool.getInstance().doRequest(SyncDbUrls.uploadDetailHeartUrl(), jsonStr, "33", new OkHttpTool.HttpResult() {
             @Override
             public void onResult(String result) {
@@ -245,7 +246,6 @@ public class FriendsUploadServices extends IntentService {
                     commSleepDetailDb.setDevicecode(bleMac);
                     commSleepDetailDb.setUserid(userId);
                     String slType = sleepStr.charAt(i) + "";
-                    Log.e(TAG, "----slType=" + slType);
                     int changeType = Integer.valueOf(slType);
                     int resultType = 0;
                     switch (changeType) {
@@ -259,7 +259,7 @@ public class FriendsUploadServices extends IntentService {
                             resultType = 1;
                             break;
                     }
-                    Log.e(TAG, "-------转换后的数据=" + resultType);
+                    //Log.e(TAG, "-------转换后的数据=" + resultType);
                     commSleepDetailDb.setSleepType(resultType + "");
                     //时间
                     commSleepDetailDb.setStarttime(WatchUtils.getLongToDate("HH:mm", (longStartDate + (5 * i * 60)) * 1000));
@@ -279,7 +279,7 @@ public class FriendsUploadServices extends IntentService {
                 sleepListMap.add(detailSleepMap);
 
                 String jsonStr = gson.toJson(sleepListMap);
-                Log.e(TAG, "-----当天睡眠详细数据参数jsonStr=" + jsonStr);
+                //Log.e(TAG, "-----当天睡眠详细数据参数jsonStr=" + jsonStr);
                 OkHttpTool.getInstance().doRequest(SyncDbUrls.uploadDetailSleepUrl(), jsonStr, "22",
                         new OkHttpTool.HttpResult() {
                             @Override
@@ -330,7 +330,7 @@ public class FriendsUploadServices extends IntentService {
         bpListMap.add(detailBppMap);
 
         String jsonStr = gson.toJson(bpListMap);
-        Log.e(TAG, "-------jsonStr=" + jsonStr);
+        //Log.e(TAG, "-------jsonStr=" + jsonStr);
         OkHttpTool.getInstance().doRequest(SyncDbUrls.uploadDetailBloodUrl(), jsonStr, "44", new OkHttpTool.HttpResult() {
             @Override
             public void onResult(String result) {
@@ -452,7 +452,6 @@ public class FriendsUploadServices extends IntentService {
                         commSleepDetailDb.setDevicecode(bleMac);
                         commSleepDetailDb.setUserid(userId);
                         String slType = sleepStr.charAt(i) + "";
-                        Log.e(TAG, "----slType=" + slType);
                         int changeType = Integer.valueOf(slType);
                         int resultType = 0;
                         switch (changeType) {
@@ -466,7 +465,6 @@ public class FriendsUploadServices extends IntentService {
                                 resultType = 1;
                                 break;
                         }
-                        Log.e(TAG, "-------转换后的数据=" + resultType);
                         commSleepDetailDb.setSleepType(resultType + "");
                         //时间
                         commSleepDetailDb.setStarttime(WatchUtils.getLongToDate("HH:mm", (longStartDate + (5 * i * 60)) * 1000));
@@ -486,7 +484,7 @@ public class FriendsUploadServices extends IntentService {
 
                     String jsonStr = gson.toJson(sleepLtMap);
 
-                    Log.e(TAG, "-----详细睡眠参数=" + jsonStr);
+                    //Log.e(TAG, "-----详细睡眠参数=" + jsonStr);
                     OkHttpTool.getInstance().doRequest(SyncDbUrls.uploadDetailSleepUrl(), jsonStr, "22",
                             new OkHttpTool.HttpResult() {
                                 @Override

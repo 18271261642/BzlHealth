@@ -30,6 +30,7 @@ import com.bozlun.health.android.siswatch.utils.WatchUtils;
 import com.veepoo.protocol.listener.base.IBleWriteResponse;
 import com.veepoo.protocol.listener.data.IFatigueDataListener;
 import com.veepoo.protocol.model.datas.FatigueData;
+import com.veepoo.protocol.model.enums.EDeviceStatus;
 
 import org.litepal.LitePal;
 import org.litepal.crud.LitePalSupport;
@@ -108,7 +109,12 @@ public class B31ManFatigueActivity extends WatchBaseActivity {
                     FatigueData fatigueData = (FatigueData) msg.obj;
                     if (fatigueData == null)
                         return;
-
+                    if(fatigueData.getDeviceState() != EDeviceStatus.FREE){
+                        showFaitResultTv.setText(WatchUtils.setBusyDesicStr());
+                        isStart = false;
+                        stopManFait();
+                        return;
+                    }
                     showFaitResultData(fatigueData);
                     break;
                 case 0x01:
@@ -263,6 +269,8 @@ public class B31ManFatigueActivity extends WatchBaseActivity {
 
                 }
             });
+
+            showFaitResultTv.setText(getResources().getString(R.string.fatigue_no_test_desc));
         }
 
     }

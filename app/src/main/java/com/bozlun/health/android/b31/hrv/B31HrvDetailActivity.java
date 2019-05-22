@@ -554,14 +554,12 @@ public class B31HrvDetailActivity extends WatchBaseActivity {
                 spo2SecondDialogView = new Spo2SecondDialogView(B31HrvDetailActivity.this);
             }
             List<Map<String,Float>> lt = mHrvOriginUtil.getDetailList(listMap.size()-position-1);
-
+            if(lt == null || lt.size() == 0)
+                return;
 
             for(Map<String,Float> mm : lt){
                 Log.e(TAG,"-------mm="+mm.toString());
             }
-
-
-
             spo2SecondDialogView.show();
             spo2SecondDialogView.setSpo2Type(555);
             spo2SecondDialogView.setMapList(lt);

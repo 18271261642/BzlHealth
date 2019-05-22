@@ -21,6 +21,7 @@ import com.veepoo.protocol.listener.base.IBleWriteResponse;
 import com.veepoo.protocol.listener.data.IBPDetectDataListener;
 import com.veepoo.protocol.model.datas.BpData;
 import com.veepoo.protocol.model.enums.EBPDetectModel;
+import com.veepoo.protocol.model.enums.EBPDetectStatus;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -69,6 +70,13 @@ public class ManualMeaureBloadActivity extends WatchBaseActivity {
             super.handleMessage(msg);
             BpData meaureBpData = (BpData) msg.obj;
             if (meaureBpData != null) {
+                if(meaureBpData.getStatus() == EBPDetectStatus.STATE_BP_BUSY){
+                    showStateTv.setText(WatchUtils.setBusyDesicStr());
+                    stopMeaureBoload();
+                    return;
+                }
+
+
                 if (meaureBpData.getProgress() == 100) {  //测量结束
                     stopMeaureBoload();
                     if (b30MeaureBloadProgressView != null) {
@@ -163,7 +171,7 @@ public class ManualMeaureBloadActivity extends WatchBaseActivity {
                         stopMeaureBoload();
                     }
                 } else {
-                    showStateTv.setText("未连接手环");
+                    showStateTv.setText(getResources().getString(R.string.disconnted));
                 }
 
                 break;

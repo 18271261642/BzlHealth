@@ -494,8 +494,20 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
             public boolean onLongClick(View v) {
                 //startActivity(new Intent(getmContext(), InternalTestActivity.class));
                 //上传缓存的详细数据
-                Intent intent1 = new Intent(getmContext(),FriendsUploadServices.class);
-                getmContext().startService(intent1);
+//                Intent intent1 = new Intent(getmContext(),FriendsUploadServices.class);
+//                getmContext().startService(intent1);
+
+
+                String userHeight = (String) SharedPreferencesUtils.getParam(getmContext(), Commont.USER_HEIGHT, "170");
+                Log.e(TAG,"-----userHeight="+userHeight);
+                //目标步数
+                int goalStep = (int) SharedPreferencesUtils.getParam(getmContext(),"b30Goal",8000);
+
+                Log.e(TAG,"-----goalStep="+goalStep);
+
+
+
+
                 return true;
             }
         });
