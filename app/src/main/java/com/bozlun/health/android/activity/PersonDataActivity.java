@@ -67,7 +67,7 @@ import static com.bozlun.health.android.util.Common.userInfo;
 
 /**
  * Created by thinkpad on 2017/3/4.
- * 我的资料
+ * 完善资料，注册完成后到此页面
  */
 
 public class PersonDataActivity extends BaseActivity {
@@ -94,7 +94,7 @@ public class PersonDataActivity extends BaseActivity {
     @BindView(R.id.bottomsheet)
     BottomSheetLayout bottomSheetLayout;
 
-    private String height, weight, sexVal, brithdayVal, nickName;
+    private String sexVal;  //性别
     private DialogSubscriber dialogSubscriber;
     private SubscriberOnNextListener<String> subscriberOnNextListener;
     private boolean isSubmit;
@@ -153,18 +153,11 @@ public class PersonDataActivity extends BaseActivity {
 
                     if ("001".equals(resultCode)) {
                         if (isSubmit) {
-//                            Log.e("PersonDataActivity", "----333------");
-                            userInfo.setNickName(nickName);
-                            userInfo.setSex(sexVal);
-                            userInfo.setBirthday(brithdayVal);
-                            userInfo.setHeight(height);
-                            userInfo.setWeight(weight);
                             startActivity(new Intent(PersonDataActivity.this, NewSearchActivity.class));
                             finish();
                         } else {
 //                            Log.e("PersonDataActivity", "----444------");
                             String imageUrl = jsonObject.optString("url");
-                            userInfo.setImage(imageUrl);// .error(R.mipmap.touxiang)
 //                            //   .error(R.drawable.piece_dot)
 //                                    .diskCacheStrategy(DiskCacheStrategy.ALL)
 //                                    .centerCrop()
@@ -237,7 +230,6 @@ public class PersonDataActivity extends BaseActivity {
                 DatePick pickerPopWin = new DatePick.Builder(PersonDataActivity.this, new DatePick.OnDatePickedListener() {
                     @Override
                     public void onDatePickCompleted(int year, int month, int day, String dateDesc) {
-                        brithdayVal = dateDesc;
                         brithdayvalTv.setText(dateDesc);
                     }
                 }).textConfirm(getResources().getString(R.string.confirm)) //text of confirm button
@@ -257,8 +249,7 @@ public class PersonDataActivity extends BaseActivity {
                 ProfessionPick professionPopWin = new ProfessionPick.Builder(PersonDataActivity.this, new ProfessionPick.OnProCityPickedListener() {
                     @Override
                     public void onProCityPickCompleted(String profession) {
-                        height = profession;
-                        heightvalTv.setText(height);
+                        heightvalTv.setText(profession);
                     }
                 }).textConfirm(getResources().getString(R.string.confirm)) //text of confirm button
                         .textCancel(getResources().getString(R.string.cancle)) //text of cancel button
@@ -275,7 +266,6 @@ public class PersonDataActivity extends BaseActivity {
                 ProfessionPick weightPopWin = new ProfessionPick.Builder(PersonDataActivity.this, new ProfessionPick.OnProCityPickedListener() {
                     @Override
                     public void onProCityPickCompleted(String profession) {
-                        weight = profession;
                         weightvalTv.setText(profession);
                     }
                 }).textConfirm(getResources().getString(R.string.confirm)) //text of confirm button
@@ -291,18 +281,24 @@ public class PersonDataActivity extends BaseActivity {
                 break;
             case R.id.confirmcompelte_btn:
                 //完成
-                nickName = codeEt.getText().toString();
-                if (TextUtils.isEmpty(nickName)) {
+                String uName = codeEt.getText().toString();
+                String birthTxt = brithdayvalTv.getText().toString();
+                String heightTxt = heightvalTv.getText().toString();
+                String weightTxt = weightvalTv.getText().toString();
+                if (TextUtils.isEmpty(uName)) {
                     ToastUtil.showShort(PersonDataActivity.this, getString(R.string.write_nickname));
-                } else if (TextUtils.isEmpty(brithdayVal)) {
-                    ToastUtil.showShort(PersonDataActivity.this, getString(R.string.select_brithday));
-                } else if (TextUtils.isEmpty(height)) {
-                    ToastUtil.showShort(PersonDataActivity.this, getString(R.string.select_height));
-                } else if (TextUtils.isEmpty(weight)) {
-                    ToastUtil.showShort(PersonDataActivity.this, getString(R.string.select_weight));
-                } else {
-                    submitPersonData();
-                }
+                    return;
+                } if (TextUtils.isEmpty(birthTxt)) {
+                ToastUtil.showShort(PersonDataActivity.this, getString(R.string.select_brithday));
+                return;
+            } if (TextUtils.isEmpty(heightTxt)) {
+                ToastUtil.showShort(PersonDataActivity.this, getString(R.string.select_height));
+                return;
+            }  if (TextUtils.isEmpty(weightTxt)) {
+                ToastUtil.showShort(PersonDataActivity.this, getString(R.string.select_weight));
+                return;
+            }
+                submitPersonData(uName,birthTxt,heightTxt,weightTxt);
                 break;
             case R.id.man_iconview:
                 sexVal = "M";
@@ -438,17 +434,16 @@ public class PersonDataActivity extends BaseActivity {
 
     }
 
-    private void submitPersonData() {
+    private void submitPersonData(String uName,String birthTxt,String heightTxt,String weightTxt) {
         isSubmit = true;
         Gson gson = new Gson();
         HashMap<String, Object> map = new HashMap<>();
-//        map.put("userId", B18iCommon.customer_id);
         map.put("userId", Common.customer_id);
         map.put("sex", sexVal);
-        map.put("nickName", nickName);
-        map.put("height", height);
-        map.put("weight", weight);
-        map.put("birthday", brithdayVal);
+        map.put("nickName", uName);
+        map.put("height", heightTxt);
+        map.put("weight", weightTxt);
+        map.put("birthday", birthTxt);
         String mapjson = gson.toJson(map);
 //        Log.e("PersonDataActivity", "----222------" + mapjson);
         dialogSubscriber = new DialogSubscriber(subscriberOnNextListener, PersonDataActivity.this);

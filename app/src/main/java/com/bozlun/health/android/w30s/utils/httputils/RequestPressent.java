@@ -22,7 +22,7 @@ public class RequestPressent {
 
     public void getRequestJSONObject(final int what, String url, Context mContext, String jsonMap, final int days) {
         if (requestView != null) {
-            if (requestView != null) requestView.showLoadDialog(what);
+           requestView.showLoadDialog(what);
             if (requestModel != null)
                 requestModel.getJSONObjectModelData(url, mContext, jsonMap, new SubscriberOnNextListener<String>() {
                     @Override

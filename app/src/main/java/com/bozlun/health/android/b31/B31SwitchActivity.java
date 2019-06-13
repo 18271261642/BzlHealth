@@ -183,8 +183,10 @@ public class B31SwitchActivity extends WatchBaseActivity implements CompoundButt
 
                 //sos
                 if(customSettingData.getSOS() == EFunctionStatus.SUPPORT_OPEN){
+                    SharedPreferencesUtils.setParam(MyApp.getContext(), Commont.ISHelpe, true);//sos
                     b30SwitchHlepSos.setChecked(true);
                 }else{
+                    SharedPreferencesUtils.setParam(MyApp.getContext(), Commont.ISHelpe, false);//sos
                     b30SwitchHlepSos.setChecked(false);
                 }
 

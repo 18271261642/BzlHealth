@@ -277,7 +277,9 @@ public class WatchMineFragment extends LazyFragment {
     }
 
 
-    @OnClick({R.id.watchMinepersonalData, R.id.watchMineDevice, R.id.watchmineSetting, R.id.watch_mine_userheadImg, R.id.card_frend})
+    @OnClick({R.id.watchMinepersonalData, R.id.watchMineDevice,
+            R.id.watchmineSetting, R.id.watch_mine_userheadImg,
+            R.id.card_frend,R.id.mineNotiMsgCardView})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.watch_mine_userheadImg://用户头像点击
@@ -322,6 +324,9 @@ public class WatchMineFragment extends LazyFragment {
                     ToastUtil.showShort(MyApp.getInstance(), getString(R.string.noright));
                 }
 
+                break;
+            case R.id.mineNotiMsgCardView:  //通知中心
+                startActivity(new Intent(getActivity(),NotiMsgFragment.class));
                 break;
         }
     }

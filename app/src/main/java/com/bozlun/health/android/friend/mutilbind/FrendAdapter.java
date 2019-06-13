@@ -148,7 +148,8 @@ public class FrendAdapter extends RecyclerView.Adapter<FrendAdapter.ViewHodler> 
             }
 
 
-        } catch (Error e) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
     }

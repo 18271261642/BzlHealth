@@ -132,10 +132,10 @@ public class NewFriendSleepActivity extends WatchBaseActivity implements Request
 
         //获取汇总的睡眠数据，总睡眠时长等
         Map<String, String> map = new HashMap<>();
-        map.put("userId", userId);
+        map.put("userId", applicant+"");
         map.put("startDate", WatchUtils.obtainAroundDate(rtc,true,0));
         map.put("endDate", WatchUtils.obtainAroundDate(rtc,true,0));
-        map.put("deviceCode", friendBleMac);
+        map.put("deviceCode", friendBleMac+"");
         String commParams = new Gson().toJson(map);
 
 

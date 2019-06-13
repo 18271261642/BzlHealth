@@ -666,13 +666,6 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
     /* 手环实时步数有更新 */
     @Override
     public void getBleSportData(final int step) {
-        Log.e(TAG,"---------手环步数="+step);
-        B30HalfHourDB db = new B30HalfHourDB();
-        db.setAddress(MyApp.getInstance().getMacAddress());
-        db.setDate(WatchUtils.obtainFormatDate(currDay));
-        db.setType(B30HalfHourDao.TYPE_STEP);
-        db.setOriginData("" + step);
-        B30HalfHourDao.getInstance().saveOriginData(db);
         defaultSteps = step;
         if (getActivity() != null && !getActivity().isFinishing() && b30ProgressBar != null) {
             getActivity().runOnUiThread(new Runnable() {

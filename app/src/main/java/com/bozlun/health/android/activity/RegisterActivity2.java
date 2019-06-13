@@ -162,9 +162,6 @@ public class RegisterActivity2 extends BaseActivity {
                         Common.customer_id = userInfo.getUserId();
                         MobclickAgent.onProfileSignIn(Common.customer_id);
                         String pass = password.getText().toString();
-                        String usernametxt = username.getText().toString();
-                        userInfo.setPassword(Md5Util.Md532(pass));
-
                         SharedPreferencesUtils.saveObject(RegisterActivity2.this,"userId",jsonObject.getJSONObject("userInfo").getString("userId"));
                         MyApp.getInstance().getDaoSession().getBlueUserDao().insertOrReplace(userInfo);
                         SharedPreferencesUtils.setParam(RegisterActivity2.this, SharedPreferencesUtils.CUSTOMER_ID, Common.customer_id);

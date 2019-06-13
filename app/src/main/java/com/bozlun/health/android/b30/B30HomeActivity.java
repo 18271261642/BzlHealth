@@ -2,7 +2,6 @@ package com.bozlun.health.android.b30;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,16 +13,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.text.TextUtils;
 import android.view.KeyEvent;
-
 import com.android.internal.telephony.ITelephony;
 import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.R;
 import com.bozlun.health.android.adpter.FragmentAdapter;
-import com.bozlun.health.android.b30.b30datafragment.B30DataFragment;
 import com.bozlun.health.android.b30.b30homefragment.B30HomeFragment;
 import com.bozlun.health.android.b30.b30run.B36RunFragment;
-import com.bozlun.health.android.b30.service.NewDateUploadService;
 import com.bozlun.health.android.bleutil.MyCommandManager;
 import com.bozlun.health.android.siswatch.WatchBaseActivity;
 import com.bozlun.health.android.siswatch.mine.WatchMineFragment;
@@ -36,7 +32,6 @@ import com.veepoo.protocol.listener.data.IDeviceControlPhone;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -176,8 +171,7 @@ public class B30HomeActivity extends WatchBaseActivity implements IDeviceControl
         boolean uploading = MyApp.getInstance().isUploadDate();
         if (!uploading)// 判断一下是否正在上传数据
         {
-            startService(new Intent(this, NewDateUploadService.class));
-//            startService(new Intent(this, DateUploadService.class));
+
         }
 
     }

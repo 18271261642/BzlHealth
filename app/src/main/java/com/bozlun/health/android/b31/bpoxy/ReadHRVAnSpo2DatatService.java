@@ -87,124 +87,133 @@ public class ReadHRVAnSpo2DatatService extends IntentService {
 
     //保存HRV的数据
     private void saveHRVToDBServer(Map<String,List<B31HRVBean>> resultHrvMap) {
-        String where = "bleMac = ? and dateStr = ?";
-        String bleMac = WatchUtils.getSherpBleMac(MyApp.getContext());
-        String currDayStr = WatchUtils.getCurrentDate();
-        if(isToday){
-            List<B31HRVBean> todayHrvList = resultHrvMap.get("today");
-            List<B31HRVBean> currHrvLt = LitePal.where(where,
-                    bleMac,currDayStr).find(B31HRVBean.class);
-            //Log.e(TAG,"-------今天currHrvLtsez="+currHrvLt.size());
-            if(currHrvLt == null || currHrvLt.isEmpty()){
-                LitePal.saveAll(todayHrvList);
-            }else{
-                if(currHrvLt.size() != 420){
-                    int delCode = LitePal.deleteAll(B31HRVBean.class,"dateStr=? and bleMac=?",currDayStr
-                            ,bleMac);
-                    //Log.e(TAG,"----hrv--111--delCode="+delCode);
+        try {
+            String where = "bleMac = ? and dateStr = ?";
+            String bleMac = WatchUtils.getSherpBleMac(MyApp.getContext());
+            String currDayStr = WatchUtils.getCurrentDate();
+            if(isToday){
+                List<B31HRVBean> todayHrvList = resultHrvMap.get("today");
+                List<B31HRVBean> currHrvLt = LitePal.where(where,
+                        bleMac,currDayStr).find(B31HRVBean.class);
+                //Log.e(TAG,"-------今天currHrvLtsez="+currHrvLt.size());
+                if(currHrvLt == null || currHrvLt.isEmpty()){
                     LitePal.saveAll(todayHrvList);
+                }else{
+                    if(currHrvLt.size() != 420){
+                        int delCode = LitePal.deleteAll(B31HRVBean.class,"dateStr=? and bleMac=?",currDayStr
+                                ,bleMac);
+                        //Log.e(TAG,"----hrv--111--delCode="+delCode);
+                        LitePal.saveAll(todayHrvList);
+                    }
                 }
+
+            }else{
+                //今天的 直接保存
+                List<B31HRVBean> todayHrvList = resultHrvMap.get("today");
+
+                if(todayHrvList != null && !todayHrvList.isEmpty())
+                    LitePal.saveAll(todayHrvList);
+
+                //昨天的
+                List<B31HRVBean> yesDayResultHrvLt = resultHrvMap.get("yesDay");
+                //保存的 是否存在
+                List<B31HRVBean> yesDayHrvLt = LitePal.where(where,
+                        WatchUtils.getSherpBleMac(MyApp.getContext()),WatchUtils.obtainFormatDate(1)).find(B31HRVBean.class);
+                if(yesDayHrvLt == null || yesDayHrvLt.isEmpty())
+                    LitePal.saveAll(yesDayResultHrvLt);
+
+                //前天的
+                List<B31HRVBean> threeDayResultHrvLt = resultHrvMap.get("threeDay");
+                List<B31HRVBean> threeDayHrvLt = LitePal.where(where,
+                        WatchUtils.getSherpBleMac(MyApp.getContext()),WatchUtils.obtainFormatDate(2)).find(B31HRVBean.class);
+                if(threeDayHrvLt == null || threeDayHrvLt.isEmpty())
+                    LitePal.saveAll(threeDayResultHrvLt);
+
             }
 
-        }else{
-            //今天的 直接保存
-            List<B31HRVBean> todayHrvList = resultHrvMap.get("today");
+            //发送广播，通知更新UI
+            Intent intent = new Intent();
+            intent.setAction(WatchUtils.B31_HRV_COMPLETE);
+            sendBroadcast(intent);
 
-            if(todayHrvList != null && !todayHrvList.isEmpty())
-                LitePal.saveAll(todayHrvList);
 
-            //昨天的
-            List<B31HRVBean> yesDayResultHrvLt = resultHrvMap.get("yesDay");
-            //保存的 是否存在
-            List<B31HRVBean> yesDayHrvLt = LitePal.where(where,
-                    WatchUtils.getSherpBleMac(MyApp.getContext()),WatchUtils.obtainFormatDate(1)).find(B31HRVBean.class);
-            if(yesDayHrvLt == null || yesDayHrvLt.isEmpty())
-                LitePal.saveAll(yesDayResultHrvLt);
-
-            //前天的
-            List<B31HRVBean> threeDayResultHrvLt = resultHrvMap.get("threeDay");
-            List<B31HRVBean> threeDayHrvLt = LitePal.where(where,
-                    WatchUtils.getSherpBleMac(MyApp.getContext()),WatchUtils.obtainFormatDate(2)).find(B31HRVBean.class);
-            if(threeDayHrvLt == null || threeDayHrvLt.isEmpty())
-                LitePal.saveAll(threeDayResultHrvLt);
-
+            Thread thread2 = new MyThread2();
+            thread2.start();
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
-        //发送广播，通知更新UI
-        Intent intent = new Intent();
-        intent.setAction(WatchUtils.B31_HRV_COMPLETE);
-        sendBroadcast(intent);
-
-
-        Thread thread2 = new MyThread2();
-        thread2.start();
 
     }
 
     //保存spo2数据
     private void saveSpo2Data(Map<String,List<B31Spo2hBean>> resultMap) {
-
-        if (resultMap != null && !resultMap.isEmpty()) {
-            String where = "bleMac = ? and dateStr = ?";
-            String bleMac = WatchUtils.getSherpBleMac(MyApp.getContext());
-            String currDayStr = WatchUtils.getCurrentDate();
-            if (isToday) {    //今天
-                List<B31Spo2hBean> todayLt = resultMap.get("today");
+        try {
+            if (resultMap != null && !resultMap.isEmpty()) {
+                String where = "bleMac = ? and dateStr = ?";
+                String bleMac = WatchUtils.getSherpBleMac(MyApp.getContext());
+                String currDayStr = WatchUtils.getCurrentDate();
+                if (isToday) {    //今天
+                    List<B31Spo2hBean> todayLt = resultMap.get("today");
 //            Log.e(TAG, "---todayLt=" + todayLt.size());
-                //查询一下是否存在
-                List<B31Spo2hBean> currList = LitePal.where(where, WatchUtils.getSherpBleMac(MyApp.getContext()),
-                        WatchUtils.getCurrentDate()).find(B31Spo2hBean.class);
-                //Log.e(TAG,"-----------11今天="+currList.size());
-                if (currList == null || currList.isEmpty()) {
-                    LitePal.saveAll(todayLt);
-                } else {
-                    if (currList.size() != 420) {
-                        int delCode = LitePal.deleteAll(B31Spo2hBean.class, "dateStr=? and bleMac=?", currDayStr
-                                , bleMac);
+                    //查询一下是否存在
+                    List<B31Spo2hBean> currList = LitePal.where(where, WatchUtils.getSherpBleMac(MyApp.getContext()),
+                            WatchUtils.getCurrentDate()).find(B31Spo2hBean.class);
+                    //Log.e(TAG,"-----------11今天="+currList.size());
+                    if (currList == null || currList.isEmpty()) {
+                        LitePal.saveAll(todayLt);
+                    } else {
+                        if (currList.size() != 420) {
+                            int delCode = LitePal.deleteAll(B31Spo2hBean.class, "dateStr=? and bleMac=?", currDayStr
+                                    , bleMac);
 //                    Log.e(TAG, "--------delCode=" + delCode);
 
+                            LitePal.saveAll(todayLt);
+
+                        }
+                    }
+                } else {
+                    //今天
+                    List<B31Spo2hBean> todayLt = resultMap.get("today");
+                    if (todayLt != null && !todayLt.isEmpty()) {
                         LitePal.saveAll(todayLt);
-
                     }
-                }
-            } else {
-                //今天
-                List<B31Spo2hBean> todayLt = resultMap.get("today");
-                if (todayLt != null && !todayLt.isEmpty()) {
-                    LitePal.saveAll(todayLt);
-                }
 
-                //昨天
-                List<B31Spo2hBean> yesDayResult = resultMap.get("yesToday");
-                if (yesDayResult != null && !yesDayResult.isEmpty()) {
-                    //查询一下是否存在
-                    List<B31Spo2hBean> yesDayList = LitePal.where(where, WatchUtils.getSherpBleMac(MyApp.getContext()),
-                            WatchUtils.obtainFormatDate(1)).find(B31Spo2hBean.class);
-                    //Log.e(TAG,"-----------22昨天="+todayLt.size());
-                    if (yesDayList == null || yesDayList.isEmpty()) {
-                        LitePal.saveAll(yesDayResult);
+                    //昨天
+                    List<B31Spo2hBean> yesDayResult = resultMap.get("yesToday");
+                    if (yesDayResult != null && !yesDayResult.isEmpty()) {
+                        //查询一下是否存在
+                        List<B31Spo2hBean> yesDayList = LitePal.where(where, WatchUtils.getSherpBleMac(MyApp.getContext()),
+                                WatchUtils.obtainFormatDate(1)).find(B31Spo2hBean.class);
+                        //Log.e(TAG,"-----------22昨天="+todayLt.size());
+                        if (yesDayList == null || yesDayList.isEmpty()) {
+                            LitePal.saveAll(yesDayResult);
+                        }
                     }
-                }
 
 
-                //前天
-                List<B31Spo2hBean> threeDayResult = resultMap.get("threeDay");
-                if (threeDayResult != null && !threeDayResult.isEmpty()) {
-                    //查询一下是否存在
-                    List<B31Spo2hBean> threeDayList = LitePal.where(where, WatchUtils.getSherpBleMac(MyApp.getContext()),
-                            WatchUtils.obtainFormatDate(2)).find(B31Spo2hBean.class);
-                    //Log.e(TAG,"--------333-threeDayList="+threeDayList.size());
-                    if (threeDayList == null || threeDayList.isEmpty()) {
-                        LitePal.saveAll(threeDayResult);
+                    //前天
+                    List<B31Spo2hBean> threeDayResult = resultMap.get("threeDay");
+                    if (threeDayResult != null && !threeDayResult.isEmpty()) {
+                        //查询一下是否存在
+                        List<B31Spo2hBean> threeDayList = LitePal.where(where, WatchUtils.getSherpBleMac(MyApp.getContext()),
+                                WatchUtils.obtainFormatDate(2)).find(B31Spo2hBean.class);
+                        //Log.e(TAG,"--------333-threeDayList="+threeDayList.size());
+                        if (threeDayList == null || threeDayList.isEmpty()) {
+                            LitePal.saveAll(threeDayResult);
+                        }
                     }
-                }
 
+                }
             }
+
+            Intent intent = new Intent();
+            intent.setAction(WatchUtils.B31_SPO2_COMPLETE);
+            sendBroadcast(intent);
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
-        Intent intent = new Intent();
-        intent.setAction(WatchUtils.B31_SPO2_COMPLETE);
-        sendBroadcast(intent);
     }
 
 
@@ -325,34 +334,39 @@ public class ReadHRVAnSpo2DatatService extends IntentService {
             public void onSpo2hOriginListener(Spo2hOriginData spo2hOriginData) {
                 if(spo2hOriginData == null)
                     return;
-                if(isToday){    //只获取当天的，当天
-                    B31Spo2hBean b31Spo2hBean = new B31Spo2hBean();
-                    b31Spo2hBean.setBleMac(MyApp.getInstance().getMacAddress());
-                    b31Spo2hBean.setDateStr(spo2hOriginData.getDate());
-                    b31Spo2hBean.setSpo2hOriginData(gson.toJson(spo2hOriginData));
-                    b31Spo2hBeanList.add(b31Spo2hBean);
-                }else{  //今天 昨天 前天
-                    if(spo2hOriginData.getDate().equals(WatchUtils.getCurrentDate())){  //今天
+                try {
+                    if(isToday){    //只获取当天的，当天
                         B31Spo2hBean b31Spo2hBean = new B31Spo2hBean();
                         b31Spo2hBean.setBleMac(MyApp.getInstance().getMacAddress());
                         b31Spo2hBean.setDateStr(spo2hOriginData.getDate());
                         b31Spo2hBean.setSpo2hOriginData(gson.toJson(spo2hOriginData));
                         b31Spo2hBeanList.add(b31Spo2hBean);
-                    }else if(spo2hOriginData.getDate().equals(WatchUtils.obtainFormatDate(1))){ //昨天
-                        B31Spo2hBean b31Spo2hBean = new B31Spo2hBean();
-                        b31Spo2hBean.setBleMac(MyApp.getInstance().getMacAddress());
-                        b31Spo2hBean.setDateStr(spo2hOriginData.getDate());
-                        b31Spo2hBean.setSpo2hOriginData(gson.toJson(spo2hOriginData));
-                        yesSpo2List.add(b31Spo2hBean);
-                    }else if(spo2hOriginData.getDate().equals(WatchUtils.obtainFormatDate(2))){ //前天
-                        B31Spo2hBean b31Spo2hBean = new B31Spo2hBean();
-                        b31Spo2hBean.setBleMac(MyApp.getInstance().getMacAddress());
-                        b31Spo2hBean.setDateStr(spo2hOriginData.getDate());
-                        b31Spo2hBean.setSpo2hOriginData(gson.toJson(spo2hOriginData));
-                        threeSpo2List.add(b31Spo2hBean);
-                    }
+                    }else{  //今天 昨天 前天
+                        if(spo2hOriginData.getDate().equals(WatchUtils.getCurrentDate())){  //今天
+                            B31Spo2hBean b31Spo2hBean = new B31Spo2hBean();
+                            b31Spo2hBean.setBleMac(MyApp.getInstance().getMacAddress());
+                            b31Spo2hBean.setDateStr(spo2hOriginData.getDate());
+                            b31Spo2hBean.setSpo2hOriginData(gson.toJson(spo2hOriginData));
+                            b31Spo2hBeanList.add(b31Spo2hBean);
+                        }else if(spo2hOriginData.getDate().equals(WatchUtils.obtainFormatDate(1))){ //昨天
+                            B31Spo2hBean b31Spo2hBean = new B31Spo2hBean();
+                            b31Spo2hBean.setBleMac(MyApp.getInstance().getMacAddress());
+                            b31Spo2hBean.setDateStr(spo2hOriginData.getDate());
+                            b31Spo2hBean.setSpo2hOriginData(gson.toJson(spo2hOriginData));
+                            yesSpo2List.add(b31Spo2hBean);
+                        }else if(spo2hOriginData.getDate().equals(WatchUtils.obtainFormatDate(2))){ //前天
+                            B31Spo2hBean b31Spo2hBean = new B31Spo2hBean();
+                            b31Spo2hBean.setBleMac(MyApp.getInstance().getMacAddress());
+                            b31Spo2hBean.setDateStr(spo2hOriginData.getDate());
+                            b31Spo2hBean.setSpo2hOriginData(gson.toJson(spo2hOriginData));
+                            threeSpo2List.add(b31Spo2hBean);
+                        }
 
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
+
 
             }
 

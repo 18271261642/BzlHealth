@@ -154,7 +154,7 @@ public class ChildGPSFragment extends LazyFragment implements OutDoorSportAdapte
     @Override
     public void onResume() {
         super.onResume();
-        //findSportData(runTag);
+        findSportData(runTag);
         Log.e(TAG,"------------onResume----");
     }
 

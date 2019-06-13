@@ -245,7 +245,7 @@
             android:exported="true"
             android:label="@string/app_name"
             android:launchMode="singleTop"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+            android:theme="@style/AppTheme.Base" />
         <!--而如果您的项目集易信的两个平台，请查看AndroidManifest.xml配置文件里的package路径需要在package目录下创建yxapi目录在放置回调Activity：-->
         <activity
             android:name="com.mob.tools.MobUIShell"
@@ -1267,12 +1267,17 @@
         <activity android:name=".friend.NewFriendBpActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
+        <!--消息通知获取页面-->
+        <activity android:name=".siswatch.mine.NotiMsgFragment"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+
+
+
 
         <!-- 下载的serveir -->
         <service android:name=".siswatch.utils.DownloadService" />
-        <service android:name=".b30.service.DateUploadService" />
-        <service android:name=".b30.service.NewDateUploadService" />
-        <service android:name=".b30.service.CommVpDateUploadService"/>
         <service android:name=".b31.bpoxy.ReadHRVAnSpo2DatatService"/>
 
         <!--数据缓存的service-->

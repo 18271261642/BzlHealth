@@ -276,7 +276,6 @@ public class ConnBleHelpService {
      * 同步用户信息设置设备的目标步数，
      */
     public  void setDeviceUserData(){
-
         //目标步数
         int sportGoal = (int) SharedPreferencesUtils.getParam(MyApp.getContext(), "b30Goal", 0);
         PersonInfoData personInfoData = WatchUtils.getUserPerson(sportGoal);
@@ -321,10 +320,23 @@ public class ConnBleHelpService {
         MyApp.getInstance().getVpOperateManager().readSportStep(bleWriteResponse, new ISportDataListener() {
             @Override
             public void onSportDataChange(SportData sportData) {
-                Log.e(TAG,"----------总步数="+sportData.toString());
+                //保存当天总步数
+                B30HalfHourDB db = new B30HalfHourDB();
+                db.setAddress(MyApp.getInstance().getMacAddress());
+                db.setDate(WatchUtils.getCurrentDate());
+                db.setType(B30HalfHourDao.TYPE_STEP);
+                db.setOriginData("" + sportData.getStep());
+                B30HalfHourDao.getInstance().saveOriginData(db);
+
                 if (connBleMsgDataListener != null) {
                     connBleMsgDataListener.getBleSportData(sportData.getStep());
                 }
+
+                String bleName = "B31";
+                if (!WatchUtils.isEmpty(MyCommandManager.DEVICENAME)) bleName = MyCommandManager.DEVICENAME;
+                //保存总步数
+                CommDBManager.getCommDBManager().saveCommCountStepDate(bleName, MyApp.getInstance().getMacAddress(),
+                        WatchUtils.getCurrentDate(), sportData.getStep());
             }
         });
         //电量
@@ -513,11 +525,12 @@ public class ConnBleHelpService {
             sleepMap.put(sleepData.getDate(),sleepData);
         }else {
             //sleepMap.put(sleepData.getDate(),sleepData);
+            SleepData tempSleepData = sleepMap.get(sleepData.getDate());    //已经存在的数据
             Log.e(TAG,"---------sleepMap="+sleepMap.toString());
-            if (sleepMap.get(sleepData.getDate()).getDate().equals(sleepData.getDate())) {  //同一天的
-                if(sleepMap.get(sleepData.getDate()).getSleepQulity()!=sleepData.getSleepQulity()){
+            if (tempSleepData.getDate().equals(sleepData.getDate())) {  //同一天的
+                if(!tempSleepData.getSleepLine().equals(sleepData.getSleepLine())){
                     //map 中已经保存的
-                    SleepData tempSleepData = sleepMap.get(sleepData.getDate());
+                    //SleepData tempSleepData = sleepMap.get(sleepData.getDate());
                     SleepData resultSlee = new SleepData();
                     resultSlee.setDate(sleepData.getDate());    //日期
                     resultSlee.setCali_flag(0);
@@ -567,9 +580,8 @@ public class ConnBleHelpService {
     private void saveHalfHourData(OriginHalfHourData data) {
         if (data == null) return;
         String mac = MyApp.getInstance().getMacAddress();
-        MyLogUtil.e("------sport------" + data.getHalfHourSportDatas());
+        //MyLogUtil.e("------sport------" + data.getHalfHourSportDatas());
         String dateSport = saveSportData(mac, data.getHalfHourSportDatas());
-        MyLogUtil.e("------sport -time" + dateSport);
         saveStepData(mac, dateSport, data.getAllStep());
         saveRateData(mac, data.getHalfHourRateDatas());
         Log.d(TAG, "------------心率="+data.getHalfHourBps().toString());
@@ -608,7 +620,6 @@ public class ConnBleHelpService {
         db.setAddress(mac);
         db.setDate(rateData.get(0).getDate());
         db.setType(B30HalfHourDao.TYPE_RATE);
-        MyLogUtil.d("-----心率数据---", gson.toJson(rateData));
         db.setOriginData(gson.toJson(rateData));
         db.setUpload(0);
         B30HalfHourDao.getInstance().saveOriginData(db);
@@ -658,7 +669,7 @@ public class ConnBleHelpService {
         // 当天步数数据要以首页单独获取到的步数为准,因为这里获取到的当天总步数,
         // 有时会大于首页获取的实时步数,所以当天的总步数这里不保存
         MyLogUtil.e("---保存手环返回的步数数据到本地数据库" + mac + "\n" + date + "\n" + stepCurr);
-        if (date == null || date.equals(WatchUtils.obtainFormatDate(0))) return;
+        if (date == null || date.equals(WatchUtils.getCurrentDate())) return;
         // 跟本地的对比一下,以防步数倒流
         String step = B30HalfHourDao.getInstance().findOriginData(mac, date, B30HalfHourDao.TYPE_STEP);
         int stepLocal = 0;
@@ -669,21 +680,21 @@ public class ConnBleHelpService {
             e.printStackTrace();
         }
 
+        if(!WatchUtils.isEquesValue(date)){
+            //保存总步数
+            CommDBManager.getCommDBManager().saveCommCountStepDate("B31", mac, date, stepCurr);
 
-        //保存总步数
-        CommDBManager.getCommDBManager().saveCommCountStepDate("B31", mac, date, stepCurr);
-
-
-
-        if (stepCurr > stepLocal) {
-            B30HalfHourDB db = new B30HalfHourDB();
-            db.setAddress(mac);
-            db.setDate(date);
-            db.setType(B30HalfHourDao.TYPE_STEP);
-            db.setOriginData("" + stepCurr);
-            db.setUpload(0);
-            B30HalfHourDao.getInstance().saveOriginData(db);
+            if (stepCurr > stepLocal) {
+                B30HalfHourDB db = new B30HalfHourDB();
+                db.setAddress(mac);
+                db.setDate(date);
+                db.setType(B30HalfHourDao.TYPE_STEP);
+                db.setOriginData("" + stepCurr);
+                db.setUpload(0);
+                B30HalfHourDao.getInstance().saveOriginData(db);
+            }
         }
+
     }
 
     //设置密码回调

@@ -417,7 +417,8 @@ public class FriendActivity
                         }
                         break;
                 }
-            } catch (Error error) {
+            } catch (Exception error) {
+                error.printStackTrace();
             }
 
             return false;

@@ -98,7 +98,7 @@ public class FrendDataActivity
         if (intent == null) return;
         applicant = intent.getStringExtra("applicant");
         StepNumber = intent.getStringExtra("stepNumber");//步数
-        friendBleMac = intent.getStringExtra("bleMac");
+        //friendBleMac = intent.getStringExtra("bleMac");
 //        if (see.equals("1")) {
 //            //替换三个点
 //            mNormalToolbar.setOverflowIcon(getResources().getDrawable(R.mipmap.ic_close_frend));
@@ -350,6 +350,7 @@ public class FrendDataActivity
                              */
                             FrendDataBean.SleepDayBean sleepDay = frendDataBean.getSleepDay();
                             if (sleepDay != null) {
+                                friendBleMac = sleepDay.getDeviceCode();
                                 stringJson = new Gson().toJson(sleepDay);
                                 int deepSleep = sleepDay.getDeepSleep();
                                 int shallowSleep = sleepDay.getShallowSleep();

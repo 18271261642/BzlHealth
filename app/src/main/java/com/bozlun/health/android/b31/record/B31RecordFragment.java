@@ -393,7 +393,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
         connBleHelpService.setConnBleMsgDataListener(this);
         mLocalTool = new LocalizeTool(getmContext());
         //目标步数
-        goalStep = (int) SharedPreferencesUtils.getParam(getmContext(), "b30Goal", 0);
+        goalStep = (int) SharedPreferencesUtils.getParam(getmContext(), "b30Goal", 8000);
         String saveDate = (String) SharedPreferencesUtils.getParam(getmContext(), "saveDate", "");
         if (WatchUtils.isEmpty(saveDate)) {
             SharedPreferencesUtils.setParam(getmContext(), "saveDate", System.currentTimeMillis() / 1000 + "");
@@ -492,22 +492,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
         b30TopDateTv.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                //startActivity(new Intent(getmContext(), InternalTestActivity.class));
-                //上传缓存的详细数据
-//                Intent intent1 = new Intent(getmContext(),FriendsUploadServices.class);
-//                getmContext().startService(intent1);
-
-
-                String userHeight = (String) SharedPreferencesUtils.getParam(getmContext(), Commont.USER_HEIGHT, "170");
-                Log.e(TAG,"-----userHeight="+userHeight);
-                //目标步数
-                int goalStep = (int) SharedPreferencesUtils.getParam(getmContext(),"b30Goal",8000);
-
-                Log.e(TAG,"-----goalStep="+goalStep);
-
-
-
-
+                startActivity(new Intent(getmContext(), InternalTestActivity.class));
                 return true;
             }
         });
@@ -648,12 +633,6 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.battery_watchRecordShareImg:  //分享
-//                if (getActivity() == null || getActivity().isFinishing())
-//                    return;
-//                Intent intent = new Intent(getActivity(), SharePosterActivity.class);
-//                intent.putExtra("is18i", "B31");
-//                intent.putExtra("stepNum", defaultSteps + "");
-//                startActivity(intent);
                 startActivity(new Intent(getmContext(),CommentDataActivity.class));
                 break;
             case R.id.b31HomeTodayTv:   //当天的数据
@@ -843,12 +822,6 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
     //当天步数
     @Override
     public void getBleSportData(final int step) {
-        B30HalfHourDB db = new B30HalfHourDB();
-        db.setAddress(MyApp.getInstance().getMacAddress());
-        db.setDate(WatchUtils.obtainFormatDate(currDay));
-        db.setType(B30HalfHourDao.TYPE_STEP);
-        db.setOriginData("" + step);
-        B30HalfHourDao.getInstance().saveOriginData(db);
         defaultSteps = step;
         if (getActivity() != null && !getActivity().isFinishing() && b31ProgressBar != null) {
             getActivity().runOnUiThread(new Runnable() {

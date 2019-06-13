@@ -3,10 +3,8 @@ package com.bozlun.health.android.activity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.animation.TranslateAnimation;
 import android.widget.EditText;
 import android.widget.TextView;
-
 import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.R;
 import com.bozlun.health.android.base.BaseActivity;
@@ -14,18 +12,16 @@ import com.bozlun.health.android.net.OkHttpObservable;
 import com.bozlun.health.android.rxandroid.DialogSubscriber;
 import com.bozlun.health.android.rxandroid.SubscriberOnNextListener;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
-import com.bozlun.health.android.util.Common;
 import com.bozlun.health.android.util.Md5Util;
 import com.bozlun.health.android.util.ToastUtil;
 import com.bozlun.health.android.util.URLs;
 import com.google.gson.Gson;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.HashMap;
 import butterknife.BindView;
-import static com.bozlun.health.android.util.Common.userInfo;
+
 
 /**
  * Created by thinkpad on 2017/3/9.
@@ -56,9 +52,6 @@ public class ModifyPasswordActivity extends BaseActivity {
                     JSONObject jsonObject = new JSONObject(result);
                     String resultCode = jsonObject.getString("resultCode");
                     if ("001".equals(resultCode)) {
-                        String confrimPass = confrimPassword.getText().toString();
-                        userInfo.setPassword(Md5Util.Md532(confrimPass));
-//                        MyApp.getApplication().getDaoSession().getBlueUserDao().insertOrReplace(userInfo);
                         ToastUtil.showShort(ModifyPasswordActivity.this, getString(R.string.modify_success));
                         finish();
                     } else {

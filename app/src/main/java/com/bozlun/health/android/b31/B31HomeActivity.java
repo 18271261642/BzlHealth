@@ -26,15 +26,11 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.Toast;
-
 import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.R;
 import com.bozlun.health.android.adpter.FragmentAdapter;
-import com.bozlun.health.android.b30.b30datafragment.B30DataFragment;
 import com.bozlun.health.android.b30.b30run.B36RunFragment;
-import com.bozlun.health.android.b30.service.CommVpDateUploadService;
-import com.bozlun.health.android.b30.service.DateUploadService;
 import com.bozlun.health.android.b30.service.VerB30PwdListener;
 import com.bozlun.health.android.b31.record.B31RecordFragment;
 import com.bozlun.health.android.bleutil.MyCommandManager;
@@ -60,10 +56,8 @@ import com.yanzhenjie.permission.Permission;
 import com.yanzhenjie.permission.Rationale;
 import com.yanzhenjie.permission.RequestExecutor;
 import com.yanzhenjie.permission.Setting;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -188,9 +182,6 @@ public class B31HomeActivity extends WatchBaseActivity implements IDeviceControl
     public void startUploadDate() {
         boolean uploading = MyApp.getInstance().isUploadDate();
         if (!uploading) {// 判断一下是否正在上传数据
-            //startService(new Intent(this, CommVpDateUploadService.class));
-           // startService(new Intent(this, DateUploadService.class));
-
         }
 
     }
