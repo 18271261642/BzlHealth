@@ -133,6 +133,7 @@ public class CommDataFragment extends LazyFragment {
             switch (msg.what) {
                 case 0x01:      //步数
                     if (getActivity() != null && !getActivity().isFinishing())
+                        Log.e(TAG,"------步数="+mValues.size()+"--xStepList="+xStepList.size());
                         showStepsChat(mValues, xStepList);
                     break;
                 case 0x02:  //心率

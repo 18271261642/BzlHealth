@@ -2,6 +2,7 @@ package com.bozlun.health.android.b30;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,7 +21,9 @@ import com.bozlun.health.android.R;
 import com.bozlun.health.android.adpter.FragmentAdapter;
 import com.bozlun.health.android.b30.b30homefragment.B30HomeFragment;
 import com.bozlun.health.android.b30.b30run.B36RunFragment;
+import com.bozlun.health.android.b30.service.FriendsUploadServices;
 import com.bozlun.health.android.bleutil.MyCommandManager;
+import com.bozlun.health.android.commdbserver.CommDBManager;
 import com.bozlun.health.android.siswatch.WatchBaseActivity;
 import com.bozlun.health.android.siswatch.mine.WatchMineFragment;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
@@ -168,10 +171,13 @@ public class B30HomeActivity extends WatchBaseActivity implements IDeviceControl
      * 启动上传数据的服务
      */
     public void startUploadDate() {
-        boolean uploading = MyApp.getInstance().isUploadDate();
-        if (!uploading)// 判断一下是否正在上传数据
-        {
-
+        try {
+            CommDBManager.getCommDBManager().startUploadDbService(this);
+            //上传缓存的详细数据
+            Intent intent1 = new Intent(this,FriendsUploadServices.class);
+            this.startService(intent1);
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
     }

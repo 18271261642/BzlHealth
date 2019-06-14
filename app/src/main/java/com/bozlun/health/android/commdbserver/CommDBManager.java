@@ -565,8 +565,12 @@ public class CommDBManager {
 
     //开启上传的服务
     public void startUploadDbService(Context context) {
-        Intent intent = new Intent(context, UploadCommDbServices.class);
-        context.startService(intent);
+        try {
+            Intent intent = new Intent(context, UploadCommDbServices.class);
+            context.startService(intent);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
     }
 

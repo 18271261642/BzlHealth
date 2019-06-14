@@ -39,9 +39,11 @@ import com.bozlun.health.android.b30.b30view.B30CusSleepView;
 import com.bozlun.health.android.b30.bean.B30HalfHourDB;
 import com.bozlun.health.android.b30.bean.B30HalfHourDao;
 import com.bozlun.health.android.b30.service.ConnBleHelpService;
+import com.bozlun.health.android.b30.service.FriendsUploadServices;
 import com.bozlun.health.android.b30.women.WomenDetailActivity;
 import com.bozlun.health.android.b31.InternalTestActivity;
 import com.bozlun.health.android.bleutil.MyCommandManager;
+import com.bozlun.health.android.commdbserver.CommDBManager;
 import com.bozlun.health.android.commdbserver.CommentDataActivity;
 import com.bozlun.health.android.h9.h9monitor.UpDatasBase;
 import com.bozlun.health.android.h9.settingactivity.SharePosterActivity;
@@ -243,6 +245,7 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
             switch (msg.what) {
                 case 1000:
                     mHandler.removeMessages(1001);// 正常关闭就移除延时口令
+                    startUploadDBService();
                     break;
                 case 1001:
                     Log.d("bobo", "handleMessage: 请求超过默认秒数");
@@ -289,6 +292,21 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
 
 
 
+    //开始上传本地缓存的数据
+    private void startUploadDBService() {
+        try {
+            if(getActivity() != null && !getActivity().isFinishing()){
+                CommDBManager.getCommDBManager().startUploadDbService(getmContext());
+                //上传缓存的详细数据
+                Intent intent1 = new Intent(getmContext(),FriendsUploadServices.class);
+                getmContext().startService(intent1);
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

@@ -1,7 +1,10 @@
 package com.bozlun.health.android.b30.service;
 
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 import com.bozlun.health.android.Commont;
@@ -101,6 +104,46 @@ public class ConnBleHelpService {
         }
         return connBleHelpService;
     }
+
+
+    @SuppressLint("HandlerLeak")
+    Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if(sleepMap != null && !sleepMap.isEmpty()){
+                for(Map.Entry<String,SleepData> mp : sleepMap.entrySet()){
+                    //保存详细数据 ，保存详细数据时日期会往后+ 一天
+                    B30HalfHourDB db = new B30HalfHourDB();
+                    db.setAddress(MyApp.getInstance().getMacAddress());
+                    db.setDate(WatchUtils.obtainAroundDate(mp.getValue().getDate(),false));
+                    db.setType(B30HalfHourDao.TYPE_SLEEP);
+                    db.setOriginData(gson.toJson(mp.getValue()));
+                    db.setUpload(0);
+                    B30HalfHourDao.getInstance().saveOriginData(db);
+
+                    //保存汇总数据
+                    String bleName = "B31";
+                    if (!WatchUtils.isEmpty(MyCommandManager.DEVICENAME))
+                        bleName = MyCommandManager.DEVICENAME;
+                    //保存睡眠数据
+                    SleepData sleepData = mp.getValue();
+                    //清醒时长=总的睡眠时长-深睡时长-清醒时长
+                    int soberlen = sleepData.getAllSleepTime() - sleepData.getDeepSleepTime() - sleepData.getLowSleepTime();
+                    CommDBManager.getCommDBManager().saveCommSleepDbData(bleName, WatchUtils.getSherpBleMac(MyApp.getContext()), sleepData.getDate(),
+                            sleepData.getDeepSleepTime(), sleepData.getLowSleepTime(), soberlen, sleepData.getAllSleepTime(),
+                            sleepData.getSleepDown().getDateAndClockForSleep(), sleepData.getSleepUp().getDateAndClockForSleep(),
+                            sleepData.getWakeCount());
+
+                }
+            }
+
+        }
+    };
+
+
+
+
 
 
     //    private Dialog dialog;
@@ -368,42 +411,6 @@ public class ConnBleHelpService {
     public void readAllHealthData(final boolean today) {
         final long currTime = System.currentTimeMillis()/1000;
         sleepMap.clear();
-
-//        /**
-//         * dayInt - 读取位置，0表示今天，1表示昨天，2表示前天，以此类推。 读取顺序为 今天-昨天- 前天，
-//         * onlyReadOneDay - true表示只读今天，false表示按顺序读取
-//         */
-//        ReadSleepSetting readSleepSetting = new ReadSleepSetting(today ? 3:0,false,2);
-//
-//        MyApp.getInstance().getVpOperateManager().readSleepDataBySetting(bleWriteResponse, new ISleepDataListener() {
-//            @Override
-//            public void onSleepDataChange(SleepData sleepData) {
-//
-//            }
-//
-//            @Override
-//            public void onSleepProgress(float v) {
-//
-//            }
-//
-//            @Override
-//            public void onSleepProgressDetail(String s, int i) {
-//
-//            }
-//
-//            @Override
-//            public void onReadSleepComplete() {
-//
-//            }
-//        }, readSleepSetting);
-
-
-
-
-
-
-
-
         //读取睡眠
         MyApp.getInstance().getVpOperateManager().readSleepData(bleWriteResponse, new ISleepDataListener() {
             @Override
@@ -427,32 +434,7 @@ public class ConnBleHelpService {
             public void onReadSleepComplete() {
                 // 读取睡眠数据结束
                 Log.e(TAG,"----------睡眠数据读取结束------="+sleepMap.size());
-                if(sleepMap != null && !sleepMap.isEmpty()){
-                    for(Map.Entry<String,SleepData> mp : sleepMap.entrySet()){
-                        //保存详细数据 ，保存详细数据时日期会往后+ 一天
-                        B30HalfHourDB db = new B30HalfHourDB();
-                        db.setAddress(MyApp.getInstance().getMacAddress());
-                        db.setDate(WatchUtils.obtainAroundDate(mp.getValue().getDate(),false));
-                        db.setType(B30HalfHourDao.TYPE_SLEEP);
-                        db.setOriginData(gson.toJson(mp.getValue()));
-                        db.setUpload(0);
-                        B30HalfHourDao.getInstance().saveOriginData(db);
-
-                        //保存汇总数据
-                        String bleName = "B31";
-                        if (!WatchUtils.isEmpty(MyCommandManager.DEVICENAME))
-                            bleName = MyCommandManager.DEVICENAME;
-                        //保存睡眠数据
-                        SleepData sleepData = mp.getValue();
-                        //清醒时长=总的睡眠时长-深睡时长-清醒时长
-                        int soberlen = sleepData.getAllSleepTime() - sleepData.getDeepSleepTime() - sleepData.getLowSleepTime();
-                        CommDBManager.getCommDBManager().saveCommSleepDbData(bleName, WatchUtils.getSherpBleMac(MyApp.getContext()), sleepData.getDate(),
-                                sleepData.getDeepSleepTime(), sleepData.getLowSleepTime(), soberlen, sleepData.getAllSleepTime(),
-                                sleepData.getSleepDown().getDateAndClockForSleep(), sleepData.getSleepUp().getDateAndClockForSleep(),
-                                sleepData.getWakeCount());
-
-                    }
-                }
+                handler.sendMessageAtTime(handler.obtainMessage(),2 * 1000);
 
                 readAllDeviceData(today);
 

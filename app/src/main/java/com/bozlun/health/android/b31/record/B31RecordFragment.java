@@ -1492,12 +1492,16 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
 
     //开始上传本地缓存的数据，汇总数据和详细数据
     private void startUploadDbService() {
-        //开始上传本地缓存的数据
-        CommDBManager.getCommDBManager().startUploadDbService(getmContext());
+        try {
+            //开始上传本地缓存的数据
+            CommDBManager.getCommDBManager().startUploadDbService(getmContext());
 
-        //上传缓存的详细数据
-        Intent intent1 = new Intent(getmContext(),FriendsUploadServices.class);
-        getmContext().startService(intent1);
+            //上传缓存的详细数据
+            Intent intent1 = new Intent(getmContext(),FriendsUploadServices.class);
+            getmContext().startService(intent1);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
     }
 }
