@@ -270,7 +270,6 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
 
     private List<Spo2hOriginData> spo2hOriginDataList = new ArrayList<>();
 
-
     VpSpo2hUtil vpSpo2hUtil;
     @BindView(R.id.block_chartview_spo2h)
     LineChart mChartViewSpo2h;  //呼吸暂停图表
