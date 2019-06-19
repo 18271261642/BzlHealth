@@ -282,6 +282,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
     LineChart mChartViewBreath; //呼吸率图表
     @BindView(R.id.block_chartview_lowspo2h)
     LineChart mChartViewLowspo2h;   //低氧时间图表
+    private boolean iSNullSleep = false;
 
 
     @SuppressLint("HandlerLeak")
@@ -351,14 +352,18 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
                     break;
                 case 1112:  //血氧
                     if (getActivity() != null && !getActivity().isFinishing()) {
-                        List<Spo2hOriginData> tmpLt = (List<Spo2hOriginData>) msg.obj;
-                        updateSpo2View(tmpLt);
+                        if (!iSNullSleep){
+                            List<Spo2hOriginData> tmpLt = (List<Spo2hOriginData>) msg.obj;
+                            updateSpo2View(tmpLt);
+                        }
                     }
                     break;
                 case 1113: //HRV
                     if (getActivity() != null && !getActivity().isFinishing()) {
-                        List<HRVOriginData> tmpHrvList = (List<HRVOriginData>) msg.obj;
-                        showHrvData(tmpHrvList);
+                        if (!iSNullSleep){
+                            List<HRVOriginData> tmpHrvList = (List<HRVOriginData>) msg.obj;
+                            showHrvData(tmpHrvList);
+                        }
                     }
                     break;
                 case 555:
@@ -1148,6 +1153,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
         sleepList.clear();
 
         if (sleepData != null) {
+            iSNullSleep = false;
             Log.e(TAG, "-------sleepData=" + sleepData.toString());
             if (b30StartEndTimeTv != null)
                 b30StartEndTimeTv.setText(sleepData.getSleepDown().getColck() + "-" + sleepData.getSleepUp().getColck());
@@ -1167,6 +1173,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
             sleepList.add(0);
             sleepList.add(2);
         } else {
+            iSNullSleep = true;
             if (b30StartEndTimeTv != null) b30StartEndTimeTv.setText("--:--");
         }
         if (sleepList != null && !sleepList.isEmpty()) {

@@ -19,7 +19,6 @@ import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
 import com.bozlun.health.android.util.PhoneUtile;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
-
 import java.util.Date;
 
 
@@ -139,22 +138,23 @@ public class CallReceiver extends PhonecallReceiver {
                 new String[]{number},
                 CallLog.Calls.DATE + " desc");
         int i = 0;
-        if (cursor == null) return false;
-        while (cursor.moveToNext()) {
-            if (i == 0) {//第一个记录 也就是当前这个电话的记录
-                int durationIndex = cursor.getColumnIndex(CallLog.Calls.DURATION);
-                long durationTime = cursor.getLong(durationIndex);
-                if (durationTime > 0) {
-                    Log.d("----------AA", "第二次查询 接通了   时长= " + durationTime);
-                    isLink = true;
-                } else {
-                    Log.d("----------AA", "第二次查询 这是else里");
-                    isLink = false;
+        if (cursor!=null){
+            while (cursor.moveToNext()) {
+                if (i == 0) {//第一个记录 也就是当前这个电话的记录
+                    int durationIndex = cursor.getColumnIndex(CallLog.Calls.DURATION);
+                    long durationTime = cursor.getLong(durationIndex);
+                    if (durationTime > 0) {
+                        Log.d("----------AA", "第二次查询 接通了   时长= " + durationTime);
+                        isLink = true;
+                    } else {
+                        Log.d("----------AA", "第二次查询 这是else里");
+                        isLink = false;
+                    }
                 }
+                i++;
             }
-            i++;
+            cursor.close();
         }
-        cursor.close();
         return isLink;
     }
 
