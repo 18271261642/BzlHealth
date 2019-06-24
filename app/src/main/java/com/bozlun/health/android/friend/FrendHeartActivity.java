@@ -40,6 +40,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -77,6 +79,10 @@ public class FrendHeartActivity extends WatchBaseActivity implements RequestView
      */
     private String currDay;
     String applicant = "";
+
+
+    //根据日期排序的集合
+    private List<String> timeList = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -227,19 +233,43 @@ public class FrendHeartActivity extends WatchBaseActivity implements RequestView
     void showChartAndList(List<FrendHaretBean.FriendHeartRateBean> heartList) {
         dataList.clear();
         allheartList.clear();
+        timeList.clear();
         if (heartList == null || heartList.isEmpty()) {
             b30HeartDetailView.setRateDataList(allheartList);
             b30HeartDetailView.invalidate();
             b30HeartDetailAdapter.notifyDataSetChanged();
             return;
         }
+
+        Map<String,String> heartMap = WatchUtils.setHalfDateMap();
+        Log.e("好友","-----heartMap="+heartMap.size());
         for (FrendHaretBean.FriendHeartRateBean item :
                 heartList) {
-            allheartList.add(item.getHeartRate());
+            heartMap.put(item.getTime(),item.getHeartRate()+"");
+            //allheartList.add(item.getHeartRate());
             if (item.getHeartRate() > 0) {
                 dataList.add(item);
             }
         }
+
+        //遍历map
+        for(Map.Entry<String,String> mp : heartMap.entrySet()){
+            timeList.add(mp.getKey());
+        }
+
+        Collections.sort(timeList, new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                return o1.compareTo(o2);
+            }
+        });
+
+        for(int i = 0;i<timeList.size();i++){
+            int heartV = Integer.valueOf(heartMap.get(timeList.get(i)));
+            allheartList.add(heartV);
+        }
+
+
         if (allheartList != null) {
             b30HeartDetailView.setRateDataList(allheartList);
             b30HeartDetailView.invalidate();

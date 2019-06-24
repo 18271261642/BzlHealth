@@ -583,7 +583,7 @@ public class B30HomeFragment extends LazyFragment implements ConnBleHelpService.
                     if (b30HomeSwipeRefreshLayout != null) b30HomeSwipeRefreshLayout.autoRefresh();
                     Log.d("bobo", "onFragmentVisibleChange: autoRefresh()");
                 } else {  //不是搜索进来的
-                    if (diffTime > 10) {// 大于五分钟没更新再取数据
+                    if (diffTime > 15) {// 大于五分钟没更新再取数据
                         getBleMsgData();
                         if (b30HomeSwipeRefreshLayout != null)
                             b30HomeSwipeRefreshLayout.autoRefresh();

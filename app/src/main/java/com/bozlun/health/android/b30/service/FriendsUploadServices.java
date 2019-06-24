@@ -72,7 +72,7 @@ public class FriendsUploadServices extends IntentService {
         if (WatchUtils.isEmpty(userId))
             return;
         //上传当天的详细数据
-        uploadStepDetailToday(bleMac);
+        uploadTodayDatas(bleMac);
 
         //上传昨天和前天的详细步数数据
         uploadStepDetailByDay(bleMac, B30HalfHourDao.TYPE_SPORT, 1);
@@ -83,6 +83,15 @@ public class FriendsUploadServices extends IntentService {
         //上传血压的详细数据
         uploadBloodDetailByDay(bleMac, B30HalfHourDao.TYPE_BP, 1);
     }
+
+    //上传当天的数据
+    private void uploadTodayDatas(String bleMac){
+        uploadStepDetailToday(bleMac);  //当天步数
+        uploadHeartDetailToDay(bleMac);   //上传当天的心率数据
+        uploadSleepDetailToday(bleMac);  //当天睡眠详细数据
+        uploadBloodDetailToday(bleMac);  //上传当天血压睡眠数据
+    }
+
 
     //上传当天的步数详细数据
     private void uploadStepDetailToday(final String bleMac) {
