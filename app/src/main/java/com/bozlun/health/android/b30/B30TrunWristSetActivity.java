@@ -18,6 +18,7 @@ import com.aigestudio.wheelpicker.widgets.ProvincePick;
 import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.R;
 import com.bozlun.health.android.siswatch.WatchBaseActivity;
+import com.bozlun.health.android.siswatch.utils.WatchUtils;
 import com.veepoo.protocol.listener.base.IBleWriteResponse;
 import com.veepoo.protocol.listener.data.INightTurnWristeDataListener;
 import com.veepoo.protocol.model.datas.NightTurnWristeData;
@@ -164,10 +165,14 @@ public class B30TrunWristSetActivity extends WatchBaseActivity implements Compou
             case R.id.b30TrunWristSaveBtn:  //保存
                 //起始时间
                 String startD = b30TrunWristStartTv.getText().toString().trim();
+                if(WatchUtils.isEmpty(startD))
+                    return;
                 int startHour = Integer.valueOf(StringUtils.substringBefore(startD, ":").trim());
                 int startMine = Integer.valueOf(StringUtils.substringAfter(startD, ":").trim());
                 final TimeData startTime = new TimeData(startHour, startMine);
                 String endD = b30TrunWristendTv.getText().toString().trim();
+                if(WatchUtils.isEmpty(endD))
+                    return;
                 int endHour = Integer.valueOf(StringUtils.substringBefore(endD, ":").trim());
                 int endMine = Integer.valueOf(StringUtils.substringAfter(endD, ":").trim());
                 final TimeData endTime = new TimeData(endHour, endMine);

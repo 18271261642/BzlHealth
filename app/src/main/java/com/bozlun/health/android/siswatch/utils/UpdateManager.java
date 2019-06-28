@@ -253,9 +253,14 @@ public class UpdateManager {
 
     //卸载广播
     public void destoryUpdateBroad() {
-        if (mReceiver != null && isRegedit) {
-            mContext.unregisterReceiver(mReceiver);
+        try {
+            if (mReceiver != null && isRegedit) {
+                mContext.unregisterReceiver(mReceiver);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
+
     }
 
     //下载

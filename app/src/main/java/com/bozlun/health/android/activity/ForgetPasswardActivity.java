@@ -13,11 +13,13 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import com.bozlun.health.android.R;
 import com.bozlun.health.android.adpter.PhoneAdapter;
 import com.bozlun.health.android.base.BaseActivity;
+import com.bozlun.health.android.bean.AreCodeBean;
 import com.bozlun.health.android.net.OkHttpObservable;
 import com.bozlun.health.android.rxandroid.DialogSubscriber;
 import com.bozlun.health.android.rxandroid.SubscriberOnNextListener;
@@ -26,6 +28,7 @@ import com.bozlun.health.android.util.Md5Util;
 import com.bozlun.health.android.util.NetUtils;
 import com.bozlun.health.android.util.ToastUtil;
 import com.bozlun.health.android.util.URLs;
+import com.bozlun.health.android.view.PhoneAreaCodeView;
 import com.bozlun.health.android.w30s.utils.httputils.RequestPressent;
 import com.bozlun.health.android.w30s.utils.httputils.RequestView;
 import com.google.gson.Gson;
@@ -54,8 +57,6 @@ public class ForgetPasswardActivity extends BaseActivity implements RequestView 
     TextView tvTitle;
     @BindView(R.id.tv_phone_head)
     TextView tv_phone_head;
-    @BindView(R.id.lv_forget)
-    ListView lv_forget;
     @BindView(R.id.username_forget)
     EditText username;//用户名
     @BindView(R.id.password_forget)
@@ -75,6 +76,9 @@ public class ForgetPasswardActivity extends BaseActivity implements RequestView 
     @BindView(R.id.forget_pwd_email_line)
     View forget_pwd_email_line;
 
+    @BindView(R.id.forgetPhoneAreLin)
+    LinearLayout forgetPhoneAreLin;
+
 
     private DialogSubscriber dialogSubscriber;
     private Subscriber subscriber;
@@ -84,6 +88,8 @@ public class ForgetPasswardActivity extends BaseActivity implements RequestView 
 
     private RequestPressent requestPressent;
     MyCountDownTimerUtils countDownTimerUtils;
+
+    private PhoneAreaCodeView phoneAreaCodeView;
 
     //判断是手机用户或者邮箱用户
     private boolean isPhone = true;
@@ -101,9 +107,6 @@ public class ForgetPasswardActivity extends BaseActivity implements RequestView 
      * 用户名左边图片(邮箱用)
      */
     private Drawable leftDrawable;
-
-    private List<Integer> phoneHeadList;
-    private PhoneAdapter phoneAdapter ;
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -126,7 +129,7 @@ public class ForgetPasswardActivity extends BaseActivity implements RequestView 
     protected void initViews() {
         tvTitle.setText(R.string.forget_password);
         initData();
-
+        tv_phone_head.setText("+86");
         subscriberOnNextListener = new SubscriberOnNextListener<String>() {
             @Override
             public void onNext(String result) {
@@ -136,20 +139,6 @@ public class ForgetPasswardActivity extends BaseActivity implements RequestView 
                     JSONObject jsonObject = new JSONObject(result);
                     String loginResult = jsonObject.getString("resultCode");
                     if ("001".equals(loginResult)) {
-                        ToastUtil.showToast(ForgetPasswardActivity.this,getResources().getString(R.string.change_password));
-                  /*      BlueUser userInfo = gson.fromJson(jsonObject.getString("userInfo").toString(), BlueUser.class);
-                        MyLogUtil.i("msg", "-userInfo-" + userInfo.toString());
-                        B18iCommon.userInfo = userInfo;
-                        B18iCommon.customer_id = userInfo.getUserId();
-                        MobclickAgent.onProfileSignIn(B18iCommon.customer_id);
-                        String pass = password.getText().toString();
-                        String usernametxt = username.getText().toString();
-                        userInfo.setPassword(Md5Util.Md532(pass));
-
-
-                        MyApp.getApplication().getDaoSession().getBlueUserDao().insertOrReplace(userInfo);
-                        SharedPreferencesUtils.setParam(ForgetPasswardActivity.this, SharedPreferencesUtils.CUSTOMER_ID, B18iCommon.customer_id);
-                        SharedPreferencesUtils.setParam(ForgetPasswardActivity.this, SharedPreferencesUtils.CUSTOMER_PASSWORD, pass);*/
                         finish();
                     }else{
                         WatchUtils.verServerCode(ForgetPasswardActivity.this,loginResult);
@@ -165,43 +154,12 @@ public class ForgetPasswardActivity extends BaseActivity implements RequestView 
         colorBlue = ContextCompat.getColor(this, R.color.new_colorAccent);
         colorBlack = ContextCompat.getColor(this, R.color.black_9);
         leftDrawable = getResources().getDrawable(R.mipmap.yonghuming_dianji);
-        phoneHeadList = new ArrayList<>();
-        phoneHeadList.add(1);       //美国 加拿大
-        phoneHeadList.add(7);       //俄罗斯
-        phoneHeadList.add(32);      //比利时
-        phoneHeadList.add(33);      //法国
-        phoneHeadList.add(34);      //西班牙
-        phoneHeadList.add(39);      //意大利
-        phoneHeadList.add(44);      //英国
-        phoneHeadList.add(49);      //德国
-        phoneHeadList.add(60);      //马来西亚
-        phoneHeadList.add(61);      //澳大利亚
-        phoneHeadList.add(65);      //新加坡
-        phoneHeadList.add(81);      //日本
-        phoneHeadList.add(82);      //韩国
-        phoneHeadList.add(84);      //越南
-        phoneHeadList.add(86);      //中国大陆
-        phoneHeadList.add(91);      //印度
-        phoneHeadList.add(351);     //葡萄牙
-        phoneHeadList.add(852);     //中国香港
-        phoneHeadList.add(853);     //中国澳门
-        phoneHeadList.add(886);     //中国台湾
 
-        phoneAdapter = new PhoneAdapter(phoneHeadList,this);
-
-        lv_forget.setAdapter(phoneAdapter);
-
-        lv_forget.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                tv_phone_head.setText("+"+phoneHeadList.get(position));
-                lv_forget.setVisibility(View.INVISIBLE);
-            }
-        });
     }
 
-    @OnClick({R.id.login_btn__forget, R.id.send_btn_forget, R.id.forget_pwd_user, R.id.forget_pwd_email
-    ,R.id.tv_phone_head})
+    @OnClick({R.id.login_btn__forget, R.id.send_btn_forget,
+            R.id.forget_pwd_user, R.id.forget_pwd_email
+    ,R.id.forgetPhoneAreLin})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.send_btn_forget:      //发送验证码
@@ -293,8 +251,8 @@ public class ForgetPasswardActivity extends BaseActivity implements RequestView 
                     registerRemote(uName,uPwd,uVCode);
                 }
                 break;
-            case R.id.tv_phone_head:
-                lv_forget.setVisibility(View.VISIBLE);
+            case R.id.forgetPhoneAreLin:    //选择区号
+                choosePhoneAreaCode();
                 break;
             case R.id.forget_pwd_user:  //手机
                 isPhone = true;
@@ -305,6 +263,20 @@ public class ForgetPasswardActivity extends BaseActivity implements RequestView 
                 changeModel(true);
                 break;
         }
+    }
+
+    //选择区号
+    private void choosePhoneAreaCode() {
+        if(phoneAreaCodeView == null)
+            phoneAreaCodeView = new PhoneAreaCodeView(ForgetPasswardActivity.this);
+        phoneAreaCodeView.show();
+        phoneAreaCodeView.setPhoneAreaClickListener(new PhoneAreaCodeView.PhoneAreaClickListener() {
+            @Override
+            public void chooseAreaCode(AreCodeBean areCodeBean) {
+                phoneAreaCodeView.dismiss();
+                tv_phone_head.setText("+"+areCodeBean.getPhoneCode());
+            }
+        });
     }
 
 
@@ -335,16 +307,15 @@ public class ForgetPasswardActivity extends BaseActivity implements RequestView 
      * @param email true_邮箱找回 false_手机找回
      */
     private void changeModel(boolean email) {
-        if (email == isEmail) return;
+        //if (email == isEmail) return;
         forget_pwd_user_text.setTextColor(email ? colorBlack : colorBlue);
         forget_pwd_email_text.setTextColor(email ? colorBlue : colorBlack);
         forget_pwd_user_line.setVisibility(email ? View.GONE : View.VISIBLE);
         forget_pwd_email_line.setVisibility(email ? View.VISIBLE : View.GONE);
-        tv_phone_head.setVisibility(email ? View.GONE : View.VISIBLE);
+        forgetPhoneAreLin.setVisibility(email ? View.GONE : View.VISIBLE);
         username.setCompoundDrawablesWithIntrinsicBounds(email ? leftDrawable : null, null, null, null);
         if (email) {
             textInputLayoutname.setHint(getResources().getString(R.string.input_email));
-            lv_forget.setVisibility(View.INVISIBLE);
         } else {
             textInputLayoutname.setHint(getResources().getString(R.string.input_name));
         }

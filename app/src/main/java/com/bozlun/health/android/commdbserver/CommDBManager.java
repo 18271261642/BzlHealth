@@ -519,7 +519,6 @@ public class CommDBManager {
         //先查询一下
         List<CommDownloadDb> saveData = findCommDownloadDb(bleMac, type);
         if (saveData == null) {
-
             LitePal.saveAll(listStr);
 
         }

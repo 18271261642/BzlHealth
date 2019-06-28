@@ -8,6 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.bozlun.health.android.R;
+import com.bozlun.health.android.bean.AreCodeBean;
 
 import java.util.List;
 
@@ -16,12 +17,14 @@ import java.util.List;
  */
 
 public class PhoneAdapter extends BaseAdapter {
-    List<Integer>phoneHeadList;
+    List<AreCodeBean>phoneHeadList;
     Context context;
+    LayoutInflater layoutInflater;
 
-    public PhoneAdapter(List<Integer> phoneHeadList, Context context) {
+    public PhoneAdapter(List<AreCodeBean> phoneHeadList, Context context) {
         this.phoneHeadList = phoneHeadList;
         this.context = context;
+        layoutInflater = LayoutInflater.from(context);
     }
     @Override
     public int getCount() {
@@ -40,10 +43,28 @@ public class PhoneAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.item_phone_head_layout,parent,false);
-        TextView tv = view.findViewById(R.id.tv_phone_head);
-        tv.setText("+"+phoneHeadList.get(position));
-        return view;
+        ViewHolder holder = null;
+        if(convertView == null){
+            holder = new ViewHolder();
+            convertView = layoutInflater.inflate(R.layout.item_phone_head_layout,parent,false);
+            holder.tv1 = convertView.findViewById(R.id.itemPhoneRegionsTv);
+            holder.tv2 = convertView.findViewById(R.id.itemPhoneCountryTv);
+            holder.tv3 = convertView.findViewById(R.id.itemPhoneCodeTv);
+            holder.tv4 = convertView.findViewById(R.id.tv_phone_head);
+            convertView.setTag(holder);
+        }else{
+            holder = (ViewHolder) convertView.getTag();
+        }
+        AreCodeBean areCodeBean = phoneHeadList.get(position);
+        //国家英文名称
+        holder.tv1.setText(areCodeBean.getPhoneRegious()+"");
+        holder.tv2.setText(areCodeBean.getPhoneCountry()+"");
+        holder.tv3.setText(areCodeBean.getPhoneAreCode()+"");
+        holder.tv4.setText(areCodeBean.getPhoneCode()+"");
+        return convertView;
+    }
+
+    class ViewHolder{
+        TextView tv1,tv2,tv3,tv4;
     }
 }

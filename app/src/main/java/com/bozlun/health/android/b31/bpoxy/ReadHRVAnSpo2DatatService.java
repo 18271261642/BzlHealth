@@ -480,8 +480,12 @@ public class ReadHRVAnSpo2DatatService extends IntentService {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        //Log.e(TAG,"-----------销毁了---------");
-        if(broadcastReceiver != null)
-            unregisterReceiver(broadcastReceiver);
+        try {
+            if(broadcastReceiver != null)
+                unregisterReceiver(broadcastReceiver);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 }

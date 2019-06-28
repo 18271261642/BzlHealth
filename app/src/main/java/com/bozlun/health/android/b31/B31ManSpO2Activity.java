@@ -75,19 +75,21 @@ public class B31ManSpO2Activity extends WatchBaseActivity {
                     return;
                 }
 
+               try {
+                   if (spo2hData.getCheckingProgress() == 0x00 && !spo2hData.isChecking()) {
+                       b31MeaureSpo2ProgressView.setTmpTxt(spo2hData.getValue() + "%");
+                       showSpo2ResultTv.setText(verSpo2Status(spo2hData.getValue()));
+                       b31MeaureSpo2ProgressView.setOxyDexcStr("血氧浓度");
+                       Log.e(TAG,"----------进度="+spo2hData.getCheckingProgress()+"%");
+                       RequestOptions options = new RequestOptions()
+                               .diskCacheStrategy(DiskCacheStrategy.RESOURCE);
+                       Glide.with(B31ManSpO2Activity.this).asGif().load(R.drawable.spgif).apply(options).into(spo2ShowGifImg);
 
-                if (spo2hData.getCheckingProgress() == 0x00 && !spo2hData.isChecking()) {
-                    b31MeaureSpo2ProgressView.setTmpTxt(spo2hData.getValue() + "%");
-                    showSpo2ResultTv.setText(verSpo2Status(spo2hData.getValue()));
-                    b31MeaureSpo2ProgressView.setOxyDexcStr("血氧浓度");
-                    Log.e(TAG,"----------进度="+spo2hData.getCheckingProgress()+"%");
-                    RequestOptions options = new RequestOptions()
-                            .diskCacheStrategy(DiskCacheStrategy.RESOURCE);
-                    Glide.with(B31ManSpO2Activity.this).asGif().load(R.drawable.spgif).apply(options).into(spo2ShowGifImg);
 
-
-                }
-
+                   }
+               }catch (Exception e){
+                    e.printStackTrace();
+               }
 
             }
 

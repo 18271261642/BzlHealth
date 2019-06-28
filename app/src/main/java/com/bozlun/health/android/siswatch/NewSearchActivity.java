@@ -213,7 +213,7 @@ public class NewSearchActivity extends GetUserInfoActivity implements CustomBlue
             if (customBlueAdapter != null)
                 customBlueAdapter.notifyDataSetChanged();
         } catch (Exception e) {
-            e.getMessage();
+            e.printStackTrace();
         }
 
 
@@ -445,7 +445,7 @@ public class NewSearchActivity extends GetUserInfoActivity implements CustomBlue
                 cusInputDialogView.dismiss();
             }
         } catch (Exception e) {
-            e.getMessage();
+            e.printStackTrace();
         }
     }
 

@@ -272,8 +272,13 @@ public class WatchMineFragment extends LazyFragment {
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
-        if (updateManager != null)
-            updateManager.destoryUpdateBroad();
+        try {
+            if (updateManager != null)
+                updateManager.destoryUpdateBroad();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
 

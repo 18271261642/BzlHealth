@@ -66,10 +66,16 @@ public class B30HalfHourDao {
      * @return 数据源Json字符串
      */
     private B30HalfHourDB getOriginData(String address, String date, String type) {
-        String where = "address = ? and date = ? and type = ?";
-        List<B30HalfHourDB> resultList = LitePal.where(where, address, date, type).limit(1).find
-                (B30HalfHourDB.class);// 一个类型,同一天只有一条数据
-        return resultList == null || resultList.isEmpty() ? null : resultList.get(0);
+        try {
+            String where = "address = ? and date = ? and type = ?";
+            List<B30HalfHourDB> resultList = LitePal.where(where, address, date, type).limit(1).find
+                    (B30HalfHourDB.class);// 一个类型,同一天只有一条数据
+            return resultList == null || resultList.isEmpty() ? null : resultList.get(0);
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
     /**
@@ -81,8 +87,14 @@ public class B30HalfHourDao {
      * @return 数据源Json字符串
      */
     public String findOriginData(String address, String date, String type) {
-        B30HalfHourDB result = getOriginData(address, date, type);
-        return result == null ? null : result.getOriginData();
+        try {
+            B30HalfHourDB result = getOriginData(address, date, type);
+            return result == null ? null : result.getOriginData();
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
 
@@ -94,12 +106,17 @@ public class B30HalfHourDao {
      * @param db 数据源实体类
      */
     public synchronized void saveOriginData(B30HalfHourDB db) {
-        boolean result;
-        String bMac = db.getAddress();
-        String strDate = db.getDate();
-        String type = db.getType();
-        result = db.saveOrUpdate("address=? and date =? and type=?",bMac,strDate,type);
-        Log.e("DB","--------数据存储="+result);
+        try {
+            boolean result;
+            String bMac = db.getAddress();
+            String strDate = db.getDate();
+            String type = db.getType();
+            result = db.saveOrUpdate("address=? and date =? and type=?",bMac,strDate,type);
+            Log.e("DB","--------数据存储="+result);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
 
     }
 
@@ -126,8 +143,14 @@ public class B30HalfHourDao {
      * @return
      */
     public List<B30HalfHourDB> findNotUpDataByDay(String bleMac,String type,String dayStr){
-        List<B30HalfHourDB> stepDayList = LitePal.where("upload = 0 and address = ? and type = ? and date = ?",bleMac,type,dayStr).find(B30HalfHourDB.class);
-        return stepDayList == null || stepDayList.isEmpty() ? null : stepDayList;
+        try {
+            List<B30HalfHourDB> stepDayList = LitePal.where("upload = 0 and address = ? and type = ? and date = ?",bleMac,type,dayStr).find(B30HalfHourDB.class);
+            return stepDayList == null || stepDayList.isEmpty() ? null : stepDayList;
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
 
@@ -139,8 +162,14 @@ public class B30HalfHourDao {
      * @return
      */
     public List<B30HalfHourDB> findW30HeartDetail(String dateStr,String bleMac,String type ){
-        List<B30HalfHourDB> w30HeartDbList = LitePal.where("address = ? and date = ? and type = ?",bleMac,dateStr,type).find(B30HalfHourDB.class);
-        return w30HeartDbList == null || w30HeartDbList.isEmpty() ? null : w30HeartDbList;
+        try {
+            List<B30HalfHourDB> w30HeartDbList = LitePal.where("address = ? and date = ? and type = ?",bleMac,dateStr,type).find(B30HalfHourDB.class);
+            return w30HeartDbList == null || w30HeartDbList.isEmpty() ? null : w30HeartDbList;
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
 
@@ -152,8 +181,14 @@ public class B30HalfHourDao {
      * @return
      */
     public List<B30HalfHourDB> findW30SleepDetail(String dateStr,String bleMac,String type){
-        List<B30HalfHourDB> w30SleepDbList = LitePal.where("address = ? and date = ? and type = ?",bleMac,dateStr,type).find(B30HalfHourDB.class);
-        return w30SleepDbList == null || w30SleepDbList.isEmpty() ? null : w30SleepDbList;
+        try {
+            List<B30HalfHourDB> w30SleepDbList = LitePal.where("address = ? and date = ? and type = ?",bleMac,dateStr,type).find(B30HalfHourDB.class);
+            return w30SleepDbList == null || w30SleepDbList.isEmpty() ? null : w30SleepDbList;
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
     /**
@@ -163,8 +198,14 @@ public class B30HalfHourDao {
      * @return B30HalfHourDB
      */
     public List<B30HalfHourDB> findW30SportData(String dateStr,String bleMac,String type){
-        List<B30HalfHourDB> w30SportDbList = LitePal.where("address = ? and date = ? and type = ?",bleMac,dateStr,type).find(B30HalfHourDB.class);
-        return w30SportDbList == null || w30SportDbList.isEmpty() ? null : w30SportDbList;
+        try {
+            List<B30HalfHourDB> w30SportDbList = LitePal.where("address = ? and date = ? and type = ?",bleMac,dateStr,type).find(B30HalfHourDB.class);
+            return w30SportDbList == null || w30SportDbList.isEmpty() ? null : w30SportDbList;
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+
     }
 
 
