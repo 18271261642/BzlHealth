@@ -18,20 +18,6 @@ public class Customdata {
     //广播
     public static IntentFilter makeGattUpdateIntentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
-        intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
-        intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
-        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
-        intentFilter.addAction(BluetoothLeService.ACTION_DATA);
-        intentFilter.addAction(BluetoothLeService.batterylevel);
-        intentFilter.addAction(BluetoothLeService.ReadSteps);
-        intentFilter.addAction(BluetoothLeService.Shakethecamera);
-        intentFilter.addAction(BluetoothLeService.HeartRate);
-        intentFilter.addAction(BluetoothLeService.OnekeyMeasurement);
-        intentFilter.addAction(BluetoothLeService.Findphone);
-        intentFilter.addAction(BluetoothLeService.Currentversionnumber);
-        intentFilter.addAction(BluetoothLeService.DailyActivity);
-        intentFilter.addAction(BluetoothLeService.Sleep);
         return intentFilter;
     }
 

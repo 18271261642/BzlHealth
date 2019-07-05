@@ -3,9 +3,6 @@ package com.bozlun.health.android.w30s.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-
-import com.bozlun.health.android.activity.GuideActivity;
-
 import java.lang.ref.WeakReference;
 
 /**
@@ -43,9 +40,9 @@ public class ScreenManager {
 
     // 启动SinglePixelActivity
     public void startActivity() {
-        Intent intent = new Intent(mContext, GuideActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        mContext.startActivity(intent);
+//        Intent intent = new Intent(mContext, GuideActivity.class);
+//        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        mContext.startActivity(intent);
     }
 
 

@@ -207,7 +207,7 @@ public class WatchHomeActivity extends WatchBaseActivity implements PhoneStateLi
         super.onResume();
         initData();
         Log.e(TAG, "------onresume--");
-        registerReceiver(mGattUpdateReceiver, Customdata.makeGattUpdateIntentFilter());
+
         //mBluetoothService = MyApp.getWatchBluetoothService();
         if (mBluetoothService != null) {
             Log.e(TAG,"------mBluetoothService != null--------");

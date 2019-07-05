@@ -621,7 +621,10 @@ public class BzlGaoDeActivity extends AppCompatActivity implements AMapLocationL
     protected void onResume() {
         super.onResume();
         //在activity执行onResume时执行mMapView.onResume ()，重新绘制加载地图
-        mMapView.onResume();
+        if(mMapView != null){
+            mMapView.onResume();
+        }
+
         if (isPermit) {
             init();
         }
@@ -635,7 +638,10 @@ public class BzlGaoDeActivity extends AppCompatActivity implements AMapLocationL
     protected void onPause() {
         super.onPause();
         //在activity执行onPause时执行mMapView.onPause ()，暂停地图的绘制
-        mMapView.onPause();
+        if(mMapView != null){
+            mMapView.onPause();
+        }
+
         if (bzlDragView != null) {
             bzlDragView.hideDragCallView();
         }
