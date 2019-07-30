@@ -19,11 +19,6 @@ public class LocaleChangeReceiver extends BroadcastReceiver {
             if (intent.getAction().equals(Intent.ACTION_LOCALE_CHANGED)) {
                 String language = context.getResources().getConfiguration().locale.getLanguage();
                 //中文
-                if (language.equals("zh")) {
-                    MyCommandManager.LanguageSwitching(MyCommandManager.DEVICENAME, 0);
-                } else {
-                    MyCommandManager.LanguageSwitching(MyCommandManager.DEVICENAME, 1);
-                }
 
             }
 

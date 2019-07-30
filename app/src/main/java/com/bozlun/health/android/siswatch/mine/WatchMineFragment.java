@@ -5,11 +5,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.bozlun.health.android.bean.UserInfoBean;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
@@ -73,11 +76,10 @@ public class WatchMineFragment extends LazyFragment {
     @BindView(R.id.showBleNameTv)
     TextView showBleNameTv;
 
-    private SinaUserInfo userInfo;
 
 
-    private CommonSubscriber commonSubscriber, commonSubscriber2;
-    private SubscriberOnNextListener subscriberOnNextListener, subscriberOnNextListener2;
+    private CommonSubscriber commonSubscriber;
+    private SubscriberOnNextListener subscriberOnNextListener;
 
     private String bleName = null;
 
@@ -131,21 +133,24 @@ public class WatchMineFragment extends LazyFragment {
         if (getActivity() == null || getActivity().isFinishing())
             return;
         if (isVisible) {
-            updateManager = new UpdateManager(getActivity(), URLs.HTTPs + URLs.bozlun_health_url);
+            updateManager = new UpdateManager(getActivity(), Commont.FRIEND_BASE_URL + URLs.bozlun_health_url);
             updateManager.checkForUpdate(true);
         }
 
     }
 
     /**
-     * 获取我的总数
+     * 获取距离等信息，包括用户资料
      */
     private void getMyInfoData() {
-        String myInfoUrl = URLs.HTTPs + URLs.myInfo;
+        String saveBleMac = WatchUtils.getSherpBleMac(getActivity());
+        if(saveBleMac == null)
+            return;
+        String myInfoUrl = Commont.FRIEND_BASE_URL + URLs.myInfo;
         JSONObject js = new JSONObject();
         try {
             js.put("userId", SharedPreferencesUtils.readObject(getActivity(), "userId"));
-            js.put("deviceCode", SharedPreferencesUtils.readObject(getActivity(), Commont.BLEMAC));
+            js.put("deviceCode",saveBleMac);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -159,39 +164,22 @@ public class WatchMineFragment extends LazyFragment {
         super.onResume();
 
 
-        getUserInfoData();  //获取用户信息
-
     }
 
-    //获取用户信息
-    private void getUserInfoData() {
-        String url = URLs.HTTPs + URLs.getUserInfo; //查询用户信息
-        JSONObject jsonObj = new JSONObject();
-        try {
-            jsonObj.put("userId", SharedPreferencesUtils.readObject(getActivity(), "userId"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        commonSubscriber2 = new CommonSubscriber(subscriberOnNextListener2, getActivity());
-        OkHttpObservable.getInstance().getData(commonSubscriber2, url, jsonObj.toString());
-    }
+
 
     private void initData() {
-        SharedPreferences share = getActivity().getSharedPreferences("nickName", 0);
-        String name = share.getString("name", "");
-        if (!WatchUtils.isEmpty(name)) {
-            watchMineUname.setText(name + "");
-        }
+
         //数据返回
         subscriberOnNextListener = new SubscriberOnNextListener<String>() {
             @Override
-            public void onNext(String result) { //{"myInfo":{"distance":48.3,"count":2,"stepNumber":1582},"resultCode":"001"}
-                // Log.e("mine", "------result----" + result);
+            public void onNext(String result) {
+                 //Log.e("mine", "----ssss--result----" + result);
                 if (!WatchUtils.isEmpty(result)) {
                     try {
                         JSONObject jsonObject = new JSONObject(result);
-                        if (jsonObject.getInt("resultCode") == 001) {
-                            JSONObject myInfoJsonObject = jsonObject.getJSONObject("myInfo");
+                        if (jsonObject.getInt("code") == 200) {
+                            JSONObject myInfoJsonObject = jsonObject.getJSONObject("data");
                             if (myInfoJsonObject != null) {
                                 String distances = myInfoJsonObject.getString("distance");
                                 if (WatchUtils.judgeUnit(MyApp.getContext())) {
@@ -211,61 +199,36 @@ public class WatchMineFragment extends LazyFragment {
                                     //平均步数
                                     watchMineAvageStepsTv.setText("" + myInfoJsonObject.getString("stepNumber") + getResources().getString(R.string.daily_numberofsteps_default));
                                 }
-                            }
-                        }
 
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        };
-
-
-        //我的数据返回
-        subscriberOnNextListener2 = new SubscriberOnNextListener<String>() {
-            @Override
-            public void onNext(String result) {
-                // Log.e("mine", "-----个人信息-----" + result);
-                if (!WatchUtils.isEmpty(result)) {
-                    try {
-                        JSONObject jsonObject = new JSONObject(result);
-                        if (jsonObject.getString("resultCode").equals("001")) {
-                            JSONObject myInfoJsonObject = jsonObject.getJSONObject("userInfo");
-                            if (myInfoJsonObject != null) {
-                                watchMineUname.setText("" + myInfoJsonObject.getString("nickName") + "");
-                                String imgHead = myInfoJsonObject.getString("image");
-                                if (!WatchUtils.isEmpty(imgHead)) {
+                                //个人资料
+                                JSONObject userJson = myInfoJsonObject.getJSONObject("userInfo");
+                                if(userJson != null){
+                                    //昵称
+                                    watchMineUname.setText("" + userJson.getString("nickname") + "");
                                     //头像
-
-                                    RequestOptions mRequestOptions = RequestOptions.circleCropTransform().diskCacheStrategy(DiskCacheStrategy.NONE)
-                                            .skipMemoryCache(true);
-
-//                                    Glide.with(getActivity()).load(myInfoJsonObject.getString("image"))
-//                                            .bitmapTransform(new CropCircleTransformation(getActivity())).placeholder(R.mipmap.ic_default_himg).into(watchMineUserheadImg);    //头像
-
-
-                                    Glide.with(getActivity()).load(myInfoJsonObject.getString("image"))
-                                            .apply(mRequestOptions).into(watchMineUserheadImg);    //头像
-                                }
-                                userId = myInfoJsonObject.getString("userId");
-                                String userHeight = myInfoJsonObject.getString("height");
-                                if (userHeight != null) {
-                                    if (userHeight.contains("cm")) {
-                                        String newHeight = userHeight.substring(0, userHeight.length() - 2);
-                                        SharedPreferencesUtils.setParam(getActivity(), "userheight", newHeight.trim());
-                                    } else {
-                                        SharedPreferencesUtils.setParam(getActivity(), "userheight", userHeight.trim());
+                                    String imgHead = userJson.getString("image");
+                                    if (!WatchUtils.isEmpty(imgHead)) {
+                                        //头像
+                                        RequestOptions mRequestOptions = RequestOptions.circleCropTransform().diskCacheStrategy(DiskCacheStrategy.NONE)
+                                                .skipMemoryCache(true);
+                                        Glide.with(getActivity()).load(imgHead)
+                                                .apply(mRequestOptions).into(watchMineUserheadImg);    //头像
                                     }
+
+
                                 }
+
+
                             }
                         }
+
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
             }
         };
+
     }
 
     @Override
@@ -313,6 +276,7 @@ public class WatchMineFragment extends LazyFragment {
                             MyApp.getInstance().h8BleManagerInstance().getH8BleService().autoConnByMac(false);
                         }
                     }
+                    MyApp.getInstance().getB30ConnStateService().stopAutoConn();
                     startActivity(new Intent(getActivity(), NewSearchActivity.class));
                     if (getActivity() != null)
                         getActivity().finish();
@@ -323,7 +287,8 @@ public class WatchMineFragment extends LazyFragment {
                 startActivity(new Intent(getActivity(), B30SysSettingActivity.class));
                 break;
             case R.id.card_frend://亲情互动
-                if (!WatchUtils.isEmpty(userId) && !userId.equals("9278cc399ab147d0ad3ef164ca156bf0")) {
+                String saveUserId = (String) SharedPreferencesUtils.readObject(getActivity(),Commont.USER_ID_DATA);
+                if (!WatchUtils.isEmpty(saveUserId) && !saveUserId.equals(userId)) {
                     startActivity(new Intent(getActivity(), FriendActivity.class));
                 } else {
                     ToastUtil.showShort(MyApp.getInstance(), getString(R.string.noright));

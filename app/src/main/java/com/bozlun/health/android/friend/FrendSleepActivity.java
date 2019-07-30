@@ -185,11 +185,11 @@ public class FrendSleepActivity extends WatchBaseActivity implements RequestView
                 if (i >= (w30S_sleepDataItems.size() - 1)) {
                     startTime = w30S_sleepDataItems.get(i).getStartTime();
                     startTimeLater = w30S_sleepDataItems.get(i).getStartTime();
-                    sleep_type = w30S_sleepDataItems.get(i).getSleep_type();
+                    //sleep_type = w30S_sleepDataItems.get(i).getSleep_type();
                 } else {
                     startTime = w30S_sleepDataItems.get(i).getStartTime();
                     startTimeLater = w30S_sleepDataItems.get(i + 1).getStartTime();
-                    sleep_type = w30S_sleepDataItems.get(i).getSleep_type();
+                    //sleep_type = w30S_sleepDataItems.get(i).getSleep_type();
                 }
                 String[] starSplit = startTime.split("[:]");
                 String[] endSplit = startTimeLater.split("[:]");
@@ -467,9 +467,9 @@ public class FrendSleepActivity extends WatchBaseActivity implements RequestView
 
                                 for (FrendSleepBean.SslistBean item :
                                         sslist) {
-                                    beanList.add(new W30S_SleepDataItem(
-                                            item.getSleep_type() + "".trim(),
-                                            item.getStartTime()));
+//                                    beanList.add(new W30S_SleepDataItem(
+//                                            item.getSleep_type() + "".trim(),
+//                                            item.getStartTime()));
                                 }
                                 if (!beanList.isEmpty() && beanList.size()>0) {
                                     detailCusSleepView.setVisibility(View.VISIBLE);

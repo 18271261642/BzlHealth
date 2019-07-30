@@ -2,13 +2,12 @@ package com.bozlun.health.android.friend;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
-import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -17,26 +16,35 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
 import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.R;
-import com.bozlun.health.android.friend.bean.MyFrendListBean;
+import com.bozlun.health.android.friend.bean.FriendMyFriendListBean;
 import com.bozlun.health.android.friend.bean.NewFrendApplyBean;
 import com.bozlun.health.android.friend.bean.TodayRankBean;
 import com.bozlun.health.android.friend.mutilbind.FrendAdapter;
 import com.bozlun.health.android.friend.mutilbind.TodayRankAdapter;
 import com.bozlun.health.android.siswatch.WatchBaseActivity;
-import com.bozlun.health.android.util.RecycleViewDivider;
-import com.bozlun.health.android.util.URLs;
+import com.bozlun.health.android.siswatch.utils.WatchUtils;
+import com.bozlun.health.android.util.ToastUtil;
 import com.bozlun.health.android.w30s.utils.httputils.RequestPressent;
 import com.bozlun.health.android.w30s.utils.httputils.RequestView;
+import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * @aboutContent:
@@ -49,6 +57,8 @@ import butterknife.ButterKnife;
 public class FriendActivity
         extends WatchBaseActivity
         implements RequestView, TabLayout.OnTabSelectedListener, FrendAdapter.OnItemListenter {
+    private static final String TAG = "FriendActivity";
+
     @BindView(R.id.toolbar_normal)
     Toolbar mNormalToolbar;
     @BindView(R.id.recycler_frend)
@@ -57,16 +67,36 @@ public class FriendActivity
     RecyclerView recyclerViewUnFrend;
     @BindView(R.id.m_tablayout)
     TabLayout mTabLayout;
-    //    @BindView(R.id.un_frend_smartrefresh)
-//    SmartRefreshLayout un_frend_smartrefresh;
+
+    @BindView(R.id.myFriendPositionTv)
+    TextView myFriendPositionTv;
+    @BindView(R.id.myFriendMineHeadImg)
+    CircleImageView myFriendMineHeadImg;
+    @BindView(R.id.myFriendMineNameTv)
+    TextView myFriendMineNameTv;
+    @BindView(R.id.myFriendMineStepTv)
+    TextView myFriendMineStepTv;
+    @BindView(R.id.myFriendMinZanImg)
+    ImageView myFriendMinZanImg;
+    @BindView(R.id.myFriendMineZanCountTv)
+    TextView myFriendMineZanCountTv;
+    //显示好友列表的布局
+    @BindView(R.id.myFriendMineLin)
+    LinearLayout myFriendMineLin;
     private int pageNumber = 0;//记录当前页码
 
     private RequestPressent requestPressent;
     String userId = "";
 
 
-//    List<MyFrendListBean.MyfriendsBean> myfriendsList;
-//    FrendAdapter frendAdapter;
+    //我的好友列表
+    private List<FriendMyFriendListBean> myFriendList;
+    private FrendAdapter frendAdapter;
+
+    //用户世界排行
+    private TodayRankAdapter rankAdapter;
+    private List<TodayRankBean.RankListBean> rankList;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -74,15 +104,43 @@ public class FriendActivity
         setContentView(R.layout.activity_fredens);
         ButterKnife.bind(this);
         inEdit();
+
+
+        initViews();
+
+
+    }
+
+    private void initViews() {
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        recyclerViewFrend.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        recyclerViewFrend.setLayoutManager(linearLayoutManager);
+        myFriendList = new ArrayList<>();
+        frendAdapter = new FrendAdapter(this, myFriendList);
+        recyclerViewFrend.setAdapter(frendAdapter);
+        frendAdapter.setmOnItemListenter(this);
+
+
+        LinearLayoutManager lin2 = new LinearLayoutManager(this);
+        lin2.setOrientation(LinearLayoutManager.VERTICAL);
+        recyclerViewUnFrend.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        recyclerViewUnFrend.setLayoutManager(lin2);
+        rankList = new ArrayList<>();
+        rankAdapter = new TodayRankAdapter(this, rankList);
+        recyclerViewUnFrend.setAdapter(rankAdapter);
+
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         userId = (String) SharedPreferencesUtils.readObject(this, "userId");
+        myFriendList.clear();
+        rankList.clear();
         if (pageNumber == 0) {
-            recyclerViewFrend.setVisibility(View.VISIBLE);
-//            un_frend_smartrefresh.setVisibility(View.GONE);
+            myFriendMineLin.setVisibility(View.VISIBLE);
             recyclerViewUnFrend.setVisibility(View.GONE);
             if (!TextUtils.isEmpty(userId)) {
                 showLoadingDialog(getResources().getString(R.string.dlog));
@@ -90,18 +148,20 @@ public class FriendActivity
                 findNewApplyFrend(userId);
             }
         } else {
-            recyclerViewFrend.setVisibility(View.GONE);
-//            un_frend_smartrefresh.setVisibility(View.VISIBLE);
+            myFriendMineLin.setVisibility(View.GONE);
             recyclerViewUnFrend.setVisibility(View.VISIBLE);
             showLoadingDialog(getResources().getString(R.string.dlog));
             findUnFrendList();
         }
     }
 
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         pageNumber = 0;
+        if (requestPressent != null)
+            requestPressent.detach();
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -120,21 +180,6 @@ public class FriendActivity
         mNormalToolbar.setOverflowIcon(getResources().getDrawable(R.mipmap.image_add));
         mNormalToolbar.setNavigationIcon(R.mipmap.backs);
         setSupportActionBar(mNormalToolbar);
-
-        recyclerViewFrend.setLayoutManager(new GridLayoutManager(this, 1));
-        //分割线
-        recyclerViewFrend.addItemDecoration(new RecycleViewDivider(
-                this, LinearLayoutManager.VERTICAL, 8, Color.parseColor("#D9D9D9")));
-
-        //非好友列表
-        recyclerViewUnFrend.setLayoutManager(new GridLayoutManager(this, 1));
-        //分割线
-        recyclerViewUnFrend.addItemDecoration(new RecycleViewDivider(
-                this, LinearLayoutManager.VERTICAL, 8, Color.parseColor("#D9D9D9")));
-//        myfriendsList = new ArrayList<>();
-//        frendAdapter = new FrendAdapter(FriendActivity.this, myfriendsList);
-//        recyclerViewFrend.setAdapter(frendAdapter);
-//        frendAdapter.setmOnItemListenter(FriendActivity.this);
 
 
     }
@@ -179,7 +224,7 @@ public class FriendActivity
             return true;
         }
         if (id == R.id.action_new_frend_apply) {//好友申请
-            startActivity(new Intent(this, FriendApplyActivity.class));
+            startActivity(new Intent(this, NewFriendApplyActivity.class));
             return true;
         }
 
@@ -201,17 +246,20 @@ public class FriendActivity
      * @param userId
      */
     public void findFrendList(String userId) {
-        String sleepUrl = URLs.HTTPs + Commont.Findlist;
+        String sleepUrl = Commont.FRIEND_BASE_URL + Commont.Findlist;
+        String saveMac = WatchUtils.getSherpBleMac(FriendActivity.this);
+        if (WatchUtils.isEmpty(saveMac))
+            return;
         JSONObject sleepJson = new JSONObject();
         try {
             sleepJson.put("userId", userId);
-
-            Log.d("-----------朋友--", "获取好友列表参数--" + sleepJson.toString());
+            sleepJson.put("mac", saveMac);
         } catch (JSONException e1) {
             e1.printStackTrace();
         }
 
         if (requestPressent != null) {
+            Log.e(TAG, "---------获取好友列表参数=" + sleepJson.toString());
             requestPressent.getRequestJSONObject(0x01, sleepUrl, FriendActivity.this, sleepJson.toString(), 0);
         }
     }
@@ -222,7 +270,7 @@ public class FriendActivity
      * @param userId
      */
     public void deleteFrenditem(String userId, String applicant) {
-        String sleepUrl = URLs.HTTPs + Commont.DeleteFrendItem;
+        String sleepUrl = Commont.FRIEND_BASE_URL + Commont.DeleteFrendItem;
         JSONObject sleepJson = new JSONObject();
         try {
             sleepJson.put("userId", userId);
@@ -245,7 +293,7 @@ public class FriendActivity
      * @param applicant 被赞人
      */
     public void awesomeFrenditem(String userId, String applicant) {
-        String sleepUrl = URLs.HTTPs + Commont.FrendAwesome;
+        String sleepUrl = Commont.FRIEND_BASE_URL + Commont.FrendAwesome;
         JSONObject sleepJson = new JSONObject();
         try {
             sleepJson.put("userId", userId);
@@ -261,10 +309,10 @@ public class FriendActivity
     }
 
     /**
-     * 查找非好友列表
+     * 查找非好友列表，世界排行
      */
     public void findUnFrendList() {
-        String sleepUrl = URLs.HTTPs + Commont.TodayRank;
+        String sleepUrl = Commont.FRIEND_BASE_URL + Commont.TodayRank;
         if (requestPressent != null) {
             requestPressent.getRequestJSONObject(0x02, sleepUrl, FriendActivity.this, "", 0);
         }
@@ -277,7 +325,7 @@ public class FriendActivity
      * @param userId
      */
     public void findNewApplyFrend(String userId) {
-        String sleepUrl = URLs.HTTPs + Commont.FindNewFrend;
+        String sleepUrl = Commont.FRIEND_BASE_URL + Commont.FindNewFrend;
         JSONObject sleepJson = new JSONObject();
         try {
             sleepJson.put("userId", userId);
@@ -297,108 +345,6 @@ public class FriendActivity
         public boolean handleMessage(Message message) {
             try {
                 switch (message.what) {
-                    case 0x01:
-                        Log.d("----------获取朋友列表返回--", message.obj.toString());
-                        MyFrendListBean myFrendListBean = new Gson().fromJson(message.obj.toString(), MyFrendListBean.class);
-                        if (myFrendListBean != null) {
-                            if (myFrendListBean.getResultCode().equals("001")) {
-                                List<MyFrendListBean.MyfriendsBean> myfriends = myFrendListBean.getMyfriends();
-
-
-                                MyFrendListBean.MyInfoBean myInfo = myFrendListBean.getMyInfo();
-
-                                if (myfriends != null && !myfriends.isEmpty() && myInfo != null) {
-
-
-                                    //我的数据添加到头
-                                    MyFrendListBean.MyfriendsBean myfriendsBean = new MyFrendListBean.MyfriendsBean();
-                                    myfriendsBean.setBirthday(myInfo.getBirthday());
-                                    myfriendsBean.setImage(myInfo.getImage());
-                                    myfriendsBean.setTodayThumbs(myInfo.getTodayThumbs());//被赞次数
-                                    myfriendsBean.setNickName(myInfo.getNickName());
-                                    myfriendsBean.setSex(myInfo.getSex());
-                                    myfriendsBean.setWeight(myInfo.getWeight());
-                                    myfriendsBean.setEquipment(myInfo.getEquipment());
-                                    myfriendsBean.setUserId(myInfo.getUserId());
-                                    myfriendsBean.setPhone(myInfo.getPhone());
-                                    myfriendsBean.setStepNumber(myInfo.getStepNumber());
-                                    myfriendsBean.setHeight(myInfo.getHeight());
-
-                                    myfriends.add(0, myfriendsBean);
-
-
-//                                Collections.sort(myfriends, new Comparator<MyFrendListBean.MyfriendsBean>() {
-//                                    @Override
-//                                    public int compare(MyFrendListBean.MyfriendsBean o1, MyFrendListBean.MyfriendsBean o2) {
-//                                        // 返回值为int类型，大于0表示正序，小于0表示逆序
-////                                        return o2-o1;
-//                                        return o2.getStepNumber() - o1.getStepNumber();
-//                                    }
-//                                });
-
-
-//                                    myfriendsList.clear();
-//                                    myfriendsList.addAll(myfriends);
-                                    FrendAdapter frendAdapter = new FrendAdapter(FriendActivity.this, myfriends);
-                                    recyclerViewFrend.setAdapter(frendAdapter);
-                                    frendAdapter.setmOnItemListenter(FriendActivity.this);
-                                    frendAdapter.notifyDataSetChanged();
-                                }
-                            }
-                        }
-
-                        break;
-                    case 0x02:
-                        TodayRankBean todayRankBean = new Gson().fromJson(message.obj.toString(), TodayRankBean.class);
-                        if (todayRankBean != null) {
-                            if (todayRankBean.getResultCode().equals("001")) {
-                                List<TodayRankBean.RankListBean> rankList = todayRankBean.getRankList();
-                                TodayRankAdapter todayRankAdapter = new TodayRankAdapter(FriendActivity.this, rankList);
-                                recyclerViewUnFrend.setAdapter(todayRankAdapter);
-                                todayRankAdapter.notifyDataSetChanged();
-                            }
-                        }
-                        break;
-                    case 0x03:
-                        Log.d("----------删除朋友返回--", message.obj.toString());
-                        try {
-                            JSONObject jsonObject = new JSONObject(message.obj.toString());
-                            if (jsonObject.has("resultCode")) {
-                                String resultCode1 = jsonObject.getString("resultCode");
-                                boolean b = Commont.ReturnCode(resultCode1);
-                                if (b) {
-                                    Log.d("-----------朋友--", "删除成功--重新获取列表");
-                                    userId = (String) SharedPreferencesUtils.readObject(FriendActivity.this, "userId");
-                                    if (!TextUtils.isEmpty(userId)) {
-                                        findFrendList(userId);
-                                        findNewApplyFrend(userId);
-                                    }
-                                }
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        break;
-                    case 0x04:
-                        Log.d("----------给朋友点赞返回--", message.obj.toString());
-                        try {
-                            JSONObject jsonObject = new JSONObject(message.obj.toString());
-                            if (jsonObject.has("resultCode")) {
-                                String resultCode1 = jsonObject.getString("resultCode");
-                                boolean b = Commont.ReturnCode(resultCode1);
-                                if (b) {
-                                    Log.d("-----------朋友--", "点赞成功--重新获取列表");
-                                    userId = (String) SharedPreferencesUtils.readObject(FriendActivity.this, "userId");
-                                    if (!TextUtils.isEmpty(userId)) {
-                                        findFrendList(userId);
-                                        findNewApplyFrend(userId);
-                                    }
-                                }
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        break;
                     case 0x05:
                         Log.d("----------新申请朋友列表返回--", message.obj.toString());
                         NewFrendApplyBean newFrendApplyBean = new Gson().fromJson(message.obj.toString(), NewFrendApplyBean.class);
@@ -436,12 +382,59 @@ public class FriendActivity
         closeLoadingDialog();
         if (object == null || TextUtils.isEmpty(object.toString().trim()) || object.toString().contains("<html>"))
             return;
-        Log.d("-----------朋友--", object.toString());
-        Message message = new Message();
-        message.what = what;
-        message.obj = object;
-        if (handler != null) handler.sendMessage(message);
+        Log.e(TAG, "--------succ="+what+"---"+object.toString());
+
+        try {
+            JSONObject jsonObject = new JSONObject(object.toString());
+            switch (what) {
+                case 0x01:  //好友列表
+                    analysisFriendListData(jsonObject);
+                    break;
+                case 0x02:  //世界排行
+                    analysisWorldRankData(jsonObject);
+                    break;
+                case 0x03:      //删除好友
+                    analysisDelFriendData(jsonObject);
+                    break;
+                case 0x04:  //好友点赞
+                    if(jsonObject.getInt("code") == 200){   //点赞成功
+                        findFrendList(userId);
+                    }else{
+                        ToastUtil.showToast(FriendActivity.this,jsonObject.getString("msg"));
+                    }
+                    break;
+                case 0x05:  //查找新好友的申请
+                    analysisNewFriendApp(jsonObject);
+                    break;
+            }
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
+
+    //是否有好友申请
+    private void analysisNewFriendApp(JSONObject jsonObject) {
+        try {
+            if(jsonObject.getInt("code") == 200){
+                String data = jsonObject.getString("data");
+                if(data != null && !data.equals("[]")){
+                    //替换三个点
+                    mNormalToolbar.setOverflowIcon(getResources().getDrawable(R.mipmap.ic_new_add_frend));
+                    setSupportActionBar(mNormalToolbar);
+                }else{
+                    //替换三个点
+                    mNormalToolbar.setOverflowIcon(getResources().getDrawable(R.mipmap.image_add));
+                    setSupportActionBar(mNormalToolbar);
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @Override
     public void failedData(int what, Throwable e) {
@@ -451,6 +444,90 @@ public class FriendActivity
     @Override
     public void closeLoadDialog(int what) {
         closeLoadingDialog();
+    }
+
+
+    //展示好友列表
+    private void analysisFriendListData(JSONObject friendListStr) {
+
+        try {
+            myFriendList.clear();
+            frendAdapter.notifyDataSetChanged();
+            if (friendListStr.getInt("code") == 200) {
+                JSONObject dataJsonStr = friendListStr.getJSONObject("data");
+
+                //显示个人信息的bean
+                FriendMyFriendListBean tmpBean = new Gson().fromJson(dataJsonStr.getString("userInfo"),
+                        FriendMyFriendListBean.class);
+                showMineUserData(tmpBean);
+
+                //好友列表
+                List<FriendMyFriendListBean> tempFriendList = new Gson().fromJson(dataJsonStr.getString("myfriends"),
+                        new TypeToken<List<FriendMyFriendListBean>>() {
+                        }.getType());
+                myFriendList.addAll(tempFriendList);
+                frendAdapter.notifyDataSetChanged();
+                return;
+            }
+            frendAdapter.notifyDataSetChanged();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //显示个人信息
+    @SuppressLint("SetTextI18n")
+    private void showMineUserData(FriendMyFriendListBean tmpBean) {
+        myFriendPositionTv.setText(getResources().getString(R.string.string_mine));
+        myFriendMineNameTv.setText(tmpBean.getNickname() + "");
+        myFriendMineStepTv.setText(getResources().getString(R.string.step) + ":" + tmpBean.getStepNumber());
+        Glide.with(FriendActivity.this).load(tmpBean.getImage())
+                .into(myFriendMineHeadImg);
+        int isThumbs = tmpBean.getTodayThumbs();
+        myFriendMineZanCountTv.setText(isThumbs + "");
+        if (isThumbs == 0) {
+            myFriendMinZanImg.setEnabled(true);
+            myFriendMinZanImg.setBackgroundResource(R.mipmap.ic_on_like);
+        } else {
+            myFriendMinZanImg.setEnabled(false);
+            myFriendMinZanImg.setBackgroundResource(R.mipmap.ic_un_like);
+        }
+    }
+
+
+    //世界排行
+    private void analysisWorldRankData(JSONObject jsonObject) {
+        rankList.clear();
+        try {
+            if(jsonObject.getInt("code") == 200){
+                String rankStr = jsonObject.getString("data");
+                List<TodayRankBean.RankListBean> tmpRankList = new Gson().fromJson(rankStr, new TypeToken<List<TodayRankBean.RankListBean>>() {
+                }.getType());
+                rankList.addAll(tmpRankList);
+                rankAdapter.notifyDataSetChanged();
+            }else{
+                rankAdapter.notifyDataSetChanged();
+            }
+
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    //删除好友
+    private void analysisDelFriendData(JSONObject jsonObject) {
+        try {
+            if (jsonObject.getInt("code") == 200) {   //删除成功，刷新界面
+                findFrendList(userId);
+                findNewApplyFrend(userId);
+            }else{
+                ToastUtil.showToast(FriendActivity.this,jsonObject.getString("msg"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -464,15 +541,13 @@ public class FriendActivity
         pageNumber = tab.getPosition();
         userId = (String) SharedPreferencesUtils.readObject(this, "userId");
         if (pageNumber == 0) {
-            recyclerViewFrend.setVisibility(View.VISIBLE);
-//            un_frend_smartrefresh.setVisibility(View.GONE);
+            myFriendMineLin.setVisibility(View.VISIBLE);
             recyclerViewUnFrend.setVisibility(View.GONE);
             if (!TextUtils.isEmpty(userId)) {
                 findFrendList(userId);
             }
         } else {
-            recyclerViewFrend.setVisibility(View.GONE);
-//            un_frend_smartrefresh.setVisibility(View.VISIBLE);
+            myFriendMineLin.setVisibility(View.GONE);
             recyclerViewUnFrend.setVisibility(View.VISIBLE);
             findUnFrendList();
         }
@@ -499,10 +574,10 @@ public class FriendActivity
      * @param frendHeight 身高
      */
     @Override
-    public void ItemOnClick(View view, String applicant, int stepNumber, String frendHeight, int postion,String bleMac) {
+    public void ItemOnClick(View view, String applicant, int stepNumber, String frendHeight, int postion, String bleMac) {
         //去朋友数据界面
-        startActivity(FrendDataActivity.class, new String[]{"applicant", "stepNumber", "frendHeight","bleMac"},
-                new String[]{applicant, stepNumber + "", frendHeight,bleMac});
+        startActivity(FrendDataActivity.class, new String[]{"applicant", "stepNumber", "frendHeight", "bleMac"},
+                new String[]{applicant, stepNumber + "", frendHeight, bleMac});
     }
 
     /**
@@ -512,9 +587,7 @@ public class FriendActivity
      */
     @Override
     public void ItemOnClickMine(int postion) {
-        if (postion == 0) {
-            startActivity(FrendLoveMineActivity.class);
-        }
+
     }
 
 
@@ -544,6 +617,11 @@ public class FriendActivity
         if (!TextUtils.isEmpty(userId) && !TextUtils.isEmpty(applicant)) {
             deleteFrenditem(userId, applicant);
         }
+    }
+
+    @OnClick(R.id.myFriendMineLin)
+    public void onClick() {
+        startActivity(FrendLoveMineActivity.class);
     }
 
 }

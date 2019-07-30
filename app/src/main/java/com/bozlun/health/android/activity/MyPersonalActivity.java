@@ -16,7 +16,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import android.support.annotation.RequiresApi;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
@@ -26,10 +25,11 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.aigestudio.wheelpicker.widgets.DatePick;
 import com.aigestudio.wheelpicker.widgets.ProfessionPick;
+import com.bozlun.health.android.bean.UserInfoBean;
+import com.bozlun.health.android.siswatch.WatchBaseActivity;
 import com.bozlun.health.android.view.MineQrcodeView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -38,8 +38,6 @@ import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.R;
 import com.bozlun.health.android.b30.view.B30SkinColorView;
-import com.bozlun.health.android.base.BaseActivity;
-import com.bozlun.health.android.bean.MessageEvent;
 import com.bozlun.health.android.bleutil.MyCommandManager;
 import com.bozlun.health.android.imagepicker.PickerBuilder;
 import com.bozlun.health.android.net.OkHttpObservable;
@@ -67,38 +65,29 @@ import com.veepoo.protocol.model.enums.EFunctionStatus;
 import com.veepoo.protocol.model.enums.EOprateStauts;
 import com.veepoo.protocol.model.settings.CustomSetting;
 import com.veepoo.protocol.model.settings.CustomSettingData;
-import com.yanzhenjie.nohttp.NoHttp;
-import com.yanzhenjie.nohttp.rest.RequestQueue;
 import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
-
 import org.apache.commons.lang.StringUtils;
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.hdodenhof.circleimageview.CircleImageView;
 
-import static com.bozlun.health.android.util.Common.userInfo;
 
 /**
- * Created by thinkpad on 2017/3/8.
+ *
  * 个人信息
  */
 
-public class MyPersonalActivity extends BaseActivity implements RequestView {
+public class MyPersonalActivity extends WatchBaseActivity implements RequestView {
 
     private static final String TAG = "MyPersonalActivity";
 
@@ -147,12 +136,8 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
     RelativeLayout skinColorRel;
     @BindView(R.id.personalH8UnitTv)
     TextView personalH8UnitTv;
-    private String nickName, sex, height, weight, birthday, flag;
-    private DialogSubscriber dialogSubscriber;
-    private boolean isSubmit;
 
-    private CommonSubscriber commonSubscriber;
-    private SubscriberOnNextListener subscriberOnNextListener;
+
     private ArrayList<String> heightList;
     private ArrayList<String> weightList;
 
@@ -168,15 +153,12 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
      * 本地化帮助类
      */
     private LocalizeTool mLocalTool;
-    /**
-     * 请求回来的参数,或者要提交的
-     */
-    private UserInfo mUserInfo = null;
+
     /**
      * Json帮助类
      */
     private Gson gson = new Gson();
-    private RequestQueue requestQueue;
+
     private RequestPressent requestPressent;
 
 
@@ -189,19 +171,95 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
     private AlertDialog.Builder alertDialog;
     //我的二维码view
     private MineQrcodeView mineQrcodeView;
+    UserInfoBean userInfoBean = null;
 
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_personal_info);
+        ButterKnife.bind(this);
+
+        initView();
+        requestPressent = new RequestPressent();
+        requestPressent.attach(this);
+
+        requestPermiss();
+
+        //获取用户数据
+        getUserInfoData();
+    }
+
+    private void initView() {
+        w30sunit = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISSystem, true);
+//        tvTitle.setText(R.string.personal_info);
+        findViewById(R.id.personal_info_back).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+        findViewById(R.id.personal_info_save).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //savePersonData();
+            }
+        });
+        heightList = new ArrayList<>();
+        weightList = new ArrayList<>();
+        bleName = (String) SharedPreferencesUtils.readObject(MyPersonalActivity.this,  Commont.BLENAME);
+        if (!WatchUtils.isEmpty(bleName) && WatchUtils.isVPBleDevice(bleName)) {
+            skinColorRel.setVisibility(View.VISIBLE);
+        } else {
+            skinColorRel.setVisibility(View.GONE);
+        }
+
+        //H8公英制
+        if (!WatchUtils.isEmpty(bleName) && bleName.equals("bozlun")) {    //H8手表
+            personalUnitLin.setVisibility(View.VISIBLE);
+        } else {
+            personalUnitLin.setVisibility(View.GONE);
+        }
+
+        if (w30sunit) {
+            personalH8UnitTv.setText(getResources().getString(R.string.setkm));
+        } else {
+            personalH8UnitTv.setText(getResources().getString(R.string.setmi));
+
+        }
+
+        //设置选择列表
+        setListData();
+
+        //肤色显示
+        showSkinColorData();
+    }
+
+    //求情权限
+    private void requestPermiss() {
+        AndPermission.with(MyPersonalActivity.this)
+                .runtime()
+                .permission(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .onGranted(new Action<List<String>>() {
+                    @Override
+                    public void onAction(List<String> data) {
+
+                    }
+                })
+                .onDenied(new Action<List<String>>() {
+                    @Override
+                    public void onAction(List<String> data) {
+
+                    }
+                }).start();
+
+    }
 
 
     @Override
     protected void onDestroy() {
-        EventBus.getDefault().unregister(this);
         super.onDestroy();
         requestPressent.detach();
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(MessageEvent event) {
     }
 
 
@@ -216,85 +274,6 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
         }
     }
 
-    @Override
-    protected int getContentViewId() {
-        return R.layout.activity_personal_info;
-    }
-
-    @Override
-    protected void initViews() {
-        w30sunit = (boolean) SharedPreferencesUtils.getParam(MyApp.getContext(), Commont.ISSystem, true);
-//        tvTitle.setText(R.string.personal_info);
-        findViewById(R.id.personal_info_back).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
-        findViewById(R.id.personal_info_save).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                savePersonData();
-            }
-        });
-        heightList = new ArrayList<>();
-        weightList = new ArrayList<>();
-        bleName = (String) SharedPreferencesUtils.readObject(MyPersonalActivity.this,  Commont.BLENAME);
-        if (!WatchUtils.isEmpty(bleName) && WatchUtils.isVPBleDevice(bleName)) {
-            skinColorRel.setVisibility(View.VISIBLE);
-        } else {
-            skinColorRel.setVisibility(View.GONE);
-        }
-
-
-        if (!WatchUtils.isEmpty(bleName) && bleName.equals("bozlun")) {    //H8手表
-            personalUnitLin.setVisibility(View.VISIBLE);
-        } else {
-            personalUnitLin.setVisibility(View.GONE);
-        }
-
-
-        // mLocalTool = new LocalizeTool(this);
-        // w30sunit = mLocalTool.getMetricSystem();
-        if (w30sunit) {
-            personalH8UnitTv.setText(getResources().getString(R.string.setkm));
-
-        } else {
-            personalH8UnitTv.setText(getResources().getString(R.string.setmi));
-
-        }
-
-        EventBus.getDefault().register(this);
-
-
-        //设置选择列表
-        setListData();
-
-        //肤色显示
-        showSkinColorData();
-
-
-        subscriberOnNextListener = new SubscriberOnNextListener<String>() {
-            @Override
-            public void onNext(String result) {
-                try {
-                    JSONObject jsonObject = new JSONObject(result);
-                    String resultCode = jsonObject.getString("resultCode");
-                    System.out.print("resultCode" + resultCode);
-                    Log.e("MyPerson", "----resultCode--" + resultCode + "-isSubmit----" + isSubmit);
-                    if ("001".equals(resultCode)) {
-                        ToastUtil.showShort(MyPersonalActivity.this, getString(R.string.submit_success));
-                        getUserInfoData();
-                    } else {
-                        ToastUtil.showShort(MyPersonalActivity.this, getString(R.string.submit_fail));
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-
-    }
 
     //显示肤色
     private void showSkinColorData() {
@@ -324,134 +303,69 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
         }
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        ButterKnife.bind(this);
 
-
-        requestQueue = NoHttp.newRequestQueue(1);
-        requestPressent = new RequestPressent();
-        requestPressent.attach(this);
-
-
-        AndPermission.with(MyPersonalActivity.this)
-                .runtime()
-                .permission(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                .onGranted(new Action<List<String>>() {
-                    @Override
-                    public void onAction(List<String> data) {
-
-                    }
-                })
-                .onDenied(new Action<List<String>>() {
-                    @Override
-                    public void onAction(List<String> data) {
-
-                    }
-                }).start();
-
-
-        //获取用户数据
-        getUserInfoData();
-    }
 
     // 获取用户数据
     private void getUserInfoData() {
-        String url = URLs.HTTPs + URLs.getUserInfo;
+        String url = Commont.FRIEND_BASE_URL + URLs.getUserInfo;
         if (requestPressent != null) {
             HashMap<String, String> map = new HashMap<>();
-            map.put("userId", (String) SharedPreferencesUtils.readObject(MyPersonalActivity.this, "userId"));
+            map.put("userId", (String) SharedPreferencesUtils.readObject(MyPersonalActivity.this,Commont.USER_ID_DATA));
             String mapJson = gson.toJson(map);
-            requestPressent.getRequestJSONObject(1, url, this, mapJson, 11);
+            requestPressent.getRequestJSONObject(0x01, url, this, mapJson, 11);
         }
     }
 
-    /**
-     * 修改用户数据
-     */
-    private void savePersonData() {
-        if (mUserInfo == null) return;
-        String mapjson = gson.toJson(mUserInfo);
-        dialogSubscriber = new DialogSubscriber(subscriberOnNextListener, this);
-        OkHttpObservable.getInstance().getData(dialogSubscriber, URLs.HTTPs + URLs.yonghuziliao, mapjson);
-    }
-
-    /**
-     * 刷新所以得数据（名字和头像）
-     */
-    public void shuaxin() {
-        isSubmit = false;
-        HashMap<String, String> map = new HashMap<>();
-        map.put("userId", (String) SharedPreferencesUtils.readObject(MyPersonalActivity.this, "userId"));
-        String mapjson = gson.toJson(map);
-        commonSubscriber = new CommonSubscriber(subscriberOnNextListener, this);
-        OkHttpObservable.getInstance().getData(commonSubscriber, URLs.HTTPs + URLs.getUserInfo, mapjson);
-    }
 
     @OnClick({R.id.personal_avatar_relayout,
             R.id.nickname_relayout_personal,
             R.id.sex_relayout, R.id.height_relayout,
             R.id.weight_relayout, R.id.birthday_relayout,
             R.id.skinColorRel, R.id.personal_UnitLin,
-            R.id.persionQrcodeRel})
+            R.id.persionQrcodeRel,R.id.personal_info_back})
     public void onClick(View view) {
         String userId = (String) SharedPreferencesUtils.readObject(MyPersonalActivity.this, "userId");
-        SharedPreferences share = getSharedPreferences("Login_id", 0);
-        int isoff = share.getInt("id", 0);
         if (!WatchUtils.isEmpty(userId)) {
             if (userId.equals("9278cc399ab147d0ad3ef164ca156bf0")) {  //判断是否是游客身份，如果是游客身份无权限修改信息
                 ToastUtil.showToast(MyPersonalActivity.this, MyPersonalActivity.this.getResources().getString(R.string.noright));
             } else {
                 switch (view.getId()) {
+                    case R.id.personal_info_back:   //返回
+                        finish();
+                        break;
                     case R.id.personal_avatar_relayout://  修改头像
-                        if(mUserInfo == null)
+                        if(userInfoBean == null)
                             return;
                         if (AndPermission.hasAlwaysDeniedPermission(MyPersonalActivity.this, Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                             chooseImgForUserHead(); //选择图片来源
                         } else {
-                            AndPermission.with(MyPersonalActivity.this)
-                                    .runtime()
-                                    .permission(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                                    .onGranted(new Action<List<String>>() {
-                                        @Override
-                                        public void onAction(List<String> data) {
-
-                                        }
-                                    })
-                                    .onDenied(new Action<List<String>>() {
-                                        @Override
-                                        public void onAction(List<String> data) {
-
-                                        }
-                                    }).start();
-
+                           requestPermiss();
                         }
                         break;
                     case R.id.nickname_relayout_personal:
-                        if(mUserInfo == null)
+                        if(userInfoBean == null)
                             return;
-                        startActivityForResult(new Intent(MyPersonalActivity.this, ModifyNickNameActivity.class), 1000);
+                        startActivityForResult(new Intent(MyPersonalActivity.this,
+                                ModifyNickNameActivity.class), 1000);
                         break;
                     case R.id.sex_relayout:
-                        if(mUserInfo == null)
+                        if(userInfoBean == null)
                             return;
                         showSexDialog();
                         break;
                     case R.id.height_relayout:      // 身高
-                        if(mUserInfo == null)
+                        if(userInfoBean == null)
                             return;
                         if (w30sunit) { //公制
                             ProfessionPick professionPopWin = new ProfessionPick.Builder(MyPersonalActivity.this, new ProfessionPick.OnProCityPickedListener() {
                                 @Override
                                 public void onProCityPickCompleted(String profession) {
                                     heightTv.setText(profession);
-                                    mUserInfo.height = profession.trim().substring(0, 3);// 记录一下提交要用
-                                    flag = "height";
+                                   // mUserInfo.height = profession.trim().substring(0, 3);// 记录一下提交要用
 //                                    heightTv.setText(profession);
 //                                    height = profession.substring(0, 3);
                                     String uHeight = profession.substring(0, 3).trim();
-                                    modifyPersonData(uHeight);
+                                    modifyPersonData("height",uHeight);
                                 }
                             }).textConfirm(getResources().getString(R.string.confirm)) //text of confirm button
                                     .textCancel(getResources().getString(R.string.cancle))
@@ -469,7 +383,6 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
                                 public void onProCityPickCompleted(String profession) {
                                     heightTv.setText(profession);
                                     String tmpHeight = StringUtils.substringBefore(profession, "in").trim();
-                                    flag = "height";
                                     //height = profession.substring(0, 3);
                                     //1,英寸转cm
                                     double tmpCal = WatchUtils.mul(Double.valueOf(tmpHeight), 2.5);
@@ -479,12 +392,15 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
                                     String afterTmpCal = StringUtils.substringAfter(String.valueOf(tmpCal), ".").trim();
                                     //判断小数点后一位是否》=5
                                     int lastAterTmpCal = Integer.valueOf(afterTmpCal.length() >= 1 ? afterTmpCal.substring(0, 1) : "0");
+
+                                    String resulHeight = null;
+
                                     if (lastAterTmpCal >= 5) {
-                                        mUserInfo.height = (beforeTmpCal + 1) + "";
+                                        resulHeight = (beforeTmpCal + 1) + "";
                                     } else {
-                                        mUserInfo.height = beforeTmpCal + "";
+                                        resulHeight = beforeTmpCal + "";
                                     }
-                                    modifyPersonData(mUserInfo.height);
+                                    modifyPersonData("height",resulHeight);
                                 }
                             }).textConfirm(getResources().getString(R.string.confirm)) //text of confirm button
                                     .textCancel(getResources().getString(R.string.cancle))
@@ -500,17 +416,17 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
 
                         break;
                     case R.id.weight_relayout:  //体重
-                        if(mUserInfo == null)
+                        if(userInfoBean == null)
                             return;
                         if (w30sunit) { //公制
                             ProfessionPick weightPopWin = new ProfessionPick.Builder(MyPersonalActivity.this, new ProfessionPick.OnProCityPickedListener() {
                                 @Override
                                 public void onProCityPickCompleted(String profession) {
                                     weightTv.setText(profession);
-                                    mUserInfo.weight = profession.substring(0, 3);// 记录一下提交要用
-                                    flag = "weight";
-                                    weight = profession.substring(0, 3);
-                                    modifyPersonData(weight);
+//                                    mUserInfo.weight = profession.substring(0, 3);// 记录一下提交要用
+//                                    flag = "weight";
+                                    String uWeight = profession.substring(0, 3);
+                                    modifyPersonData("weight",uWeight);
                                 }
                             }).textConfirm(getResources().getString(R.string.confirm)) //text of confirm button
                                     .textCancel(getResources().getString(R.string.cancle))
@@ -528,7 +444,7 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
                                 @Override
                                 public void onProCityPickCompleted(String profession) {
                                     weightTv.setText(profession);
-                                    flag = "weight";
+                                    //flag = "weight";
                                     String tmpWeid = StringUtils.substringBefore(profession, "lb").trim();
                                     double calWeid = WatchUtils.mul(Double.valueOf(tmpWeid), 0.454);
                                     //截取小数点前的数据
@@ -536,14 +452,15 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
                                     //截取后小数点后的数据
                                     String afterCalWeid = StringUtils.substringAfter(String.valueOf(calWeid), ".");
                                     int lastNum = Integer.valueOf(afterCalWeid.length() >= 1 ? afterCalWeid.substring(0, 1) : "0");
+                                    String uWeight = null;
                                     //判断小数点后一位是否大于5
                                     if (lastNum >= 5) {
-                                        mUserInfo.weight = String.valueOf(Integer.valueOf(beforeCalWeid.trim()) + 1);
+                                        uWeight = String.valueOf(Integer.valueOf(beforeCalWeid.trim()) + 1);
                                     } else {
-                                        mUserInfo.weight = beforeCalWeid.trim();
+                                        uWeight = beforeCalWeid.trim();
                                     }
                                     // weight = profession.substring(0, 3);
-                                    modifyPersonData(mUserInfo.weight);
+                                    modifyPersonData("weight",uWeight);
                                 }
                             }).textConfirm(getResources().getString(R.string.confirm)) //text of confirm button
                                     .textCancel(getResources().getString(R.string.cancle))
@@ -559,16 +476,16 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
 
                         break;
                     case R.id.birthday_relayout:    //生日
-                        if(mUserInfo == null)
+                        if(userInfoBean == null)
                             return;
                         DatePick pickerPopWin = new DatePick.Builder(MyPersonalActivity.this, new DatePick.OnDatePickedListener() {
                             @Override
                             public void onDatePickCompleted(int year, int month, int day, String dateDesc) {
                                 birthdayTv.setText(dateDesc);
-                                mUserInfo.birthday = dateDesc;
-                                flag = "birthday";
-                                birthday = dateDesc;
-                                modifyPersonData(dateDesc);//
+//                                mUserInfo.birthday = dateDesc;
+//                                flag = "birthday";
+//                                birthday = dateDesc;
+                                modifyPersonData("birthday",dateDesc);//
                             }
                         }).textConfirm(getResources().getString(R.string.confirm)) //text of confirm button
                                 .textCancel(getResources().getString(R.string.cancle)) //text of cancel button
@@ -610,13 +527,16 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
                         });
                         break;
                     case R.id.personal_UnitLin:     //公英制单位
-                        if(mUserInfo == null)
+                        if(userInfoBean == null)
                             return;
                         showChooseH8Unit();
                         break;
                     case R.id.persionQrcodeRel:     //我的二维码显示
+                        if(userInfoBean == null)
+                            return;
                         if(mineQrcodeView == null)
                             mineQrcodeView = new MineQrcodeView(MyPersonalActivity.this);
+                        mineQrcodeView.setUserAccount(userInfoBean.getPhone());
                         mineQrcodeView.show();
                         break;
                 }
@@ -841,18 +761,18 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
                     public boolean onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
                         //0表示男,1表示女
                         if (which == 0) {
-                            mUserInfo.sex = "M";// 记录一下,提交的时候用
+                            //mUserInfo.sex = "M";// 记录一下,提交的时候用
                             sexTv.setText(getResources().getString(R.string.sex_nan));
                             //保存性别
                             SharedPreferencesUtils.setParam(MyPersonalActivity.this,Commont.USER_SEX,"M");
                         } else {
-                            mUserInfo.sex = "F";
+                           // mUserInfo.sex = "F";
                             sexTv.setText(getResources().getString(R.string.sex_nv));
                             //保存性别
                             SharedPreferencesUtils.setParam(MyPersonalActivity.this,Commont.USER_SEX,"F");
                         }
-                        flag = "sex";
-                        modifyPersonData(mUserInfo.sex);
+                        //flag = "sex";
+                        modifyPersonData("sex",which==0?"M":"F");
                         return true;
                     }
                 })
@@ -894,10 +814,9 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
      */
     private void uploadPic(String filePath, int flag) {
         Log.e(TAG, "----上传图片=" + filePath);
-        isSubmit = false;
         HashMap<String, Object> map = new HashMap<>();
-        if (mUserInfo != null && !TextUtils.isEmpty(mUserInfo.userId))
-            map.put("userId", mUserInfo.userId);
+        if (userInfoBean != null && !TextUtils.isEmpty(userInfoBean.getUserid()))
+            map.put("userId", userInfoBean.getUserid());
         if (flag == 0) {
             map.put("image", filePath);
         } else {
@@ -905,22 +824,30 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
         }
         String mapjson = gson.toJson(map);
         Log.e(TAG, "----上传图片mapjson=" + mapjson);
-        dialogSubscriber = new DialogSubscriber(subscriberOnNextListener, MyPersonalActivity.this);
-        OkHttpObservable.getInstance().getData(dialogSubscriber, URLs.HTTPs + URLs.ziliaotouxiang, mapjson);
+        if(requestPressent != null)
+            requestPressent.getRequestJSONObject(0x03,Commont.FRIEND_BASE_URL+URLs.ziliaotouxiang,MyPersonalActivity.this,mapjson,3);
+
+
+
+//        dialogSubscriber = new DialogSubscriber(subscriberOnNextListener, MyPersonalActivity.this);
+//        OkHttpObservable.getInstance().getData(dialogSubscriber, URLs.HTTPs + URLs.ziliaotouxiang, mapjson);
     }
 
     //完善用户资料
-    private void modifyPersonData(String val) {
-        if(mUserInfo == null)
+    private void modifyPersonData(String parma,String val) {
+        if(userInfoBean == null)
             return;
-        isSubmit = true;
         HashMap<String, Object> map = new HashMap<>();
-        map.put("userId", SharedPreferencesUtils.readObject(MyApp.getContext(), "userId"));
-        map.put(flag, val);
+        map.put("userId", SharedPreferencesUtils.readObject(MyPersonalActivity.this,Commont.USER_ID_DATA));
+        map.put(parma, val);
         String mapjson = gson.toJson(map);
         Log.e(TAG, "-----mapJson=" + mapjson);
-        dialogSubscriber = new DialogSubscriber(subscriberOnNextListener, MyPersonalActivity.this);
-        OkHttpObservable.getInstance().getData(dialogSubscriber, URLs.HTTPs + URLs.yonghuziliao, mapjson);
+        if(requestPressent != null)
+            requestPressent.getRequestJSONObject(0x02,Commont.FRIEND_BASE_URL+URLs.yonghuziliao,MyPersonalActivity.this,mapjson,2);
+
+
+//        dialogSubscriber = new DialogSubscriber(subscriberOnNextListener, MyPersonalActivity.this);
+//        OkHttpObservable.getInstance().getData(dialogSubscriber, URLs.HTTPs + URLs.yonghuziliao, mapjson);
     }
 
     @Override
@@ -930,47 +857,90 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
 
     @Override
     public void successData(int what, Object object, int daystag) {
-        if (what == 1) {
-            initUserInfo(object.toString());
+        Log.e(TAG,"---------succ="+what+"--obj="+object.toString());
+        if(object == null)
+            return;
+        if(object.toString().contains("<html>"))
+            return;
+        try {
+            JSONObject jsonObject = new JSONObject(object.toString());
+            switch (what){
+                case 0x01:  //展示用户信息
+                    initUserInfo(jsonObject);
+                    break;
+                case 0x02:  //完善用户信息
+                case 0x03:  //修改头像
+                    if(!jsonObject.has("code"))
+                        return;
+                    if(jsonObject.getInt("code") == 200)
+                        ToastUtil.showToast(MyPersonalActivity.this,getResources().getString(R.string.modify_success));
+                    break;
+
+            }
+        }catch (Exception e){
+            e.printStackTrace();
         }
+
     }
 
-    private void initUserInfo(String result) {
-        UserInfoResult resultVo = gson.fromJson(result, UserInfoResult.class);
-        if (resultVo == null || !resultVo.resultCode.equals("001")) return;
-        mUserInfo = resultVo.userInfo;
-        if (mUserInfo == null) return;
-        SharedPreferencesUtils.saveObject(MyPersonalActivity.this,Commont.USER_INFO_DATA,gson.toJson(mUserInfo));
-        Glide.with(this).load(mUserInfo.image).into(mineLogoIv);//头像
-        nicknameTv.setText(resultVo.userInfo.nickName+"");// 昵称
-        int sexRes = "M".equals(mUserInfo.sex) ? R.string.sex_nan : R.string.sex_nv;
-        sexTv.setText(sexRes);// 性别
 
-        String heightStr = mUserInfo.height;// 身高
-        if (heightStr.contains("cm")) {
-            heightStr = heightStr.trim().substring(0, heightStr.length() - 2);
+    @Override
+    public void failedData(int what, Throwable e) {
+        Log.e(TAG, "----fail=" + e.getMessage());
+    }
+
+    @Override
+    public void closeLoadDialog(int what) {
+
+    }
+
+
+    //显示用户信息
+    private void initUserInfo(JSONObject jsonObject) {
+        try {
+            if(!jsonObject.has("code"))
+                return;
+            if(jsonObject.getInt("code") == 200){
+                userInfoBean = new Gson().fromJson(jsonObject.getString("data"),UserInfoBean.class);
+                if(userInfoBean == null)
+                    return;
+                SharedPreferencesUtils.saveObject(MyPersonalActivity.this,Commont.USER_INFO_DATA,gson.toJson(userInfoBean));
+                Glide.with(this).load(userInfoBean.getImage()).into(mineLogoIv);//头像
+                nicknameTv.setText(userInfoBean.getNickname()+"");// 昵称
+                int sexRes = "M".equals(userInfoBean.getSex()) ? R.string.sex_nan : R.string.sex_nv;
+                sexTv.setText(sexRes);// 性别
+
+                String heightStr = userInfoBean.getHeight();// 身高
+                if (heightStr.contains("cm")) {
+                    heightStr = heightStr.trim().substring(0, heightStr.length() - 2);
+                }
+                heightStr = heightStr.trim();
+                //mUserInfo.height = heightStr;// 去掉cm后存起来
+
+                String weightStr = userInfoBean.getWeight();// 体重
+                if (weightStr.contains("kg")) {
+                    weightStr = weightStr.trim().substring(0, weightStr.length() - 2);
+                }
+                weightStr = weightStr.trim();
+                // mUserInfo.weight = weightStr;// 去掉kg后存起来
+
+                if (!w30sunit) {// 英制要处理一下
+                    heightTv.setText(WatchUtils.obtainHeight(heightStr));
+                    weightTv.setText(WatchUtils.obtainWeight(weightStr));
+                } else {
+                    heightTv.setText(heightStr + "cm");
+                    weightTv.setText(weightStr + "kg");
+                }
+                birthdayTv.setText(userInfoBean.getBirthday());
+                syncUserInfoToB30();
+
+            }
+
+
+
+        }catch (Exception e){
+            e.printStackTrace();
         }
-        heightStr = heightStr.trim();
-        mUserInfo.height = heightStr;// 去掉cm后存起来
-
-        String weightStr = mUserInfo.weight;// 体重
-        if (weightStr.contains("kg")) {
-            weightStr = weightStr.trim().substring(0, weightStr.length() - 2);
-        }
-        weightStr = weightStr.trim();
-        mUserInfo.weight = weightStr;// 去掉kg后存起来
-
-        if (!w30sunit) {// 英制要处理一下
-            heightTv.setText(obtainHeight(heightStr));
-            weightTv.setText(obtainWeight(weightStr));
-        } else {
-            heightTv.setText(heightStr + "cm");
-            weightTv.setText(weightStr + "kg");
-        }
-        birthdayTv.setText(mUserInfo.birthday);
-
-
-        syncUserInfoToB30();
     }
 
     //同步手环数据 B30,B36
@@ -993,199 +963,6 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
         }
     }
 
-    /**
-     * 计算英制身高
-     */
-    private String obtainHeight(String mHeight) {
-        int tmpuserHeight = Integer.valueOf(mHeight);
-        double showTmpHe = WatchUtils.mul(Double.valueOf(tmpuserHeight), 0.4);
-        //截取的小数点前部分
-        int tmpBeforeHe = Integer.valueOf(StringUtils.substringBefore(String.valueOf(showTmpHe), "."));
-        String afterTmpH = StringUtils.substringAfter(String.valueOf(showTmpHe), ".").trim();
-        //截取的小数点后部分
-        int tmpAftereHe = Integer.valueOf(afterTmpH.length() >= 1 ? afterTmpH.substring(0, 1) : "0");
-        //判断截取小数点后一位是否大于5
-        if (tmpAftereHe >= 5) {
-            return StringUtils.substringBefore(String.valueOf(tmpBeforeHe + 1), ".") + "in";
-        } else {
-            return StringUtils.substringBefore(String.valueOf(showTmpHe), ".") + "in";
-        }
-    }
-
-    /**
-     * 计算英制体重
-     */
-    private String obtainWeight(String mWeight) {
-        int tmpWid = Integer.valueOf(mWeight);
-        double showWid = WatchUtils.mul(Double.valueOf(tmpWid), 2.2);
-        //截取小数点前的数据
-        String beforeShowWid = StringUtils.substringBefore(String.valueOf(showWid), ".");
-
-        //截取小数点后的数据
-        String afterShowWid = StringUtils.substringAfter(String.valueOf(showWid), ".");
-        //小数点后一位
-        int lastWidNum = Integer.valueOf(afterShowWid.length() >= 1 ? afterShowWid.substring(0, 1) : "0");
-        //判断小数点后一位是否》=5
-        if (lastWidNum >= 5) {
-            return (Integer.valueOf(beforeShowWid) + 1) + "lb";
-        } else {
-            return beforeShowWid + "lb";
-        }
-    }
-
-
-    @Override
-    public void failedData(int what, Throwable e) {
-        Log.e(TAG, "----fail=" + e.getMessage());
-    }
-
-    @Override
-    public void closeLoadDialog(int what) {
-
-    }
-
-
-    //显示用户信息
-    private void showUserInfo(String userData) {
-        JSONObject jsonObject = null;
-        try {
-            jsonObject = new JSONObject(userData);
-            String jsonObjectb = jsonObject.getString("userInfo");
-            Log.e(TAG, "------else---" + jsonObjectb);
-            //保存用户信息
-            SharedPreferencesUtils.saveObject(MyPersonalActivity.this, "saveuserinfodata", jsonObjectb);
-            JSONObject jsonObjectbV = new JSONObject(jsonObjectb);
-            sex = jsonObjectbV.getString("sex").toString();
-            userInfo.setSex(sex);
-            if ("M".equals(sex)) {
-                userSex = 1;
-                sexTv.setText(getResources().getString(R.string.sex_nan));
-            } else if ("F".equals(sex)) {
-                sexTv.setText(getResources().getString(R.string.sex_nv));
-                userSex = 2;
-            }
-            birthday = jsonObjectbV.getString("birthday").toString();
-            userInfo.setBirthday(birthday);
-            birthdayTv.setText(birthday);
-
-
-            height = jsonObjectbV.getString("height").toString();
-            userInfo.setHeight(height);
-            if (w30sunit) { //公制
-                if (height.contains("cm")) {
-                    heightTv.setText(height);
-                } else {
-                    heightTv.setText(height + "cm");
-                }
-
-            } else {
-                int tmpuserHeight;
-                if (height.contains("cm")) {
-                    tmpuserHeight = Integer.valueOf(height.substring(0, height.length() - 2).trim());
-                } else {
-                    tmpuserHeight = Integer.valueOf(height.trim());
-                }
-                double showTmpHe = WatchUtils.mul(Double.valueOf(tmpuserHeight), 0.4);
-                //截取的小数点前部分
-                int tmpBeforeHe = Integer.valueOf(StringUtils.substringBefore(String.valueOf(showTmpHe), "."));
-                String afterTmpH = StringUtils.substringAfter(String.valueOf(showTmpHe), ".").trim();
-                //截取的小数点后部分
-                int tmpAftereHe = Integer.valueOf(afterTmpH.length() >= 1 ? afterTmpH.substring(0, 1) : "0");
-                //判断截取小数点后一位是否大于5
-                if (tmpAftereHe >= 5) {
-                    heightTv.setText(StringUtils.substringBefore(String.valueOf(tmpBeforeHe + 1), ".") + "in");
-                } else {
-                    heightTv.setText(StringUtils.substringBefore(String.valueOf(showTmpHe), ".") + "in");
-                }
-            }
-
-            SharedPreferencesUtils.setParam(MyPersonalActivity.this, "userheight", StringUtils.substringBefore(height, "cm"));
-
-            weight = jsonObjectbV.getString("weight").toString();
-            userInfo.setHeight(weight);
-            if (w30sunit) { //公制
-                if (weight.contains("kg")) {
-                    weightTv.setText(weight);
-                } else {
-                    weightTv.setText(weight + "kg");
-                }
-
-            } else {
-                int tmpWid;
-                //体重
-                if (weight.contains("kg")) {
-                    tmpWid = Integer.valueOf(weight.trim().substring(0, weight.length() - 2).trim());
-                } else {
-                    tmpWid = Integer.valueOf(weight.trim());
-                }
-                double showWid = WatchUtils.mul(Double.valueOf(tmpWid), 2.2);
-                //截取小数点前的数据
-                String beforeShowWid = StringUtils.substringBefore(String.valueOf(showWid), ".");
-
-                //截取小数点后的数据
-                String afterShowWid = StringUtils.substringAfter(String.valueOf(showWid), ".");
-                //小数点后一位
-                int lastWidNum = Integer.valueOf(afterShowWid.length() >= 1 ? afterShowWid.substring(0, 1) : "0");
-                //判断小数点后一位是否》=5
-                if (lastWidNum >= 5) {
-                    weightTv.setText((Integer.valueOf(beforeShowWid) + 1) + "lb");
-                } else {
-                    weightTv.setText("" + beforeShowWid + "lb");
-                }
-            }
-
-            nickName = jsonObjectbV.getString("nickName").toString();
-            userInfo.setNickName(nickName);
-            nicknameTv.setText(nickName);
-
-            //年龄
-            int age = WatchUtils.getAgeFromBirthTime(birthday);  //年龄
-            //身高
-            if (height.contains("cm")) {
-                userHeight = Integer.valueOf(height.substring(0, height.length() - 2).trim());
-            } else {
-                userHeight = Integer.valueOf(height.trim());
-            }
-            //体重
-            if (weight.contains("kg")) {
-                userWeitht = Integer.valueOf(weight.trim().substring(0, weight.length() - 2).trim());
-            } else {
-                userWeitht = Integer.valueOf(weight.trim());
-            }
-            String imageUrl = jsonObjectbV.getString("image");
-            if (!WatchUtils.isEmpty(imageUrl)) {
-                SharedPreferencesUtils.saveObject(MyPersonalActivity.this, "Inmageuil", imageUrl);
-                userInfo.setImage(imageUrl);
-                //设置头像
-                RequestOptions mRequestOptions = RequestOptions.circleCropTransform().diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .skipMemoryCache(true);
-                Glide.with(MyPersonalActivity.this).load(imageUrl).
-                        apply(mRequestOptions).into(mineLogoIv);
-            }
-
-            /**
-             * 设置用户资料
-             *
-             * @param isMale 1:男性 ; 2:女性
-             * @param age    年龄
-             * @param hight  身高cm
-             * @param weight 体重kg
-             */
-            SharedPreferencesUtils.setParam(MyPersonalActivity.this, "user_height", userHeight);
-            SharedPreferencesUtils.setParam(MyPersonalActivity.this, "user_weight", userWeitht);
-            /**
-             * 设置用户资料
-             *
-             * @param isMale 1:男性 ; 2:女性
-             * @param age    年龄
-             * @param hight  身高cm
-             * @param weight 体重kg
-             */
-            MyApp.getInstance().getmW30SBLEManage().setUserProfile(userSex, age, userHeight, userWeitht);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -1198,9 +975,9 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
                     String nickName = data.getStringExtra("name");
                     if(!WatchUtils.isEmpty(nickName)){
                         nicknameTv.setText(nickName);
-                        mUserInfo.nickName = nickName;// 记录一下,到时提交用
-                        flag = "nickName";
-                        modifyPersonData(nickName);
+//                        mUserInfo.nickName = nickName;// 记录一下,到时提交用
+//                        flag = "nickName";
+                        modifyPersonData("nickName",nickName);
                     }
 
                     break;
@@ -1442,39 +1219,12 @@ public class MyPersonalActivity extends BaseActivity implements RequestView {
         return path;
     }
 
-    private class UserInfoResult {
-        String resultCode;
-        UserInfo userInfo;
-    }
-
-    private class UserInfo {
-        String userId;
-        String image;
-        String nickName;
-        String sex;//"M","F"
-        String height;//"170 cm"
-        String weight;//"60 kg"
-        String birthday;//"2000-06-15"
-
-        @Override
-        public String toString() {
-            return "UserInfo{" +
-                    "userId='" + userId + '\'' +
-                    ", image='" + image + '\'' +
-                    ", nickName='" + nickName + '\'' +
-                    ", sex='" + sex + '\'' +
-                    ", height='" + height + '\'' +
-                    ", weight='" + weight + '\'' +
-                    ", birthday='" + birthday + '\'' +
-                    '}';
-        }
-    }
 
     @Override
     protected void onStop() {
         super.onStop();
 
-        syncUserInfoData();
+        //syncUserInfoData();
     }
 
 

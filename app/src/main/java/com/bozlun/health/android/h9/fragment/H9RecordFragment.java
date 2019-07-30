@@ -1405,28 +1405,28 @@ public class H9RecordFragment extends Fragment implements W30CusHeartView.DataTy
                     //Log.d(TAG,"----今日睡眠数据 "+sleepDBModels.get(i).getDateTime()+"==="+sleepDBModels.get(i).getSleepTime()+"==="+sleepDBModels.get(i).getSleepType());
                     switch (sleepDBModels.get(i).getSleepType()) {
                         case 0:
-                            w30S_sleepDataItem.setSleep_type("3");
+                            w30S_sleepDataItem.setSleepType("3");
                             break;
                         case 1:
-                            w30S_sleepDataItem.setSleep_type("2");
+                            w30S_sleepDataItem.setSleepType("2");
                             break;
                         case 2:
-                            w30S_sleepDataItem.setSleep_type("0");
+                            w30S_sleepDataItem.setSleepType("0");
                             break;
                         case 3:
-                            w30S_sleepDataItem.setSleep_type("4");
+                            w30S_sleepDataItem.setSleepType("4");
                             break;
                         case 4:
-                            w30S_sleepDataItem.setSleep_type("0");
+                            w30S_sleepDataItem.setSleepType("0");
                             break;
                         case 16:
-                            w30S_sleepDataItem.setSleep_type("5");
+                            w30S_sleepDataItem.setSleepType("5");
                             break;
                         case 17:
-                            w30S_sleepDataItem.setSleep_type("3");
+                            w30S_sleepDataItem.setSleepType("3");
                             break;
                         case 18:
-                            w30S_sleepDataItem.setSleep_type("1");
+                            w30S_sleepDataItem.setSleepType("1");
                             break;
                     }
                     sleepDataLists.add(w30S_sleepDataItem);
@@ -1479,11 +1479,11 @@ public class H9RecordFragment extends Fragment implements W30CusHeartView.DataTy
                     if (i >= (sleepDataLists.size() - 1)) {
                         startTime = sleepDataLists.get(i).getStartTime();
                         startTimeLater = sleepDataLists.get(i).getStartTime();
-                        sleep_type = sleepDataLists.get(i).getSleep_type() + "";
+                        sleep_type = sleepDataLists.get(i).getSleepType() + "";
                     } else {
                         startTime = sleepDataLists.get(i).getStartTime();
                         startTimeLater = sleepDataLists.get(i + 1).getStartTime();
-                        sleep_type = sleepDataLists.get(i).getSleep_type() + "";
+                        sleep_type = sleepDataLists.get(i).getSleepType() + "";
                     }
                     String[] starSplit = startTime.split("[:]");
                     String[] endSplit = startTimeLater.split("[:]");
@@ -1850,7 +1850,7 @@ public class H9RecordFragment extends Fragment implements W30CusHeartView.DataTy
         for (W30S_SleepDataItem pLog : list) {
             JSONObject jo = new JSONObject();
             try {
-                jo.put("sleep_type", pLog.getSleep_type());
+                jo.put("sleep_type", pLog.getSleepType());
                 jo.put("startTime", pLog.getStartTime());
             } catch (JSONException e) {
                 e.printStackTrace();

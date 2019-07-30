@@ -223,6 +223,12 @@ public class B30ConnStateService extends Service {
             connBleHelpService.setDeviceUserData();
    }
 
+    //停止自动搜索
+    public void stopAutoConn(){
+        if(bluetoothClient != null)
+            bluetoothClient.stopSearch();
+    }
+
     //自动连接
     public void connectAutoConn(boolean isScan) {
         if (isScan) {

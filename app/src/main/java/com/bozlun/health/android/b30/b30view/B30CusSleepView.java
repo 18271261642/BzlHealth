@@ -42,7 +42,7 @@ public class B30CusSleepView extends View {
     //线的画笔
     private Paint linPaint;
 
-    private int width;
+    private float width;
 
     private List<Integer> sleepList;
     /**
@@ -135,7 +135,7 @@ public class B30CusSleepView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        width = getWidth();
+        //width = getWidth();
         Log.e(TAG,"---width-="+width);
 
     }
@@ -145,49 +145,50 @@ public class B30CusSleepView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         //坐标点平移
-        canvas.translate(0, getHeight());
+        canvas.translate(0,getHeight());
         // canvas.rotate(270);
         canvas.save();
-        if (sleepList != null && sleepList.size() > 0) {
-            int mCurrentWidth = width / sleepList.size();
-            //Log.e(TAG,"---size="+sleepList.size()+"-mCurrentWidth="+mCurrentWidth+"==="+sleepList.toString());
-            for (int i = 0; i < sleepList.size(); i++) {
-                if (sleepList.get(i) == 0) {  //浅睡
-                    RectF rectF = new RectF(i * mCurrentWidth,
-                            -dp2px(130), (1 + i) * mCurrentWidth,
+        if(sleepList != null && sleepList.size()>0){
+            float mCurrentWidth = width/sleepList.size();
+            //Log.e(TAG,"---size=-"+sleepList.size()+"-mCurrentWidth="+mCurrentWidth);
+            for(int i = 0;i<sleepList.size();i++){
+                if(sleepList.get(i) == 0){  //浅睡
+                    RectF rectF = new RectF(i*mCurrentWidth,
+                            -dp2px(130),(1+i)*mCurrentWidth,
                             0);
-                    canvas.drawRect(rectF, hightPaint);
-                } else if (sleepList.get(i) == 1) {    //深睡
-                    RectF rectF = new RectF(i * mCurrentWidth, -dp2px(80), (1 + i) * mCurrentWidth, 0);
-                    canvas.drawRect(rectF, deepPaint);
+                    canvas.drawRect(rectF,hightPaint);
+                }
+                else if(sleepList.get(i) == 1){    //深睡
+                    RectF rectF = new RectF(i*mCurrentWidth,-dp2px(80),(1+i)*mCurrentWidth,0);
+                    canvas.drawRect(rectF,deepPaint);
 
-                } else if (sleepList.get(i) == 2) {    //清醒
-                    RectF rectF = new RectF(i * mCurrentWidth, -dp2px(160),
-                            (i + 1) * mCurrentWidth, 0);
-                    canvas.drawRect(rectF, awakePaint);
+                }else if(sleepList.get(i) == 2){    //清醒
+                    RectF rectF = new RectF(i*mCurrentWidth,-dp2px(160),
+                            (i+1)*mCurrentWidth,0);
+                    canvas.drawRect(rectF,awakePaint);
 
                 }
 
             }
 
-            if (isShowSeekBar) {
+            if(isShowSeekBar){
                 //绘制一条白线
-                RectF linRectF = new RectF(seekX * mCurrentWidth, -dp2px(160), seekX * mCurrentWidth + 10, 0);
-                canvas.drawRect(linRectF, linPaint);
+                RectF linRectF = new RectF(seekX * mCurrentWidth,-dp2px(160),seekX * mCurrentWidth+10,0);
+                canvas.drawRect(linRectF,linPaint);
 
                 linPaint.setTextSize(30f);
-                if (seekX <= sleepList.size() / 2) {
+                if(seekX<=sleepList.size()/2){
                     linPaint.setTextAlign(Paint.Align.LEFT);
-                } else {
+                }else{
                     linPaint.setTextAlign(Paint.Align.RIGHT);
                 }
 
                 //绘制显示的时间
-                canvas.drawText(timeTxt, seekX <= sleepList.size() / 2 ? seekX * mCurrentWidth + mCurrentWidth + 10 : seekX * mCurrentWidth - mCurrentWidth - 10,
-                        -dp2px(140), linPaint);
+                canvas.drawText(timeTxt,seekX<=sleepList.size()/2?seekX * mCurrentWidth+mCurrentWidth+10:seekX * mCurrentWidth-mCurrentWidth-10,
+                        -dp2px(140),linPaint);
             }
 
-        } else {
+        }else{
             drawEmptyTxt(canvas);
         }
 

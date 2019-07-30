@@ -30,6 +30,7 @@ import com.bozlun.health.android.w30s.adapters.MyViewHolder;
 import com.bozlun.health.android.w30s.utils.httputils.RequestPressent;
 import com.bozlun.health.android.w30s.utils.httputils.RequestView;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,6 +47,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+/**
+ * 好像详细心率页面
+ */
 public class FrendHeartActivity extends WatchBaseActivity implements RequestView {
     private RequestPressent requestPressent;
     @BindView(R.id.commentB30BackImg)
@@ -93,7 +97,7 @@ public class FrendHeartActivity extends WatchBaseActivity implements RequestView
         Intent intent = getIntent();
         if (intent == null) return;
         applicant = intent.getStringExtra("applicant");
-        initHandler();
+
         initViews();
         initData();
     }
@@ -177,7 +181,7 @@ public class FrendHeartActivity extends WatchBaseActivity implements RequestView
      * 查询好友日 步数详细数据
      */
     public void findFrendHeartItem(String rtc) {
-        String sleepUrl = URLs.HTTPs + Commont.FrendHeartToDayData;
+        String sleepUrl = Commont.FRIEND_BASE_URL + Commont.FrendHeartToDayData;
         JSONObject sleepJson = new JSONObject();
         try {
             String userId = (String) SharedPreferencesUtils.readObject(MyApp.getContext(), "userId");
@@ -203,14 +207,25 @@ public class FrendHeartActivity extends WatchBaseActivity implements RequestView
     @Override
     public void successData(int what, Object object, int daystag) {
         closeLoadingDialog();
-        if (mHandler != null) mHandler.sendEmptyMessage(0x02);
-        if (object != null || !TextUtils.isEmpty(object.toString().trim())) {
+        if (object != null || !TextUtils.isEmpty(object.toString().trim()) || !object.toString().contains("<html>")) {
             LogTestUtil.e("-----------朋友--", "获取好友详日细心率返回--" + object.toString());
-            Message message = new Message();
-            message.what = what;
-            message.arg1 = daystag;
-            message.obj = object;
-            if (mHandler != null) mHandler.sendMessage(message);
+            try {
+                JSONObject jsonObject = new JSONObject(object.toString());
+                if(jsonObject.getInt("code") == 200){
+                    String data = jsonObject.getString("data");
+                    List<FrendHaretBean.FriendHeartRateBean> tmpList = new Gson().fromJson(data,
+                            new TypeToken<List<FrendHaretBean.FriendHeartRateBean>>(){}.getType());
+                    if(tmpList != null)
+                        showChartAndList(tmpList);
+                }else{
+                    dataList.clear();
+                    b30HeartDetailAdapter.notifyDataSetChanged();
+                }
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
         }
 
     }
@@ -271,6 +286,7 @@ public class FrendHeartActivity extends WatchBaseActivity implements RequestView
 
 
         if (allheartList != null) {
+            b30HeartDetailView.setCanvasBeanLin(true);
             b30HeartDetailView.setRateDataList(allheartList);
             b30HeartDetailView.invalidate();
         }
@@ -287,54 +303,13 @@ public class FrendHeartActivity extends WatchBaseActivity implements RequestView
     }
 
 
-    private Handler mHandler;
-
-    public void initHandler() {
-        mHandler = new Handler(mCallback);
-    }
-
-    Handler.Callback mCallback = new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message message) {
-            try {
-                switch (message.what) {
-                    case 0x01:
-                        String res = message.obj.toString();
-                        FrendHaretBean frendStepBean = new Gson().fromJson(res, FrendHaretBean.class);
-                        if (!WatchUtils.isEmpty(frendStepBean.getResultCode())
-                                && frendStepBean.getResultCode().equals("001")) {
-                            friendHeartRateBeanList = frendStepBean.getFriendHeartRate();
-                            if (friendHeartRateBeanList != null && !friendHeartRateBeanList.isEmpty()) {
-                                showChartAndList(friendHeartRateBeanList);
-                            }
-                        }
-                        break;
-                    case 0x02:
-                        if (friendHeartRateBeanList != null) {
-                            friendHeartRateBeanList.clear();
-                        } else {
-                            friendHeartRateBeanList = new ArrayList<>();
-                        }
-                        showChartAndList(friendHeartRateBeanList);
-                        break;
-                }
-            } catch (Error e) {
-                e.printStackTrace();
-            }
-
-            return false;
-        }
-    };
-
     @Override
     public void finish() {
-        if (mHandler != null) mHandler.removeCallbacksAndMessages(null);
         super.finish();
     }
 
     @Override
     protected void onDestroy() {
-        if (mHandler != null) mHandler.removeCallbacksAndMessages(null);
         super.onDestroy();
     }
 

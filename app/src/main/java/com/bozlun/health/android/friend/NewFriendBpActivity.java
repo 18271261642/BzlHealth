@@ -89,7 +89,7 @@ public class NewFriendBpActivity extends WatchBaseActivity implements RequestVie
 
     //查询好友的数据
     private void findFriendBpData(String currDay) {
-        String sleepUrl = URLs.HTTPs + Commont.FrendBpToDayData;
+        String sleepUrl = Commont.FRIEND_BASE_URL + Commont.FrendBpToDayData;
         JSONObject sleepJson = new JSONObject();
         try {
             String userId = (String) SharedPreferencesUtils.readObject(MyApp.getContext(), "userId");
@@ -175,18 +175,16 @@ public class NewFriendBpActivity extends WatchBaseActivity implements RequestVie
     }
 
 
-    //解析好友的睡眠数据
+    //解析好友的血压数据
     private void analysisFriendBpData(Object object) {
-        Log.e("TAG","----------睡眠数据="+object.toString());
+        Log.e("TAG","----------血压="+object.toString());
         friendList.clear();
         cusResultMap.clear();
         try {
             JSONObject jsonObject = new JSONObject(object.toString());
-            String resultCode = jsonObject.getString("resultCode");
-            if(!WatchUtils.isEmpty(resultCode) && resultCode.equals("001")){
-                String bplistStr = jsonObject.getString("bplist");
-                Log.e("TAG","--------bplistStr="+bplistStr);
-                List<FriendBpDB> tempLt = new Gson().fromJson(bplistStr,new TypeToken<List<FriendBpDB>>(){}.getType());
+            if(jsonObject.getInt("code") == 200){
+                String data = jsonObject.getString("data");
+                List<FriendBpDB> tempLt = new Gson().fromJson(data,new TypeToken<List<FriendBpDB>>(){}.getType());
                 if(tempLt != null && !tempLt.isEmpty()){
 
                     friendList.addAll(tempLt);
@@ -200,7 +198,7 @@ public class NewFriendBpActivity extends WatchBaseActivity implements RequestVie
 
                     for(FriendBpDB friendBpDB : friendList){
 
-                        Log.e("TAG","--------friendBpDB="+friendBpDB.toString());
+                       // Log.e("TAG","--------friendBpDB="+friendBpDB.toString());
                         Map<Integer, Integer> mp = new ArrayMap<>();
                         mp.put(friendBpDB.diastolic,friendBpDB.systolic);
                         Map<String,Map<Integer,Integer>> mMap = new HashMap<>();
@@ -219,7 +217,8 @@ public class NewFriendBpActivity extends WatchBaseActivity implements RequestVie
                 }
 
 
-            }else{
+            }
+            else{
                 friendBpAdapter.notifyDataSetChanged();
                 friendCusB30BpView.setxVSize(friendList.size());
                 friendCusB30BpView.setResultMapData(cusResultMap);

@@ -2,26 +2,12 @@ package com.bozlun.health.android.util;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
-
-import com.afa.tourism.greendao.gen.StepBeanDao;
-import com.bozlun.health.android.MyApp;
-import com.bozlun.health.android.R;
-import com.bozlun.health.android.bean.MessageEvent;
-import com.bozlun.health.android.bean.StepBean;
-import com.bozlun.health.android.bleutil.MyCommandManager;
-import com.bozlun.health.android.siswatch.utils.WatchUtils;
-import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
-
-import org.apache.commons.lang.StringUtils;
-import org.greenrobot.eventbus.EventBus;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -273,65 +259,6 @@ public class VerifyUtil {
         return encryptionIdNo;
     }
 
-    public static void sendEventBus(Context context, int step,int b15sKcal) {
-        Log.e("VerifyUtil","--------step--"+step+"---b15sKcal--"+b15sKcal);
 
-        if (step == 0) {
-            EventBus.getDefault().post(new MessageEvent("back_step", "0"));
-        } else {
-
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh");
-            //目标步数
-            String daily_number_ofsteps_default = (String) SharedPreferencesUtils.getParam(context, SharedPreferencesUtils.DAILY_NUMBER_OFSTEPS_DEFAULT, "");
-            String jieguo = daily_number_ofsteps_default.replace(MyApp.getContext().getResources().getString(R.string.steps), "").trim();
-            String testJieguo = StringUtils.substringBefore(daily_number_ofsteps_default,"步");
-            Log.e("VerifyUtil","------jieguo----"+jieguo+"---testJieguo--"+testJieguo.trim());
-            int status = 1;
-            if (!TextUtils.isEmpty(jieguo)) {
-                if (step > Integer.valueOf(jieguo)) {
-                    //0达标
-                    status = 0;
-                } else {
-                    status = 1;
-                }
-            } else {
-                status = 1;
-            }
-            try {
-                if (!"B15P".equals(MyCommandManager.DEVICENAME)) {
-                    List<StepBean> list = MyApp.getInstance().getDaoSession().getStepBeanDao().queryBuilder().where(StepBeanDao.Properties.DeviceCode.eq(MyCommandManager.ADDRESS), StepBeanDao.Properties.UserId.eq(Common.customer_id)).list();
-                    if (list.size() > 0 && list != null) {
-                        MyApp.getInstance().getDaoSession().getStepBeanDao().deleteAll();
-                    }
-                }
-            } catch (Exception E) {
-                E.printStackTrace();
-            }
-            //身高
-            String heithg = (String) SharedPreferencesUtils.getParam(context, "userheight", "");
-            //计算路程
-            double distants = WatchUtils.getDistants(step,WatchUtils.getStepLong(Integer.valueOf(heithg)));
-            StepBean stepBean = new StepBean(step, sdf.format(new Date()), status, MyCommandManager.ADDRESS);
-            if("B15S".equals(MyCommandManager.DEVICENAME)){
-                stepBean.setCalories(b15sKcal);
-                stepBean.setDistance(String.valueOf(distants));
-                Log.e("VerifyUtil","--b15s---路程--"+distants+"---"+distants+"---"+b15sKcal);
-            }else if("B15P".equals(MyCommandManager.DEVICENAME)){
-                double kcals = WatchUtils.getKcal(step,WatchUtils.getStepLong(Integer.valueOf(heithg)));
-                String newKcals = StringUtils.substringBefore(String.valueOf(kcals),".");
-                Log.e("VerifyUtil","-----路程--"+distants+"---"+kcals+"---"+heithg+"--"+newKcals);
-                stepBean.setDistance(String.valueOf(distants));
-                stepBean.setCalories(Integer.valueOf(newKcals));
-
-            }
-
-            if (null != stepBean) {
-                // MyApp.getApplication().getDaoSession().getStepBeanDao().insertOrReplace(stepBean);
-                EventBus.getDefault().post(new MessageEvent("back_step", stepBean));
-            }
-        }
-
-
-    }
 
 }

@@ -195,12 +195,6 @@
             android:name=".b30.GPSSportHisyory"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
-        <!-- 欢迎页面 -->
-        <activity
-            android:name=".activity.NewGuidActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".activity.HelpActivity"
             android:theme="@style/AppTheme.NoActionBar" />
@@ -436,12 +430,6 @@
         <!--service-->
         <service android:name=".siswatch.bleus.H8BleService" />
 
-        <activity
-            android:name=".siswatch.WatchHomeActivity"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden" />
         <!-- 设备页面 -->
         <activity
             android:name=".siswatch.WatchDeviceActivity"
@@ -1277,7 +1265,10 @@
         <activity android:name=".siswatch.mine.NotiMsgFragment"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
-
+        <!--查看好友申请-->
+        <activity android:name=".friend.NewFriendApplyActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
 
 
 

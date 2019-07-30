@@ -14,23 +14,18 @@ import java.io.Serializable;
  */
 
 public class W30S_SleepDataItem extends LitePalSupport implements Serializable {
-    private String sleep_type;
+    private String sleepType;
     private String startTime;
 
     public W30S_SleepDataItem() {
     }
 
-    public W30S_SleepDataItem(String sleep_type, String startTime) {
-        this.sleep_type = sleep_type;
-        this.startTime = startTime;
+    public String getSleepType() {
+        return sleepType;
     }
 
-    public String getSleep_type() {
-        return sleep_type;
-    }
-
-    public void setSleep_type(String sleep_type) {
-        this.sleep_type = sleep_type;
+    public void setSleepType(String sleepType) {
+        this.sleepType = sleepType;
     }
 
     public String getStartTime() {
@@ -43,8 +38,8 @@ public class W30S_SleepDataItem extends LitePalSupport implements Serializable {
 
     @Override
     public String toString() {
-        return "W30S_SleepData{" +
-                "sleep_type='" + sleep_type + '\'' +
+        return "W30S_SleepDataItem{" +
+                "sleepType='" + sleepType + '\'' +
                 ", startTime='" + startTime + '\'' +
                 '}';
     }

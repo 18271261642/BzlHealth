@@ -202,6 +202,7 @@ public class B30HeartDetailActivity extends WatchBaseActivity {
         }
         //圆点的半径
 //        b30HeartDetailView.setPointRadio(5);
+        b30HeartDetailView.setCanvasBeanLin(true);
         b30HeartDetailView.setRateDataList(heartList);
 
 

@@ -2,56 +2,71 @@ package com.bozlun.health.android.friend.bean;
 
 import java.util.List;
 
-public class LoveMeBean {
+/**
+ * Created by Admin
+ * Date 2019/7/11
+ */
+public class FriendApplyBean {
+
+
     /**
-     * resultCode : 001
-     * friendList : [{"birthday":"1992-12-25","image":"http://47.90.83.197/image/2018/11/24/1543020102182.png","addTime":"2017-05-09 14:34:35","nickName":"我难道不是你的小可爱？","sex":"M","weight":"70","equipment":"W30","updateTime":"2018-12-05 11:12","lon":"113.721745","type":0,"userId":"8c4c511a45374bb595e6fdf30bb878b7","phone":"18738546101","id":3478,"pwd":"e10adc3949ba59abbe56e057f20f883e","lat":"22.990020","height":"180","status":0}]
+     * code : 200
+     * msg : null
+     * data : [{"phone":"33333333@163.com","nickname":"123","sex":"M","birthday":"2000-06-15","height":"170 cm","weight":"60 kg","image":"http://47.90.83.197/image/2017/08/16/1502886184823.jpg","userid":"e028098595dc49909f908cb8f0b4b2a1","equipment":"","mac":"","code":"","count":"","stepNumber":123,"friendStatus":0,"isThumbs":"","lastThumbsDay":"","day":"","see":"","hasBloodPressure":"","todayThumbs":"","rankNo":"","exInfoSetList":""}]
      */
 
-    private String resultCode;
-    private List<FriendListBean> friendList;
+    private int code;
+    private Object msg;
+    private List<DataBean> data;
 
-    public String getResultCode() {
-        return resultCode;
+    public int getCode() {
+        return code;
     }
 
-    public void setResultCode(String resultCode) {
-        this.resultCode = resultCode;
+    public void setCode(int code) {
+        this.code = code;
     }
 
-    public List<FriendListBean> getFriendList() {
-        return friendList;
+    public Object getMsg() {
+        return msg;
     }
 
-    public void setFriendList(List<FriendListBean> friendList) {
-        this.friendList = friendList;
+    public void setMsg(Object msg) {
+        this.msg = msg;
     }
 
-    public static class FriendListBean {
+    public List<DataBean> getData() {
+        return data;
+    }
 
+    public void setData(List<DataBean> data) {
+        this.data = data;
+    }
+
+    public static class DataBean {
         /**
-         * phone : aabbcc@163.com
-         * nickname : 123456
-         * sex : F
-         * birthday : 2000-02-01
-         * height : 170
-         * weight : 61
-         * image : http://47.90.83.197/image/2019/06/20/1561019605227.jpg
-         * userid : 94f3b4bb5cb846ffb3aab0527f34bf6c
-         * equipment : B36
-         * mac : DC:62:31:85:19:E5
-         * code : 2
-         * count : 2
+         * phone : 33333333@163.com
+         * nickname : 123
+         * sex : M
+         * birthday : 2000-06-15
+         * height : 170 cm
+         * weight : 60 kg
+         * image : http://47.90.83.197/image/2017/08/16/1502886184823.jpg
+         * userid : e028098595dc49909f908cb8f0b4b2a1
+         * equipment :
+         * mac :
+         * code :
+         * count :
          * stepNumber : 123
-         * friendStatus : 1
+         * friendStatus : 0
          * isThumbs :
          * lastThumbsDay :
          * day :
-         * see : null
-         * hasBloodPressure : null
-         * todayThumbs : null
-         * rankNo : null
-         * exInfoSetList : null
+         * see :
+         * hasBloodPressure :
+         * todayThumbs :
+         * rankNo :
+         * exInfoSetList :
          */
 
         private String phone;
@@ -64,18 +79,18 @@ public class LoveMeBean {
         private String userid;
         private String equipment;
         private String mac;
-        private int code;
-        private int count;
+        private String code;
+        private String count;
         private int stepNumber;
         private int friendStatus;
         private String isThumbs;
         private String lastThumbsDay;
         private String day;
-        private Object see;
-        private Object hasBloodPressure;
-        private Object todayThumbs;
-        private Object rankNo;
-        private Object exInfoSetList;
+        private String see;
+        private String hasBloodPressure;
+        private String todayThumbs;
+        private String rankNo;
+        private String exInfoSetList;
 
         public String getPhone() {
             return phone;
@@ -157,19 +172,19 @@ public class LoveMeBean {
             this.mac = mac;
         }
 
-        public int getCode() {
+        public String getCode() {
             return code;
         }
 
-        public void setCode(int code) {
+        public void setCode(String code) {
             this.code = code;
         }
 
-        public int getCount() {
+        public String getCount() {
             return count;
         }
 
-        public void setCount(int count) {
+        public void setCount(String count) {
             this.count = count;
         }
 
@@ -213,43 +228,43 @@ public class LoveMeBean {
             this.day = day;
         }
 
-        public Object getSee() {
+        public String getSee() {
             return see;
         }
 
-        public void setSee(Object see) {
+        public void setSee(String see) {
             this.see = see;
         }
 
-        public Object getHasBloodPressure() {
+        public String getHasBloodPressure() {
             return hasBloodPressure;
         }
 
-        public void setHasBloodPressure(Object hasBloodPressure) {
+        public void setHasBloodPressure(String hasBloodPressure) {
             this.hasBloodPressure = hasBloodPressure;
         }
 
-        public Object getTodayThumbs() {
+        public String getTodayThumbs() {
             return todayThumbs;
         }
 
-        public void setTodayThumbs(Object todayThumbs) {
+        public void setTodayThumbs(String todayThumbs) {
             this.todayThumbs = todayThumbs;
         }
 
-        public Object getRankNo() {
+        public String getRankNo() {
             return rankNo;
         }
 
-        public void setRankNo(Object rankNo) {
+        public void setRankNo(String rankNo) {
             this.rankNo = rankNo;
         }
 
-        public Object getExInfoSetList() {
+        public String getExInfoSetList() {
             return exInfoSetList;
         }
 
-        public void setExInfoSetList(Object exInfoSetList) {
+        public void setExInfoSetList(String exInfoSetList) {
             this.exInfoSetList = exInfoSetList;
         }
     }

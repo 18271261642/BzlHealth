@@ -2,6 +2,7 @@ package com.bozlun.health.android.activity;
 
 
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
@@ -12,6 +13,7 @@ import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,6 +21,7 @@ import android.widget.TextView;
 
 import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.R;
+import com.bozlun.health.android.bean.UserInfoBean;
 import com.bozlun.health.android.siswatch.WatchBaseActivity;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
 import com.bozlun.health.android.util.Common;
@@ -42,7 +45,7 @@ import butterknife.OnClick;
 
 
 /**
- * Created by thinkpad on 2017/3/4.
+ *
  * 邮箱注册页面
  */
 
@@ -156,7 +159,7 @@ public class RegisterActivity extends WatchBaseActivity implements RequestView {
             params.put("pwd", Md5Util.Md532(uPwd));
             params.put("status", "0");
             params.put("type", "1");
-            requestPressent.getRequestJSONObject(0x01, URLs.HTTPs + URLs.myHTTPs, RegisterActivity.this, new Gson().toJson(params), 1);
+            requestPressent.getRequestJSONObject(0x01, Commont.FRIEND_BASE_URL + URLs.myHTTPs, RegisterActivity.this, new Gson().toJson(params), 1);
 
         }
 
@@ -170,28 +173,27 @@ public class RegisterActivity extends WatchBaseActivity implements RequestView {
 
     @Override
     public void successData(int what, Object object, int daystag) {
+        Log.e("TAG","----------obj="+object.toString());
         closeLoadingDialog();
         if (object == null)
             return;
         try {
             JSONObject jsonObject = new JSONObject(object.toString());
-            if (jsonObject.getString("resultCode").equals("001")) {
-                JSONObject userInfoStr = jsonObject.getJSONObject("userInfo");
-
-                String userId = userInfoStr.getString("userId");
-                Common.customer_id = userId;
-                //账号登录统计
-                MobclickAgent.onProfileSignIn(userId);
-                SharedPreferencesUtils.saveObject(RegisterActivity.this, Commont.USER_ID_DATA, userId);
-                startActivity(PersonDataActivity.class);
-                finish();
-            } else {
-                if (jsonObject.getString("resultCode").equals("003")) {
-                    ToastUtil.showToast(RegisterActivity.this, getResources().getString(R.string.yonghuzhej));
-                } else {
-                    ToastUtil.showToast(RegisterActivity.this, object.toString() + "");
+            if(!jsonObject.has("code"))
+                return;
+            if (jsonObject.getInt("code") == 200) {
+                String data = jsonObject.getString("data");
+                UserInfoBean userInfoBean = new Gson().fromJson(data,UserInfoBean.class);
+                if(userInfoBean != null){
+                    Common.customer_id = userInfoBean.getUserid();
+                    MobclickAgent.onProfileSignIn(Common.customer_id);
+                    SharedPreferencesUtils.saveObject(RegisterActivity.this, Commont.USER_ID_DATA, userInfoBean.getUserid());
+                    //SharedPreferencesUtils.saveObject(RegisterActivity2.this, "userId", jsonObject.getJSONObject("userInfo").getString("userId"));
+                    startActivity(new Intent(RegisterActivity.this, PersonDataActivity.class));
+                    finish();
                 }
-
+            } else {
+                ToastUtil.showToast(RegisterActivity.this, jsonObject.getString("msg"));
             }
 
         } catch (JSONException e) {

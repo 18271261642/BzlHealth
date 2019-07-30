@@ -1,6 +1,7 @@
 package com.bozlun.health.android.activity;
 
 
+
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -10,14 +11,12 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
+import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.R;
-import com.bozlun.health.android.adpter.PhoneAdapter;
 import com.bozlun.health.android.base.BaseActivity;
 import com.bozlun.health.android.bean.AreCodeBean;
 import com.bozlun.health.android.net.OkHttpObservable;
@@ -35,9 +34,7 @@ import com.google.gson.Gson;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -178,7 +175,7 @@ public class ForgetPasswardActivity extends BaseActivity implements RequestView 
                     countDownTimerUtils.start();
                     sendPhoneCode(inputData,tv_phone_head.getText().toString().trim());
                 }else{      //是邮箱用户
-                    String emailUrl = URLs.HTTPs + URLs.sendEmail;
+                    String emailUrl = Commont.FRIEND_BASE_URL + URLs.sendEmail;
                     if(!isEmail(inputData)){
                         ToastUtil.showShort(ForgetPasswardActivity.this, getResources().getString(R.string.tianxie));
                         return;
@@ -217,12 +214,12 @@ public class ForgetPasswardActivity extends BaseActivity implements RequestView 
                     }
                     //提交
                     if(requestPressent != null){
-                        String subUrl = URLs.HTTPs + URLs.SUB_GET_BACK_PWD_URL;
+                        String subUrl = Commont.FRIEND_BASE_URL + URLs.SUB_GET_BACK_PWD_URL;
                         Map<String,String> maps = new HashMap<>();
                         maps.put("phone",uName);
                         maps.put("code",uVCode);
                         maps.put("pwd",Md5Util.Md532(uPwd));
-                        requestPressent.getRequestJSONObject(2,subUrl,
+                        requestPressent.getRequestJSONObject(0x02,subUrl,
                                 ForgetPasswardActivity.this,new Gson().toJson(maps),2);
                     }
 
@@ -247,8 +244,23 @@ public class ForgetPasswardActivity extends BaseActivity implements RequestView 
                         ToastUtil.showShort(this, getResources().getString(R.string.input_code));
                         return;
                     }
+
+                    if(requestPressent != null){
+                        String subUrl = Commont.FRIEND_BASE_URL + URLs.xiugaimima;
+                        Map<String,String> maps = new HashMap<>();
+                        maps.put("phone",uName);
+                        maps.put("code",uVCode);
+                        maps.put("pwd",Md5Util.Md532(uPwd));
+                        requestPressent.getRequestJSONObject(0x02,subUrl,
+                                ForgetPasswardActivity.this,new Gson().toJson(maps),2);
+                    }
+
+
+
+
+
                     //提交信息
-                    registerRemote(uName,uPwd,uVCode);
+                    //registerRemote(uName,uPwd,uVCode);
                 }
                 break;
             case R.id.forgetPhoneAreLin:    //选择区号
@@ -293,7 +305,7 @@ public class ForgetPasswardActivity extends BaseActivity implements RequestView 
     //发送手机号码
     private void sendPhoneCode(String phoneNum, String pCode) {
         if(requestPressent != null){
-            String url = URLs.HTTPs + URLs.GET_BACK_PWD_PHOE_CODE_URL;
+            String url = Commont.FRIEND_BASE_URL + URLs.GET_BACK_PWD_PHOE_CODE_URL;
             Map<String,String> mps = new HashMap<>();
             mps.put("phone",phoneNum);
             mps.put("code",StringUtils.substringAfter(pCode,"+"));
@@ -393,12 +405,12 @@ public class ForgetPasswardActivity extends BaseActivity implements RequestView 
 
     @Override
     public void successData(int what, Object object, int daystag) {
+        Log.e("","---------忘记密码="+object.toString());
         closeLoadingDialog();
         if(what == 1){  //发送手机验证码
             try {
                 JSONObject jsonObject = new JSONObject((String)object);
-                String resultCOde = jsonObject.getString("resultCode");
-                WatchUtils.verServerCode(ForgetPasswardActivity.this,resultCOde.trim());
+                ToastUtil.showToast(ForgetPasswardActivity.this,jsonObject.getString("data"));
             }catch (Exception e){
                 e.printStackTrace();
             }
@@ -406,12 +418,12 @@ public class ForgetPasswardActivity extends BaseActivity implements RequestView 
         else if(what == 2){     //找回密码提交成功返回
             try {
                 JSONObject jsoO = new JSONObject((String)object);
-                String resultCode = jsoO.getString("resultCode");
-                if(resultCode.equals("001")){   //提交成功
+                int resultCode = jsoO.getInt("code");
+                if(resultCode == 200){   //提交成功
                     ToastUtil.showToast(ForgetPasswardActivity.this, getResources().getString(R.string.change_password));
                     finish();
                 }else{
-                    WatchUtils.verServerCode(ForgetPasswardActivity.this,resultCode.trim());
+                    ToastUtil.showToast(ForgetPasswardActivity.this,jsoO.getString("msg"));
                 }
 
             }catch (Exception e){
@@ -422,8 +434,12 @@ public class ForgetPasswardActivity extends BaseActivity implements RequestView 
         else if(what == 3){     //发送邮箱验证码
             try {
                 JSONObject js = new JSONObject((String)object);
-                String resultCode = js.getString("resultCode");
-                WatchUtils.verServerCode(ForgetPasswardActivity.this,resultCode);
+                if(js.has("code")){
+                    if(js.getInt("code") == 200){
+                        ToastUtil.showToast(ForgetPasswardActivity.this,getResources().getString(R.string.yanzhengma));
+                    }
+                }
+
             }catch (Exception e){
                 e.printStackTrace();
             }

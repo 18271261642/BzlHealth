@@ -169,7 +169,7 @@ public class FrendStepActivity extends WatchBaseActivity implements RequestView 
      * 查询好友日 步数详细数据
      */
     public void findFrendStepItem(String rtc) {
-        String sleepUrl = URLs.HTTPs + Commont.FrendStepToDayData;
+        String sleepUrl = Commont.FRIEND_BASE_URL + Commont.FrendStepToDayData;
         JSONObject sleepJson = new JSONObject();
         try {
             String userId = (String) SharedPreferencesUtils.readObject(MyApp.getContext(), "userId");
@@ -251,47 +251,58 @@ public class FrendStepActivity extends WatchBaseActivity implements RequestView 
         b30ChartList.clear();
         try {
             JSONObject jsonObject = new JSONObject(object.toString());
-            if(jsonObject.getString("resultCode").equals("001")){
-                String friendList = jsonObject.getString("friendStepNumber");
-                Log.e("TAG","-------friendList="+friendList);
-                List<StepDetailBean> lt = new Gson().fromJson(friendList,new TypeToken<List<StepDetailBean>>(){}.getType());
-                if(lt != null && !lt.isEmpty()){
-                    Collections.sort(lt, new Comparator<StepDetailBean>() {
-                        @Override
-                        public int compare(StepDetailBean o1, StepDetailBean o2) {
-                            return o1.getStartDate().compareTo(o2.getStartDate());
-                        }
-                    });
-
-                    commStepDetailDbList.addAll(lt);
-                    stepAdapter.notifyDataSetChanged();
-
-                    //补0操作，
-                    Map<String,String>  maps = WatchUtils.setHalfDateMap();
-                    for(StepDetailBean st : lt){
-                        maps.put(st.getStartDate(),st.getStepNumber()+"");
-                    }
-
-                    showChartViews(maps);
-                }else{
-                    commStepDetailDbList.clear();
-                    stepAdapter.notifyDataSetChanged();
-
-                    initBarChart(b30ChartList);
-                    if (b30BarChart != null) {
-                        b30BarChart.setNoDataTextColor(Color.WHITE);
-                        b30BarChart.invalidate();
-                    }
-                }
-            }else{
+            if(!jsonObject.has("code")){
                 commStepDetailDbList.clear();
                 stepAdapter.notifyDataSetChanged();
 
                 initBarChart(b30ChartList);
-//                if (b30BarChart != null) {
-//                    b30BarChart.setNoDataTextColor(Color.WHITE);
-//                    b30BarChart.invalidate();
-//                }
+                return;
+            }
+            if(jsonObject.getInt("code")  == 200) {
+                String data = jsonObject.getString("data");
+                if (!WatchUtils.isEmpty(data) && !data.equals("[]")) {
+                    List<StepDetailBean> lt = new Gson().fromJson(data, new TypeToken<List<StepDetailBean>>() {
+                    }.getType());
+                    if (lt != null && !lt.isEmpty()) {
+                        Collections.sort(lt, new Comparator<StepDetailBean>() {
+                            @Override
+                            public int compare(StepDetailBean o1, StepDetailBean o2) {
+                                return o1.getStartDate().compareTo(o2.getStartDate());
+                            }
+                        });
+
+                        commStepDetailDbList.addAll(lt);
+                        stepAdapter.notifyDataSetChanged();
+
+                        commStepDetailDbList.addAll(lt);
+                        stepAdapter.notifyDataSetChanged();
+
+                        //补0操作，
+                        Map<String, String> maps = WatchUtils.setHalfDateMap();
+                        for (StepDetailBean st : lt) {
+                            maps.put(st.getStartDate(), st.getStepNumber() + "");
+                        }
+
+                        showChartViews(maps);
+                    } else {
+                        commStepDetailDbList.clear();
+                        stepAdapter.notifyDataSetChanged();
+
+                        initBarChart(b30ChartList);
+                        if (b30BarChart != null) {
+                            b30BarChart.setNoDataTextColor(Color.WHITE);
+                            b30BarChart.invalidate();
+                        }
+                    }
+
+                } else {
+                    commStepDetailDbList.clear();
+                    stepAdapter.notifyDataSetChanged();
+
+                    initBarChart(b30ChartList);
+                }
+
+
             }
 
         }catch (Exception e){

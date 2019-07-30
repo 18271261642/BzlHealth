@@ -214,7 +214,6 @@ public class NeNotificationService extends AccessibilityService {
                 EventBus.getDefault().post(new MessageEvent("appalert"));
             }
         }
-        MyCommandManager.MessageReminder(hashMap);
 
     }
 

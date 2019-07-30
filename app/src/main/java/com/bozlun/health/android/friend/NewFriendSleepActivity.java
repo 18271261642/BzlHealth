@@ -6,29 +6,34 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.RatingBar;
 import android.widget.TextView;
+
 import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.R;
 import com.bozlun.health.android.commdbserver.CommSleepDb;
 import com.bozlun.health.android.commdbserver.SyncDbUrls;
+import com.bozlun.health.android.friend.views.CusFriendBean;
+import com.bozlun.health.android.friend.views.CusFriendSleepView;
 import com.bozlun.health.android.siswatch.WatchBaseActivity;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
-import com.bozlun.health.android.util.URLs;
 import com.bozlun.health.android.w30s.utils.httputils.RequestPressent;
 import com.bozlun.health.android.w30s.utils.httputils.RequestView;
-import com.bozlun.health.android.w30s.views.W30S_SleepChart;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.suchengkeji.android.w30sblelibrary.bean.servicebean.W30S_SleepDataItem;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -46,12 +51,8 @@ public class NewFriendSleepActivity extends WatchBaseActivity implements Request
     ImageView commentB30BackImg;
     @BindView(R.id.commentB30TitleTv)
     TextView commentB30TitleTv;
-    @BindView(R.id.detailSleepQuitRatingBar)
-    RatingBar detailSleepQuitRatingBar;
-    @BindView(R.id.detailCusSleepView)
-    W30S_SleepChart detailCusSleepView;
-    @BindView(R.id.text_sleep_nodata)
-    TextView textSleepNodata;
+
+
     @BindView(R.id.detailAllSleepTv)
     TextView detailAllSleepTv;
     @BindView(R.id.detailAwakeNumTv)
@@ -66,8 +67,12 @@ public class NewFriendSleepActivity extends WatchBaseActivity implements Request
     TextView detailHightSleepTv;
     @BindView(R.id.sleepCurrDateTv)
     TextView sleepCurrDateTv;
-
-
+    @BindView(R.id.myFriendSleepView)
+    CusFriendSleepView myFriendSleepView;
+    @BindView(R.id.friendStartSleepTv)
+    TextView friendStartSleepTv;
+    @BindView(R.id.friendEndSleepTv)
+    TextView friendEndSleepTv;
 
 
     private RequestPressent requestPressent;
@@ -77,6 +82,7 @@ public class NewFriendSleepActivity extends WatchBaseActivity implements Request
     //好友的设备地址
     private String friendBleMac = "";
 
+    private SimpleDateFormat sdf = new SimpleDateFormat("HH:mm",Locale.CHINA);
 
 
     @Override
@@ -103,10 +109,6 @@ public class NewFriendSleepActivity extends WatchBaseActivity implements Request
 //        commentB30ShareImg.setVisibility(View.VISIBLE);
 
 
-
-
-
-
     }
 
     private void initData() {
@@ -119,23 +121,23 @@ public class NewFriendSleepActivity extends WatchBaseActivity implements Request
      */
     public void findFrendStepItem(String rtc) {
         String userId = (String) SharedPreferencesUtils.readObject(MyApp.getContext(), "userId");
-        String sleepUrl = URLs.HTTPs + Commont.FrendSLeepToDayData;
+        String sleepUrl = Commont.FRIEND_BASE_URL + Commont.FrendSLeepToDayData;
         JSONObject sleepJson = new JSONObject();
         try {
 
             if (!WatchUtils.isEmpty(userId)) sleepJson.put("userId", userId);
             if (!WatchUtils.isEmpty(applicant)) sleepJson.put("applicant", applicant);
-            sleepJson.put("rtc", WatchUtils.obtainAroundDate(rtc,true));
+            sleepJson.put("rtc", WatchUtils.obtainAroundDate(rtc, true));
         } catch (JSONException e1) {
             e1.printStackTrace();
         }
 
         //获取汇总的睡眠数据，总睡眠时长等
         Map<String, String> map = new HashMap<>();
-        map.put("userId", applicant+"");
-        map.put("startDate", WatchUtils.obtainAroundDate(rtc,true,0));
-        map.put("endDate", WatchUtils.obtainAroundDate(rtc,true,0));
-        map.put("deviceCode", friendBleMac+"");
+        map.put("userId", applicant + "");
+        map.put("startDate", WatchUtils.obtainAroundDate(rtc, true, 0));
+        map.put("endDate", WatchUtils.obtainAroundDate(rtc, true, 0));
+        map.put("deviceCode", friendBleMac + "");
         String commParams = new Gson().toJson(map);
 
 
@@ -143,11 +145,9 @@ public class NewFriendSleepActivity extends WatchBaseActivity implements Request
             //获取睡眠详细信息
             requestPressent.getRequestJSONObject(0x01, sleepUrl, NewFriendSleepActivity.this, sleepJson.toString(), 0);
             //获取汇总的睡眠信息
-            requestPressent.getRequestJSONObject(0x02, SyncDbUrls.downloadSleepUrl(),NewFriendSleepActivity.this,commParams,1);
+            requestPressent.getRequestJSONObject(0x02, SyncDbUrls.downloadSleepUrl(), NewFriendSleepActivity.this, commParams, 1);
         }
     }
-
-
 
 
     @OnClick({R.id.commentB30BackImg, R.id.sleepCurrDateLeft,
@@ -179,8 +179,6 @@ public class NewFriendSleepActivity extends WatchBaseActivity implements Request
     }
 
 
-
-
     @Override
     public void showLoadDialog(int what) {
         showLoadingDialog(getResources().getString(R.string.dlog));
@@ -189,17 +187,15 @@ public class NewFriendSleepActivity extends WatchBaseActivity implements Request
     @Override
     public void successData(int what, Object object, int daystag) {
         closeLoadingDialog();
-        if(WatchUtils.isEmpty(object+""))
+        if (WatchUtils.isEmpty(object + "") || object.toString().contains("<html>"))
             return;
-        if(what == 0x01){   //详细睡眠
+        if (what == 0x01) {   //详细睡眠
             analysisDetailSleepData(object);
-        }else if(what == 0x02){ //汇总睡眠
-            Log.e(TAG,"----------汇总睡眠="+object.toString());
+        } else if (what == 0x02) { //汇总睡眠
+            Log.e(TAG, "----------汇总睡眠=" + object.toString());
             analysisCountSleep(object);
         }
     }
-
-
 
 
     @Override
@@ -217,8 +213,9 @@ public class NewFriendSleepActivity extends WatchBaseActivity implements Request
         try {
             JSONObject jsonObject = new JSONObject(object.toString());
             String dayStr = jsonObject.getString("day");
-            List<CommSleepDb> commSleepDbList = new Gson().fromJson(dayStr,new TypeToken<List<CommSleepDb>>(){}.getType());
-            if(commSleepDbList == null || commSleepDbList.isEmpty()){
+            List<CommSleepDb> commSleepDbList = new Gson().fromJson(dayStr, new TypeToken<List<CommSleepDb>>() {
+            }.getType());
+            if (commSleepDbList == null || commSleepDbList.isEmpty()) {
                 setNoDataShow();
                 return;
             }
@@ -231,20 +228,22 @@ public class NewFriendSleepActivity extends WatchBaseActivity implements Request
             detailAllSleepTv.setText(re);
 
             //苏醒次数
-            detailAwakeNumTv.setText(commSleepDb.getWakecount()+"");
+            detailAwakeNumTv.setText(commSleepDb.getWakecount() + "");
             //入睡时间
             detailStartSleepTv.setText(commSleepDb.getSleeptime());
+            friendStartSleepTv.setText(commSleepDb.getSleeptime());
             //清醒时间
             detailAwakeTimeTv.setText(commSleepDb.getWaketime());
+            friendEndSleepTv.setText(commSleepDb.getWaketime());
             //深度睡眠
-            String deepSL = commSleepDb.getDeepsleep()/60+"H"+commSleepDb.getDeepsleep()%60+"m";
+            String deepSL = commSleepDb.getDeepsleep() / 60 + "H" + commSleepDb.getDeepsleep() % 60 + "m";
             detailDeepTv.setText(deepSL);
             //浅睡
-            String lowSL = commSleepDb.getShallowsleep()/60+"H"+commSleepDb.getShallowsleep()%60+"m";
+            String lowSL = commSleepDb.getShallowsleep() / 60 + "H" + commSleepDb.getShallowsleep() % 60 + "m";
             detailHightSleepTv.setText(lowSL);
 
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -253,30 +252,79 @@ public class NewFriendSleepActivity extends WatchBaseActivity implements Request
     private void analysisDetailSleepData(Object object) {
         try {
             JSONObject jsonObject = new JSONObject(object.toString());
-            String resultCode = jsonObject.getString("resultCode");
-            if(!WatchUtils.isEmpty(resultCode) && resultCode.equals("001")){
-                String slListStr = jsonObject.getString("sslist");
-                List<W30S_SleepDataItem> sleepList = new Gson().fromJson(slListStr,new TypeToken<List<W30S_SleepDataItem>>(){}.getType());
-                if(sleepList != null && !sleepList.isEmpty()){
-                    detailCusSleepView.setBeanList(sleepList);
-                }else{
-                    detailCusSleepView.setBeanList(new ArrayList<W30S_SleepDataItem>());
+            if (!jsonObject.has("code")) {
+                setNoDataList();
+                return;
+            }
+
+            int resultCode = jsonObject.getInt("code");
+            if (resultCode == 200) {
+                String slListStr = jsonObject.getString("data");
+                if (!WatchUtils.isEmpty(slListStr) && !slListStr.equals("[]")) {
+                    List<FriendDetailSleepDb> sleepList = new Gson().fromJson(slListStr, new TypeToken<List<FriendDetailSleepDb>>() {
+                    }.getType());
+
+                    List<CusFriendBean> cusList = new ArrayList<>();
+                    int countSleepSum = 0;
+                    if (sleepList != null && !sleepList.isEmpty()) {
+                        //sleepList.remove(0);
+                        for (int i = 0; i < sleepList.size(); i++) {
+                            //开始日期
+                            String startDateStr = sleepList.get(i).getStartTime();
+                            long startLongDate = sdf.parse(startDateStr).getTime();
+                            //后一个日期
+                            if (i + 1 < sleepList.size()) {
+                                //结束日期
+                                String endDateStr = sleepList.get(i + 1).getStartTime();
+                                long nextLongDate = sdf.parse(endDateStr).getTime();
+
+                                //差值
+                                int differenceV = (int) ((nextLongDate - startLongDate) / (60 * 1000));
+                                int sleepType = sleepList.get(i).getSleepType();
+                                int sleepTime = (differenceV < 0 ? (differenceV + 24 * 60) : differenceV);
+                                countSleepSum += sleepTime;
+
+                                CusFriendBean cusFriendBean = new CusFriendBean(sleepType, sleepTime);
+
+                                cusList.add(cusFriendBean);
+                            }
+
+                        }
+
+                        cusList.add(0, new CusFriendBean(1, 4));
+                        cusList.add(new CusFriendBean(1, 4));
+                        myFriendSleepView.setAllSleepTime(countSleepSum+8);
+                        myFriendSleepView.setSleepList(cusList);
+
+                        //showSeekBarSchView(sleepList, countSleepSum +3);
+
+                    } else {
+                        setNoDataList();
+                    }
+
+                } else {
+                    setNoDataList();
                 }
 
-            }else{
-                detailCusSleepView.setBeanList(new ArrayList<W30S_SleepDataItem>());
+            } else {
+                setNoDataList();
             }
 
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
 
+    private void setNoDataList() {
+        myFriendSleepView.setAllSleepTime(0);
+        myFriendSleepView.setSleepList(new ArrayList<CusFriendBean>());
+    }
+
 
     //无数据时显示
-    private void setNoDataShow(){
+    private void setNoDataShow() {
 
         //总睡眠时长
         detailAllSleepTv.setText("--");
@@ -292,72 +340,48 @@ public class NewFriendSleepActivity extends WatchBaseActivity implements Request
         //浅睡
         detailHightSleepTv.setText("--");
 
+        friendStartSleepTv.setText("");
+        friendEndSleepTv.setText("");
+
 
     }
-
-
-
-
 
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(requestPressent != null)
+        if (requestPressent != null)
             requestPressent.detach();
     }
 
 
+    class FriendDetailSleepDb {
 
-    class FriendDetailSleepDb{
 
-        private String addTime;
-        private int sleep_type;
-        private String startTime;
-        private String updateTime;
-        private int id;
-        private String deviceCode;
+        /**
+         * userId : 8c4c511a45374bb595e6fdf30bb878b7
+         * deviceCode : F0:62:B1:55:AA:9B
+         * sleepType : 2
+         * startTime : 23:35
+         * day : 2019-07-25
+         * addTime : 2019-07-26 08:33:18
+         * updateTime : 2019-07-26 08:33:18
+         */
+
         private String userId;
+        private String deviceCode;
+        private int sleepType;
+        private String startTime;
         private String day;
+        private String addTime;
+        private String updateTime;
 
-        public String getAddTime() {
-            return addTime;
+        public String getUserId() {
+            return userId;
         }
 
-        public void setAddTime(String addTime) {
-            this.addTime = addTime;
-        }
-
-        public int getSleep_type() {
-            return sleep_type;
-        }
-
-        public void setSleep_type(int sleep_type) {
-            this.sleep_type = sleep_type;
-        }
-
-        public String getStartTime() {
-            return startTime;
-        }
-
-        public void setStartTime(String startTime) {
-            this.startTime = startTime;
-        }
-
-        public String getUpdateTime() {
-            return updateTime;
-        }
-
-        public void setUpdateTime(String updateTime) {
-            this.updateTime = updateTime;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public void setId(int id) {
-            this.id = id;
+        public void setUserId(String userId) {
+            this.userId = userId;
         }
 
         public String getDeviceCode() {
@@ -368,12 +392,20 @@ public class NewFriendSleepActivity extends WatchBaseActivity implements Request
             this.deviceCode = deviceCode;
         }
 
-        public String getUserId() {
-            return userId;
+        public int getSleepType() {
+            return sleepType;
         }
 
-        public void setUserId(String userId) {
-            this.userId = userId;
+        public void setSleepType(int sleepType) {
+            this.sleepType = sleepType;
+        }
+
+        public String getStartTime() {
+            return startTime;
+        }
+
+        public void setStartTime(String startTime) {
+            this.startTime = startTime;
         }
 
         public String getDay() {
@@ -382,6 +414,22 @@ public class NewFriendSleepActivity extends WatchBaseActivity implements Request
 
         public void setDay(String day) {
             this.day = day;
+        }
+
+        public String getAddTime() {
+            return addTime;
+        }
+
+        public void setAddTime(String addTime) {
+            this.addTime = addTime;
+        }
+
+        public String getUpdateTime() {
+            return updateTime;
+        }
+
+        public void setUpdateTime(String updateTime) {
+            this.updateTime = updateTime;
         }
     }
 }

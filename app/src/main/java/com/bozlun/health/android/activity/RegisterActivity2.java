@@ -1,73 +1,55 @@
 package com.bozlun.health.android.activity;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.os.Handler;
-import android.os.Message;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
+import android.support.v7.widget.Toolbar;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextPaint;
-import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.bozlun.health.android.MyApp;
+import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.R;
-import com.bozlun.health.android.adpter.PhoneAdapter;
-import com.bozlun.health.android.base.BaseActivity;
 import com.bozlun.health.android.bean.AreCodeBean;
-import com.bozlun.health.android.bean.BlueUser;
-import com.bozlun.health.android.bean.CodeBean;
-import com.bozlun.health.android.net.OkHttpObservable;
-import com.bozlun.health.android.rxandroid.DialogSubscriber;
-import com.bozlun.health.android.rxandroid.SubscriberOnNextListener;
+import com.bozlun.health.android.bean.UserInfoBean;
+import com.bozlun.health.android.siswatch.WatchBaseActivity;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
 import com.bozlun.health.android.util.Common;
 import com.bozlun.health.android.util.Md5Util;
-import com.bozlun.health.android.util.MyLogUtil;
 import com.bozlun.health.android.util.NetUtils;
-import com.bozlun.health.android.view.PhoneAreaCodeView;
-import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import com.bozlun.health.android.util.ToastUtil;
 import com.bozlun.health.android.util.URLs;
+import com.bozlun.health.android.view.PhoneAreaCodeView;
 import com.bozlun.health.android.view.PrivacyActivity;
+import com.bozlun.health.android.w30s.utils.httputils.RequestPressent;
+import com.bozlun.health.android.w30s.utils.httputils.RequestView;
 import com.google.gson.Gson;
+import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import com.umeng.analytics.MobclickAgent;
 
 import org.apache.commons.lang.StringUtils;
-import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
-import cn.smssdk.SMSSDK;
-import rx.Observable;
-import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
 
 /**
  * Created by thinkpad on 2017/3/4.
  * 注册页面
  */
 
-public class RegisterActivity2 extends BaseActivity {
+public class RegisterActivity2 extends WatchBaseActivity implements RequestView {
 
     @BindView(R.id.tv_title)
     TextView tvTitle;
@@ -91,83 +73,45 @@ public class RegisterActivity2 extends BaseActivity {
     Button sendBtn;
     @BindView(R.id.textinput_code)
     TextInputLayout textinput_code;
-    private DialogSubscriber dialogSubscriber, dialogSubscriber2;
-    private Subscriber subscriber;
-    private SubscriberOnNextListener<String> subscriberOnNextListener, subscriberOnNextListener2;
-    private String phoneTxt, pwdText;
-
 
     //倒计时
     MyCountDownTimerUtils countTimeUtils;
     Gson gson = new Gson();
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
 
+    //手机号区号
     private PhoneAreaCodeView phoneAreaCodeView;
+
+    private RequestPressent requestPressent;
 
 
     @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_regsiter2);
+        ButterKnife.bind(this);
+
+
+        initViews();
+
+        initData();
+
+    }
+
+    private void initData() {
+        requestPressent = new RequestPressent();
+        requestPressent.attach(this);
+    }
+
+
     protected void initViews() {
         tvTitle.setText(R.string.user_regsiter);
         usernameInput.setHint(getResources().getString(R.string.input_name));
-
         tv_phone_head.setText("+86");
         codeEt.setHintTextColor(getResources().getColor(R.color.white));
-        subscriberOnNextListener = new SubscriberOnNextListener<String>() {
-            @Override
-            public void onNext(String result) {
-                Log.e("RegisterActivity", "------11---注册返回----" + result);
-                //Loaddialog.getInstance().dissLoading();
-                Gson gson = new Gson();
-                try {
-                    JSONObject jsonObject = new JSONObject(result);
-                    String loginResult = jsonObject.getString("resultCode");
-                    if ("001".equals(loginResult)) {
-                        BlueUser userInfo = gson.fromJson(jsonObject.getString("userInfo").toString(), BlueUser.class);
-                        MyLogUtil.i("msg", "-userInfo-" + userInfo.toString());
-                        Common.userInfo = userInfo;
-                        Common.customer_id = userInfo.getUserId();
-                        MobclickAgent.onProfileSignIn(Common.customer_id);
-                        String pass = password.getText().toString();
-                        SharedPreferencesUtils.saveObject(RegisterActivity2.this, "userId", jsonObject.getJSONObject("userInfo").getString("userId"));
-                        SharedPreferencesUtils.setParam(RegisterActivity2.this, SharedPreferencesUtils.CUSTOMER_ID, Common.customer_id);
-                        SharedPreferencesUtils.setParam(RegisterActivity2.this, SharedPreferencesUtils.CUSTOMER_PASSWORD, pass);
-                        startActivity(new Intent(RegisterActivity2.this, PersonDataActivity.class));
-                        finish();
-                    } else {
-                        WatchUtils.verServerCode(RegisterActivity2.this, loginResult);
-                    }
-//                    else if ("003".equals(loginResult)) {
-//                        ToastUtil.showShort(RegisterActivity2.this, getString(R.string.yonghuzhej));
-//                    } else {
-//                        ToastUtil.showShort(RegisterActivity2.this, getString(R.string.regsiter_fail));
-//                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-
-
+        //倒计时
         countTimeUtils = new MyCountDownTimerUtils(60 * 1000, 1000);
-
-
-        subscriberOnNextListener2 = new SubscriberOnNextListener<String>() {
-            @Override
-            public void onNext(String s) {
-                Log.e("---222", "----12-" + s);
-                if (WatchUtils.isEmpty(s))
-                    return;
-                try {
-                    JSONObject jsonObject = new JSONObject(s);
-                    String resCoce = jsonObject.getString("resultCode");
-                    if (!WatchUtils.isEmpty(resCoce))
-                        WatchUtils.verServerCode(RegisterActivity2.this, resCoce);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        };
-
 
         //初始化底部声明
         String INSURANCE_STATEMENT = getResources().getString(R.string.register_agreement);
@@ -191,23 +135,23 @@ public class RegisterActivity2 extends BaseActivity {
         registerAgreement.setText(R.string.agree_agreement);
         registerAgreement.append(spanStatement);
         registerAgreement.setMovementMethod(LinkMovementMethod.getInstance());
+        toolbar.setNavigationIcon(R.mipmap.backs);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
-    }
-
-    @Override
-    protected int getContentViewId() {
-        return R.layout.activity_regsiter2;
     }
 
 
     @OnClick({R.id.login_btn_reger, R.id.send_btn, R.id.login_btn_emil_reger, R.id.tv_phone_head})
     public void onClick(View view) {
-        phoneTxt = username.getText().toString().trim();
         switch (view.getId()) {
             case R.id.login_btn_emil_reger://跳转到邮箱注册
                 startActivity(new Intent(RegisterActivity2.this, RegisterActivity.class));
                 break;
-
             case R.id.tv_phone_head:    //选择区号
                 choosePhoneArea();
                 break;
@@ -232,7 +176,8 @@ public class RegisterActivity2 extends BaseActivity {
                 snedPhoneNumToServer(phoneNum, pCode);
 
                 break;
-            case R.id.login_btn_reger:
+            case R.id.login_btn_reger:  //注册
+                String phoneStr = username.getText().toString().trim();
                 String verCode = codeEt.getText().toString().trim();
                 String pwdTxt = password.getText().toString().trim();
                 if (WatchUtils.isEmpty(verCode)) {
@@ -244,7 +189,7 @@ public class RegisterActivity2 extends BaseActivity {
                     return;
                 }
 
-                registerRemote(verCode, pwdTxt);
+                registerRemote(phoneStr, verCode, pwdTxt);
         }
     }
 
@@ -256,12 +201,14 @@ public class RegisterActivity2 extends BaseActivity {
             @Override
             public void chooseAreaCode(AreCodeBean areCodeBean) {
                 phoneAreaCodeView.dismiss();
-                tv_phone_head.setText("+"+areCodeBean.getPhoneCode());
+                tv_phone_head.setText("+" + areCodeBean.getPhoneCode());
             }
         });
     }
 
     /**
+     * 获取手机号验证码
+     *
      * @param number 手机号
      * @param pCode  国标码
      */
@@ -272,30 +219,96 @@ public class RegisterActivity2 extends BaseActivity {
         map.put("code", StringUtils.substringAfter(pCode, "+"));
         String mapjson = gson.toJson(map);
         Log.e("msg", "-mapjson-" + mapjson);
-        dialogSubscriber2 = new DialogSubscriber(subscriberOnNextListener2, RegisterActivity2.this);
-        OkHttpObservable.getInstance().getData(dialogSubscriber2, URLs.HTTPs + URLs.GET_PHONE_VERCODE_URL, mapjson);
+        if (requestPressent != null) {
+            requestPressent.getRequestJSONObject(0x01, Commont.FRIEND_BASE_URL + URLs.GET_PHONE_VERCODE_URL, RegisterActivity2.this, mapjson, 1);
+        }
     }
 
 
-    private void registerRemote(String verCode, String pwd) {
+    //提交注册信息
+    private void registerRemote(String phoneStr, String verCode, String pwd) {
         Gson gson = new Gson();
         HashMap<String, Object> map = new HashMap<>();
-        map.put("phone", phoneTxt);
+        map.put("phone", phoneStr);
         map.put("pwd", Md5Util.Md532(pwd));
         map.put("code", verCode);
         map.put("status", "0");
         map.put("type", "0");
         String mapjson = gson.toJson(map);
         Log.e("msg", "-mapjson-" + mapjson);
-        dialogSubscriber = new DialogSubscriber(subscriberOnNextListener, RegisterActivity2.this);
-        OkHttpObservable.getInstance().getData(dialogSubscriber, URLs.HTTPs + URLs.myHTTPs, mapjson);
+        if (requestPressent != null) {
+            requestPressent.getRequestJSONObject(0x02, Commont.FRIEND_BASE_URL + URLs.myHTTPs, RegisterActivity2.this, mapjson, 2);
+        }
+
+    }
+
+    @Override
+    public void showLoadDialog(int what) {
+
+    }
+
+    @Override
+    public void successData(int what, Object object, int daystag) {
+        Log.e("", "------obj=" + object.toString());
+        if (object == null)
+            return;
+        if (object.toString().contains("<html>"))
+            return;
+        try {
+            JSONObject jsonObject = new JSONObject(object.toString());
+            switch (what) {
+                case 0x01:  //获取验证码返回
+                    ToastUtil.showToast(RegisterActivity2.this, jsonObject.getString("data"));
+                    break;
+                case 0x02:  //注册返回
+                    analysisRegiData(jsonObject);
+                    break;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    @Override
+    public void failedData(int what, Throwable e) {
+        closeLoadingDialog();
+    }
+
+    @Override
+    public void closeLoadDialog(int what) {
+
+    }
+
+    //提交注册返回
+    private void analysisRegiData(JSONObject jsonObject) {
+        try {
+            if (!jsonObject.has("code"))
+                return;
+            if (jsonObject.getInt("code") == 200) {
+                String data = jsonObject.getString("data");
+                UserInfoBean userInfoBean = new Gson().fromJson(data,UserInfoBean.class);
+                if(userInfoBean != null){
+                    Common.customer_id = userInfoBean.getUserid();
+                    MobclickAgent.onProfileSignIn(Common.customer_id);
+                    SharedPreferencesUtils.saveObject(RegisterActivity2.this, Commont.USER_ID_DATA, userInfoBean.getUserid());
+                    startActivity(new Intent(RegisterActivity2.this, PersonDataActivity.class));
+                    finish();
+                }
+            } else {
+                ToastUtil.showToast(RegisterActivity2.this, jsonObject.getString("msg"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
     private class MyCountDownTimerUtils extends CountDownTimer {
 
 
-        public MyCountDownTimerUtils(long millisInFuture, long countDownInterval) {
+        MyCountDownTimerUtils(long millisInFuture, long countDownInterval) {
             super(millisInFuture, countDownInterval);
         }
 

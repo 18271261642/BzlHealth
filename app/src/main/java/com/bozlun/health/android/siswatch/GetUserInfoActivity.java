@@ -1,8 +1,8 @@
 package com.bozlun.health.android.siswatch;
 
+
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -10,6 +10,8 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.JsonRequest;
 import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.MyApp;
+import com.bozlun.health.android.bean.UserInfoBean;
+import com.google.gson.Gson;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import com.bozlun.health.android.util.URLs;
 import org.json.JSONException;
@@ -29,7 +31,7 @@ public class GetUserInfoActivity extends WatchBaseActivity {
 
     //获取用户信息
     private void getUserInfoData(String customer_id) {
-        String url = URLs.HTTPs + URLs.getUserInfo;
+        String url = Commont.FRIEND_BASE_URL + URLs.getUserInfo;
         JSONObject jsonob = new JSONObject();
         try {
             jsonob.put("userId", customer_id);
@@ -41,23 +43,24 @@ public class GetUserInfoActivity extends WatchBaseActivity {
             public void onResponse(JSONObject response) {
                 if (response != null) {
                     try {
-                        if (response.getString("resultCode").equals("001")) {
-                            JSONObject userJson = response.getJSONObject("userInfo");
-                            if (userJson != null) {
-                                //保存用户信息
-                                SharedPreferencesUtils.saveObject(GetUserInfoActivity.this, Commont.USER_INFO_DATA, userJson.toString());
-                                //保存一下用户性别
-                                SharedPreferencesUtils.setParam(GetUserInfoActivity.this,Commont.USER_SEX,userJson.getString("sex"));
-                                String height = userJson.getString("height");
-                                if (height.contains("cm")) {
-                                    String newHeight = height.substring(0, height.length() - 2);
-                                    SharedPreferencesUtils.setParam(GetUserInfoActivity.this, Commont.USER_HEIGHT, newHeight.trim());
-                                } else {
-                                    SharedPreferencesUtils.setParam(GetUserInfoActivity.this, Commont.USER_HEIGHT, height.trim());
-                                }
+                       if(response.getInt("code") == 200){
+                           String data = response.getString("data");
+                           UserInfoBean userInfoBean = new Gson().fromJson(data,UserInfoBean.class);
+                           if(userInfoBean != null){
+                               SharedPreferencesUtils.saveObject(GetUserInfoActivity.this, Commont.USER_ID_DATA, userInfoBean.getUserid());
+                               //保存一下用户性别
+                               SharedPreferencesUtils.setParam(GetUserInfoActivity.this,Commont.USER_SEX,userInfoBean.getSex());
+                               String height = userInfoBean.getHeight();
+                               if (height.contains("cm")) {
+                                   String newHeight = height.substring(0, height.length() - 2);
+                                   SharedPreferencesUtils.setParam(GetUserInfoActivity.this, Commont.USER_HEIGHT, newHeight.trim());
+                               } else {
+                                   SharedPreferencesUtils.setParam(GetUserInfoActivity.this, Commont.USER_HEIGHT, height.trim());
+                               }
+                           }
 
-                            }
-                        }
+                       }
+
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

@@ -14,7 +14,7 @@ public class MyCommandManager {
     public static boolean deviceDisconnState = false;
     public static String deviceAddress = "";
 
-    public static String DEVICENAME = null;
+    public static String DEVICENAME = null;     //用于判断蓝牙是否连接的
     public static String ADDRESS = null;
     //是否是ota升级
     public static boolean isOta = false;

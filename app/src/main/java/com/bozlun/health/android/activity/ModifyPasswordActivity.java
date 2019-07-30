@@ -50,13 +50,15 @@ public class ModifyPasswordActivity extends BaseActivity {
                 Log.e("修改密码","-----result="+result);
                 try {
                     JSONObject jsonObject = new JSONObject(result);
-                    String resultCode = jsonObject.getString("resultCode");
-                    if ("001".equals(resultCode)) {
+                    if(!jsonObject.has("code"))
+                        return;
+                    if(jsonObject.getInt("code") == 200){
                         ToastUtil.showShort(ModifyPasswordActivity.this, getString(R.string.modify_success));
                         finish();
-                    } else {
-                        ToastUtil.showShort(ModifyPasswordActivity.this, getString(R.string.submit_fail));
+                    }else{
+                        ToastUtil.showToast(ModifyPasswordActivity.this,jsonObject.getString("msg"));
                     }
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -102,7 +104,7 @@ public class ModifyPasswordActivity extends BaseActivity {
         map.put("newPwd", Md5Util.Md532(newPwd));
         String mapjson = gson.toJson(map);
         dialogSubscriber = new DialogSubscriber(subscriberOnNextListener, ModifyPasswordActivity.this);
-        OkHttpObservable.getInstance().getData(dialogSubscriber, URLs.HTTPs + URLs.xiugaipassword, mapjson);
+        OkHttpObservable.getInstance().getData(dialogSubscriber, Commont.FRIEND_BASE_URL + URLs.xiugaipassword, mapjson);
     }
 
 }

@@ -17,21 +17,24 @@ import com.bozlun.health.android.R;
 import com.bozlun.health.android.friend.bean.LoveMeBean;
 import com.bozlun.health.android.siswatch.WatchBaseActivity;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
+import com.bozlun.health.android.util.ToastUtil;
 import com.bozlun.health.android.util.URLs;
 import com.bozlun.health.android.w30s.adapters.CommonRecyclerAdapter;
 import com.bozlun.health.android.w30s.adapters.MyViewHolder;
 import com.bozlun.health.android.w30s.utils.httputils.RequestPressent;
 import com.bozlun.health.android.w30s.utils.httputils.RequestView;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class FrendLoveMineActivity
-        extends WatchBaseActivity implements RequestView {
+public class FrendLoveMineActivity extends WatchBaseActivity implements RequestView {
 
     @BindView(R.id.bar_titles)
     TextView barTitles;
@@ -40,6 +43,10 @@ public class FrendLoveMineActivity
     @BindView(R.id.rec_list_loveme)
     RecyclerView recListLoveme;
     private RequestPressent requestPressent;
+
+    private List<LoveMeBean.FriendListBean> list;
+    private MyAdapter myAdapter;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -68,11 +75,12 @@ public class FrendLoveMineActivity
             }
         });//右边返回按钮点击事件
 
-
         recListLoveme.setLayoutManager(new GridLayoutManager(this, 3));
-        //分割线
-//        recyclerViewFrend.addItemDecoration(new RecycleViewDivider(
-//                this, LinearLayoutManager.VERTICAL, 8, Color.parseColor("#D9D9D9")));
+        list = new ArrayList<>();
+        myAdapter = new MyAdapter(FrendLoveMineActivity.this,list,R.layout.loveme_item);
+        recListLoveme.setAdapter(myAdapter);
+
+
     }
 
     @Override
@@ -83,12 +91,27 @@ public class FrendLoveMineActivity
     @Override
     public void successData(int what, Object object, int daystag) {
         closeLoadingDialog();
-        if (object == null || TextUtils.isEmpty(object.toString().trim())) return;
-        Log.d("-----------赞我的--", object.toString());
-        Message message = new Message();
-        message.what = what;
-        message.obj = object;
-        if (handler != null) handler.sendMessage(message);
+        if(WatchUtils.isEmpty(object+"") || object.toString().contains("<html>") )
+            return;
+        try {
+            list.clear();
+            JSONObject jsonObject = new JSONObject(object.toString());
+            if(jsonObject.getInt("code") == 200){
+                String data = jsonObject.getString("data");
+                if(!WatchUtils.isEmpty(data) && !data.equals("[]")){
+                    List<LoveMeBean.FriendListBean> tmpList = new Gson().fromJson(data,
+                            new TypeToken<List<LoveMeBean.FriendListBean>>(){}.getType());
+                    list.addAll(tmpList);
+                    myAdapter.notifyDataSetChanged();
+                }
+            }else{
+                myAdapter.notifyDataSetChanged();
+                ToastUtil.showToast(FrendLoveMineActivity.this,jsonObject.getString("msg"));
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 
     @Override
@@ -106,7 +129,7 @@ public class FrendLoveMineActivity
      * 返回今日已赞我的好友
      */
     void getLoveMe() {
-        String sleepUrl = URLs.HTTPs + Commont.TodayLoveMe;
+        String sleepUrl = Commont.FRIEND_BASE_URL + Commont.TodayLoveMe;
         JSONObject sleepJson = new JSONObject();
         try {
             String userId = (String) SharedPreferencesUtils.readObject(this, "userId");
@@ -119,29 +142,6 @@ public class FrendLoveMineActivity
             requestPressent.getRequestJSONObject(0x01, sleepUrl, FrendLoveMineActivity.this, sleepJson.toString(), 0);
         }
     }
-
-    Handler handler = new Handler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message message) {
-            switch (message.what) {
-                case 0x01:
-                    LoveMeBean loveMeBean = new Gson().fromJson(message.obj.toString(), LoveMeBean.class);
-                    if (loveMeBean.getResultCode().equals("001")) {
-                        List<LoveMeBean.FriendListBean> friendList = loveMeBean.getFriendList();
-                        if (friendList != null)
-                            recListLoveme.setAdapter(new MyAdapter(FrendLoveMineActivity.this, friendList,
-                                    R.layout.loveme_item));
-                    }
-
-//                    FrendAdapter frendAdapter = new FrendAdapter(FriendActivity.this, myfriends);
-//                    recListLoveme.setAdapter(frendAdapter);
-
-                    break;
-            }
-            return false;
-        }
-    });
-
 
     /**
      * rec---适配器
@@ -158,13 +158,12 @@ public class FrendLoveMineActivity
             if (!WatchUtils.isEmpty(item.getImage())) {
                 holder.setImageGlid(R.id.image_user, item.getImage(), FrendLoveMineActivity.this);
             }
-            if (!WatchUtils.isEmpty(item.getNickName()))
-                holder.setText(R.id.text_names, item.getNickName());
+            if (!WatchUtils.isEmpty(item.getNickname()))
+                holder.setText(R.id.text_names, item.getNickname());
 
 //            holder.setText(R.id.itemHeartDetailDateTv, item.getRtc().substring(11, 16));
 //            holder.setText(R.id.itemHeartDetailValueTv, item.getHeartRate() + "");
         }
     }
-
 
 }

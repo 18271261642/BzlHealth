@@ -11,10 +11,12 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,33 +25,30 @@ import android.widget.TextView;
 
 import com.aigestudio.wheelpicker.widgets.DatePick;
 import com.aigestudio.wheelpicker.widgets.ProfessionPick;
-import com.bumptech.glide.request.RequestOptions;
 import com.bozlun.health.android.Commont;
-import com.bozlun.health.android.siswatch.NewSearchActivity;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bozlun.health.android.R;
-import com.bozlun.health.android.base.BaseActivity;
+import com.bozlun.health.android.bean.UserInfoBean;
 import com.bozlun.health.android.imagepicker.PickerBuilder;
-import com.bozlun.health.android.net.OkHttpObservable;
-import com.bozlun.health.android.rxandroid.DialogSubscriber;
-import com.bozlun.health.android.rxandroid.SubscriberOnNextListener;
+import com.bozlun.health.android.siswatch.NewSearchActivity;
+import com.bozlun.health.android.siswatch.WatchBaseActivity;
 import com.bozlun.health.android.siswatch.utils.Base64BitmapUtil;
 import com.bozlun.health.android.util.Common;
 import com.bozlun.health.android.util.ImageTool;
-import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import com.bozlun.health.android.util.ToastUtil;
 import com.bozlun.health.android.util.URLs;
+import com.bozlun.health.android.w30s.utils.httputils.RequestPressent;
+import com.bozlun.health.android.w30s.utils.httputils.RequestView;
 import com.bozlun.health.android.widget.SwitchIconView;
 import com.flipboard.bottomsheet.BottomSheetLayout;
 import com.flipboard.bottomsheet.commons.MenuSheetView;
 import com.google.gson.Gson;
+import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
+import com.umeng.analytics.MobclickAgent;
 import com.yanzhenjie.permission.Action;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.Rationale;
 import com.yanzhenjie.permission.RequestExecutor;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -60,17 +59,17 @@ import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.hdodenhof.circleimageview.CircleImageView;
-
-import static com.bozlun.health.android.util.Common.userInfo;
 
 /**
  * Created by thinkpad on 2017/3/4.
  * 完善资料，注册完成后到此页面
  */
 
-public class PersonDataActivity extends BaseActivity {
+public class PersonDataActivity extends WatchBaseActivity implements RequestView {
+
     private static final String TAG = "PersonDataActivity";
 
     private static final int GET_OPENCAMERA_CODE = 100;
@@ -94,31 +93,34 @@ public class PersonDataActivity extends BaseActivity {
     @BindView(R.id.bottomsheet)
     BottomSheetLayout bottomSheetLayout;
 
+
     private String sexVal;  //性别
-    private DialogSubscriber dialogSubscriber;
-    private SubscriberOnNextListener<String> subscriberOnNextListener;
-    private boolean isSubmit;
     private ArrayList<String> heightList;
     private ArrayList<String> weightList;
 
     private Uri mCutUri;
 
+    private RequestPressent requestPressent;
+
+
     @Override
-    protected void initViews() {
-        tvTitle.setText(R.string.mine_data);
-        manIconview.switchState();
-        sexVal = "M";
-        heightList = new ArrayList<>();
-        weightList = new ArrayList<>();
-        for (int i = 120; i < 231; i++) {
-            heightList.add(i + " cm");
-        }
-        for (int i = 20; i < 200; i++) {
-            weightList.add(i + " kg");
-        }
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_persondata);
+        ButterKnife.bind(this);
 
+
+        initView();
+
+        requestPermiss();
+
+        requestPressent = new RequestPressent();
+        requestPressent.attach(this);
+
+    }
+
+    private void requestPermiss() {
         //请求打开相机的权限
-
         AndPermission.with(PersonDataActivity.this)
                 .runtime()
                 .permission(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -140,48 +142,22 @@ public class PersonDataActivity extends BaseActivity {
 
                     }
                 }).start();
-
-        subscriberOnNextListener = new SubscriberOnNextListener<String>() {
-            @Override
-            public void onNext(String result) {
-//                Log.e("PersonDataActivity", "--result--" + result);
-                try {
-                    JSONObject jsonObject = new JSONObject(result);
-                    String resultCode = jsonObject.getString("resultCode");
-
-//                    Log.e("PersonDataActivity", "------result----" + resultCode + "---" + jsonObject.getString("resultCode"));
-
-                    if ("001".equals(resultCode)) {
-                        if (isSubmit) {
-                            startActivity(new Intent(PersonDataActivity.this, NewSearchActivity.class));
-                            finish();
-                        } else {
-//                            Log.e("PersonDataActivity", "----444------");
-                            String imageUrl = jsonObject.optString("url");
-//                            //   .error(R.drawable.piece_dot)
-//                                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-//                                    .centerCrop()
-                            RequestOptions mRequestOptions = RequestOptions.circleCropTransform().diskCacheStrategy(DiskCacheStrategy.ALL)
-                                    .skipMemoryCache(true);
-                            Glide.with(PersonDataActivity.this).load(imageUrl)
-                                    .apply(mRequestOptions)
-                                    .into(headImg);
-                        }
-                    } else {
-                        ToastUtil.showShort(PersonDataActivity.this, getString(R.string.submit_fail));
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-
     }
 
-    @Override
-    protected int getContentViewId() {
-        return R.layout.activity_persondata;
+    private void initView() {
+        tvTitle.setText(R.string.mine_data);
+        manIconview.switchState();
+        sexVal = "M";
+        heightList = new ArrayList<>();
+        weightList = new ArrayList<>();
+        for (int i = 120; i < 231; i++) {
+            heightList.add(i + " cm");
+        }
+        for (int i = 20; i < 200; i++) {
+            weightList.add(i + " kg");
+        }
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -197,7 +173,8 @@ public class PersonDataActivity extends BaseActivity {
 
     }
 
-    @OnClick({R.id.head_img, R.id.selectbirthday_relayout, R.id.selectheight_relayout, R.id.selectweight_relayout,
+    @OnClick({R.id.head_img, R.id.selectbirthday_relayout,
+            R.id.selectheight_relayout, R.id.selectweight_relayout,
             R.id.confirmcompelte_btn, R.id.man_iconview, R.id.women_iconview})
     public void onClick(View view) {
         switch (view.getId()) {
@@ -288,22 +265,25 @@ public class PersonDataActivity extends BaseActivity {
                 if (TextUtils.isEmpty(uName)) {
                     ToastUtil.showShort(PersonDataActivity.this, getString(R.string.write_nickname));
                     return;
-                } if (TextUtils.isEmpty(birthTxt)) {
-                ToastUtil.showShort(PersonDataActivity.this, getString(R.string.select_brithday));
-                return;
-            } if (TextUtils.isEmpty(heightTxt)) {
-                ToastUtil.showShort(PersonDataActivity.this, getString(R.string.select_height));
-                return;
-            }  if (TextUtils.isEmpty(weightTxt)) {
-                ToastUtil.showShort(PersonDataActivity.this, getString(R.string.select_weight));
-                return;
-            }
-                submitPersonData(uName,birthTxt,heightTxt,weightTxt);
+                }
+                if (TextUtils.isEmpty(birthTxt)) {
+                    ToastUtil.showShort(PersonDataActivity.this, getString(R.string.select_brithday));
+                    return;
+                }
+                if (TextUtils.isEmpty(heightTxt)) {
+                    ToastUtil.showShort(PersonDataActivity.this, getString(R.string.select_height));
+                    return;
+                }
+                if (TextUtils.isEmpty(weightTxt)) {
+                    ToastUtil.showShort(PersonDataActivity.this, getString(R.string.select_weight));
+                    return;
+                }
+                submitPersonData(uName, birthTxt, heightTxt, weightTxt);
                 break;
             case R.id.man_iconview:
                 sexVal = "M";
                 //保存性别
-                SharedPreferencesUtils.setParam(PersonDataActivity.this,Commont.USER_SEX,"M");
+                SharedPreferencesUtils.setParam(PersonDataActivity.this, Commont.USER_SEX, "M");
                 if (!manIconview.isIconEnabled()) {
                     manIconview.switchState();
                     womenIconview.setIconEnabled(false);
@@ -312,7 +292,7 @@ public class PersonDataActivity extends BaseActivity {
             case R.id.women_iconview:
                 sexVal = "F";
                 //保存性别
-                SharedPreferencesUtils.setParam(PersonDataActivity.this,Commont.USER_SEX,"F");
+                SharedPreferencesUtils.setParam(PersonDataActivity.this, Commont.USER_SEX, "F");
                 if (!womenIconview.isIconEnabled()) {
                     womenIconview.switchState();
                     manIconview.setIconEnabled(false);
@@ -373,6 +353,7 @@ public class PersonDataActivity extends BaseActivity {
                 .start();
     }
 
+    //上传头像图片
     private void uploadPic(String filePath, int flag) {
         Gson gson = new Gson();
         HashMap<String, Object> map = new HashMap<>();
@@ -384,15 +365,14 @@ public class PersonDataActivity extends BaseActivity {
         }
 
         String mapjson = gson.toJson(map);
-//        Log.e("PersonDataActivity", "----111------" + mapjson);
-        dialogSubscriber = new DialogSubscriber(subscriberOnNextListener, PersonDataActivity.this);
-        OkHttpObservable.getInstance().getData(dialogSubscriber, URLs.HTTPs + URLs.ziliaotouxiang, mapjson);
+        if (requestPressent != null)
+            requestPressent.getRequestJSONObject(0x01, Commont.FRIEND_BASE_URL + URLs.ziliaotouxiang, PersonDataActivity.this, mapjson, 1);
+
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-//        Log.e(TAG, "-----result-=" + requestCode + "--resu=" + resultCode);
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case 120: //从相册图片后返回的uri
@@ -417,11 +397,6 @@ public class PersonDataActivity extends BaseActivity {
                                     this.getContentResolver().openInputStream(mCutUri));
                             //showImg.setImageBitmap(bitmap);
                             headImg.setImageBitmap(bitmap);
-//                            RequestOptions mRequestOptions = RequestOptions.circleCropTransform().diskCacheStrategy(DiskCacheStrategy.ALL)
-//                                    .skipMemoryCache(true);
-//                            Glide.with(PersonDataActivity.this).
-//                                    load(mCutUri).apply(mRequestOptions).into(headImg);
-                            // uploadPic(ImageTool.getRealFilePath(PersonDataActivity.this, mCutUri));
                             uploadPic(Base64BitmapUtil.bitmapToBase64(bitmap), 0);
                         }
 
@@ -434,8 +409,8 @@ public class PersonDataActivity extends BaseActivity {
 
     }
 
-    private void submitPersonData(String uName,String birthTxt,String heightTxt,String weightTxt) {
-        isSubmit = true;
+    //完善用户信息提交
+    private void submitPersonData(String uName, String birthTxt, String heightTxt, String weightTxt) {
         Gson gson = new Gson();
         HashMap<String, Object> map = new HashMap<>();
         map.put("userId", Common.customer_id);
@@ -445,9 +420,9 @@ public class PersonDataActivity extends BaseActivity {
         map.put("weight", weightTxt);
         map.put("birthday", birthTxt);
         String mapjson = gson.toJson(map);
-//        Log.e("PersonDataActivity", "----222------" + mapjson);
-        dialogSubscriber = new DialogSubscriber(subscriberOnNextListener, PersonDataActivity.this);
-        OkHttpObservable.getInstance().getData(dialogSubscriber, URLs.HTTPs + URLs.yonghuziliao, mapjson);
+        if (requestPressent != null) {
+            requestPressent.getRequestJSONObject(0x02, Commont.FRIEND_BASE_URL + URLs.yonghuziliao, PersonDataActivity.this, mapjson, 2);
+        }
     }
 
 
@@ -468,7 +443,7 @@ public class PersonDataActivity extends BaseActivity {
         Uri imageuri;
         if (Build.VERSION.SDK_INT >= 24) {
             imageuri = FileProvider.getUriForFile(PersonDataActivity.this,
-                    getPackageName()+".fileprovider_racefitpro", //可以是任意字符串
+                    getPackageName() + ".fileprovider_racefitpro", //可以是任意字符串
                     outputfile);
 //            imageuri = FileProvider.getUriForFile(PersonDataActivity.this,
 //                    "com.guider.ringmiihx.fileprovider", //可以是任意字符串
@@ -512,7 +487,7 @@ public class PersonDataActivity extends BaseActivity {
             if (Build.VERSION.SDK_INT >= 24) {
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 imageUri = FileProvider.getUriForFile(PersonDataActivity.this,
-                        getPackageName()+".fileprovider_racefitpro",
+                        getPackageName() + ".fileprovider_racefitpro",
                         camerafile);
 //                imageUri = FileProvider.getUriForFile(PersonDataActivity.this,
 //                        "com.guider.ringmiihx.fileprovider",
@@ -647,5 +622,81 @@ public class PersonDataActivity extends BaseActivity {
             cursor.close();
         }
         return path;
+    }
+
+    @Override
+    public void showLoadDialog(int what) {
+
+    }
+
+
+    /**
+     * String imageUrl = jsonObject.optString("url");
+     * //                            //   .error(R.drawable.piece_dot)
+     * //                                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+     * //                                    .centerCrop()
+     * RequestOptions mRequestOptions = RequestOptions.circleCropTransform().diskCacheStrategy(DiskCacheStrategy.ALL)
+     * .skipMemoryCache(true);
+     * Glide.with(PersonDataActivity.this).load(imageUrl)
+     * .apply(mRequestOptions)
+     * .into(headImg);
+     */
+
+    @Override
+    public void successData(int what, Object object, int daystag) {
+        Log.e(TAG, "-------succ=" + object.toString());
+        if (object == null)
+            return;
+        if (object.toString().contains("<html>"))
+            return;
+        try {
+            JSONObject jsonObject = new JSONObject(object.toString());
+            switch (what) {
+                case 0x01:  //头像
+                    if(!jsonObject.has("code"))
+                        return;
+                    if(jsonObject.getInt("code") == 200){
+                        ToastUtil.showToast(PersonDataActivity.this,getResources().getString(R.string.submit_success));
+                    }else{
+                        ToastUtil.showToast(PersonDataActivity.this,jsonObject.getString("msg"));
+                    }
+                    break;
+                case 0x02:  //完善用户信息
+                    analysisUserStr(jsonObject);
+                    break;
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+
+    @Override
+    public void failedData(int what, Throwable e) {
+
+    }
+
+    @Override
+    public void closeLoadDialog(int what) {
+
+    }
+
+
+    //完善用户信息
+    private void analysisUserStr(JSONObject jsonObject) {
+        try {
+            if (!jsonObject.has("code"))
+                return;
+            if (jsonObject.getInt("code") == 200) {
+                ToastUtil.showToast(PersonDataActivity.this,getResources().getString(R.string.modify_success));
+                startActivity(NewSearchActivity.class);
+                finish();
+            } else {
+                ToastUtil.showToast(PersonDataActivity.this, jsonObject.getString("data"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -224,17 +224,14 @@ public class UpdateManager {
                     if (!WatchUtils.isEmpty(result)) {
                         try {
                             JSONObject jsono = new JSONObject(result);
-                            if (jsono.getString("resultCode").equals("001")) {
-                                String verStr = jsono.getString("versionInfo");
-                                if (!WatchUtils.isEmpty(verStr)) {
-                                    JSONObject versionInfo = new JSONObject(verStr);
-                                    if(!versionInfo.has("version"))
-                                        return;
-                                    int version = versionInfo.getInt("version");
-                                    if (version > WatchUtils.getVersionCode(mContext)) {
-                                        Log.e("update", "-----返回地址=" + versionInfo.getString("url"));
-                                        setUpdate2(versionInfo.getString("url"));
-                                    }
+                            if(!jsono.has("code"))
+                                return;
+                            if(jsono.getInt("code") == 200){
+                                JSONObject jsonObject1 = jsono.getJSONObject("data");
+                                String verStr = jsonObject1.getString("version");
+                                if(!WatchUtils.isEmpty(verStr) && Integer.valueOf(verStr.trim())>WatchUtils.getVersionCode(mContext)){
+                                    Log.e("update", "-----返回地址=" + jsonObject1.getString("url"));
+                                    setUpdate2(jsonObject1.getString("url"));
                                 }
 
                             }

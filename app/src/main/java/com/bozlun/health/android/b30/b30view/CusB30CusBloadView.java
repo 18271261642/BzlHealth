@@ -303,7 +303,7 @@ public class CusB30CusBloadView extends View {
         float aver = ((lableCountY - 1) * intervalY / (maxValueY - minValueY));
         //aver = 1;
         if (mapList != null && mapList.size() > 0) {
-            Log.e(TAG, "-------mp-size=" + mapList.size());
+            //Log.e(TAG, "-------mp-size=" + mapList.size());
             for (int i = 0; i < mapList.size(); i++) {
                 Map<Integer, Integer> map = mapList.get(i);
                 if(map != null){

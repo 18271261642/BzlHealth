@@ -18,6 +18,7 @@ import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.R;
 import com.bozlun.health.android.bzlmaps.CommomDialog;
+import com.bozlun.health.android.friend.bean.FriendApplyBean;
 import com.bozlun.health.android.friend.bean.NewApplyFrendBean;
 import com.bozlun.health.android.friend.bean.NewFrendApplyBean;
 import com.bozlun.health.android.friend.bean.TextItem;
@@ -47,9 +48,10 @@ import me.drakeet.multitype.MultiTypeAdapter;
  * @company: 东莞速成科技有限公司
  */
 
-public class FriendApplyActivity
-        extends WatchBaseActivity
-        implements View.OnClickListener, RequestView, NewFrendApplyDataBind.ButtonOnClickLister {
+public class FriendApplyActivity extends WatchBaseActivity implements View.OnClickListener, RequestView, NewFrendApplyDataBind.ButtonOnClickLister {
+    private static final String TAG = "FriendApplyActivity";
+
+
     @BindView(R.id.bar_titles)
     TextView barTitles;
     @BindView(R.id.w30s_listView)
@@ -111,11 +113,11 @@ public class FriendApplyActivity
      * @param userId
      */
     public void findNewApplyFrend(String userId) {
-        String sleepUrl = URLs.HTTPs + Commont.FindNewFrend;
+        String sleepUrl = Commont.FRIEND_BASE_URL + Commont.FindNewFrend;
         JSONObject sleepJson = new JSONObject();
         try {
             sleepJson.put("userId", userId);
-            Log.d("-----------朋友--", " 查找朋友的新申请参数--" + sleepJson.toString());
+            Log.e(TAG, " 查找朋友的新申请参数--" + sleepJson.toString());
         } catch (JSONException e1) {
             e1.printStackTrace();
         }
@@ -132,12 +134,12 @@ public class FriendApplyActivity
      * @param applicant
      */
     public void deleteApplyFrend(String userId, String applicant) {
-        String sleepUrl = URLs.HTTPs + Commont.DeleteApplyFrend;
+        String sleepUrl = Commont.FRIEND_BASE_URL + Commont.DeleteApplyFrend;
         JSONObject sleepJson = new JSONObject();
         try {
             sleepJson.put("userId", userId);
             sleepJson.put("applicant", applicant);
-            Log.d("-----------朋友--", " 查找朋友的新申请参数--" + sleepJson.toString());
+            Log.e(TAG, " 查找朋友的新申请参数--" + sleepJson.toString());
         } catch (JSONException e1) {
             e1.printStackTrace();
         }
@@ -153,14 +155,14 @@ public class FriendApplyActivity
      * @param userId
      */
     public void findReturnApply(String userId, String applicant, int status, int see) {
-        String sleepUrl = URLs.HTTPs + Commont.FindReturnApply;
+        String sleepUrl = Commont.FRIEND_BASE_URL + Commont.FindReturnApply;
         JSONObject sleepJson = new JSONObject();
         try {
             sleepJson.put("userId", userId);
             sleepJson.put("applicant", applicant);
             sleepJson.put("status", status);
 //            sleepJson.put("see", see);
-            Log.d("-----------朋友--", " 同意或者驳回申请参数--" + sleepJson.toString());
+            Log.e(TAG, " 同意或者驳回申请参数--" + sleepJson.toString());
         } catch (JSONException e1) {
             e1.printStackTrace();
         }
@@ -177,11 +179,11 @@ public class FriendApplyActivity
      * @param userId
      */
     public void findMineApplyHistory(String userId) {
-        String sleepUrl = URLs.HTTPs + Commont.FindApplyHistory;
+        String sleepUrl = Commont.FRIEND_BASE_URL + Commont.FindApplyHistory;
         JSONObject sleepJson = new JSONObject();
         try {
             sleepJson.put("userId", userId);
-            Log.d("-----------朋友--", " 查找我的申请历史参数--" + sleepJson.toString());
+            Log.e(TAG, " 查找我的申请历史参数--" + sleepJson.toString());
         } catch (JSONException e1) {
             e1.printStackTrace();
         }
@@ -209,24 +211,32 @@ public class FriendApplyActivity
                 if (items == null) items = new Items();
                 switch (message.what) {
                     case 0x01:
-                        Log.d("----------新的朋友申请列表返回--", message.obj.toString());
+                        Log.e("----------新的朋友申请列表返回--", message.obj.toString());
                         items.clear();
                         //朋友申请
                         if (handler != null) handler.sendEmptyMessage(0x05);
                         NewFrendApplyDataBind newFrendApplyDataBind = new NewFrendApplyDataBind();
                         //设置布局按钮监听
                         newFrendApplyDataBind.setmButtonOnClickLister(FriendApplyActivity.this);
-                        multiTypeAdapter.register(NewFrendApplyBean.ApplyListBean.class, newFrendApplyDataBind);
-                        NewFrendApplyBean newFrendApplyBean = new Gson().fromJson(message.obj.toString(), NewFrendApplyBean.class);
-                        if (newFrendApplyBean != null && newFrendApplyBean.getResultCode().equals("001")) {
-                            List<NewFrendApplyBean.ApplyListBean> applyList = newFrendApplyBean.getApplyList();
-                            if (applyList != null && !applyList.isEmpty()) {
-                                for (NewFrendApplyBean.ApplyListBean ls : applyList) {
-                                    items.add(new NewFrendApplyBean.ApplyListBean(ls.getBirthday(), ls.getImage(), ls.getNickName(), ls.getSex(), ls.getWeight(), ls.getUserId(), ls.getPhone(), ls.getHeight()));
+                        //multiTypeAdapter.register(FriendApplyBean.DataBean.class, newFrendApplyDataBind);
+                        //  NewFrendApplyBean newFrendApplyBean = new Gson().fromJson(message.obj.toString(), NewFrendApplyBean.class);
+
+                        FriendApplyBean friendApplyBean = new Gson().fromJson(message.obj.toString(),FriendApplyBean.class);
+                        if(friendApplyBean != null){
+                            if(friendApplyBean.getCode() == 200){
+                                List<FriendApplyBean.DataBean> applyList = friendApplyBean.getData();
+                                if(applyList != null && applyList.size() > 0){
+                                    for(FriendApplyBean.DataBean dd : applyList){
+                                        items.add(new NewFrendApplyBean.ApplyListBean(dd.getBirthday(), dd.getImage(),
+                                                dd.getNickname(), dd.getSex(), dd.getWeight(), dd.getUserid(),
+                                                dd.getPhone(), dd.getHeight()));
+                                    }
                                 }
+
                             }
 
                         }
+
                         break;
                     case 0x02:
 
@@ -348,7 +358,8 @@ public class FriendApplyActivity
                     w30sListView.setAdapter(multiTypeAdapter);
                     multiTypeAdapter.notifyDataSetChanged();
                 }
-            } catch (Error error) {
+            } catch (Exception error) {
+                error.printStackTrace();
             }
 
             return false;
@@ -365,7 +376,7 @@ public class FriendApplyActivity
     public void successData(int what, Object object, int daystag) {
         if (object == null || TextUtils.isEmpty(object.toString().trim()) || object.toString().contains("<html>"))
             return;
-        Log.d("-----------朋友--", object.toString());
+        Log.e(TAG, "-------waht="+what+"---"+object.toString());
         Message message = new Message();
         message.what = what;
         message.obj = object;

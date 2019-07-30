@@ -656,7 +656,7 @@ public class W30SRecordFragment extends BaseFragment implements W30CusHeartView.
         for (W30S_SleepDataItem pLog : list) {
             JSONObject jo = new JSONObject();
             try {
-                jo.put("sleep_type", pLog.getSleep_type());
+                jo.put("sleep_type", pLog.getSleepType());
                 jo.put("startTime", pLog.getStartTime());
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -1773,11 +1773,11 @@ public class W30SRecordFragment extends BaseFragment implements W30CusHeartView.
                 if (i >= (sleepDataLists.size() - 1)) {
                     startTime = sleepDataLists.get(i).getStartTime();
                     startTimeLater = sleepDataLists.get(i).getStartTime();
-                    sleep_type = sleepDataLists.get(i).getSleep_type();
+                   // sleep_type = sleepDataLists.get(i).getSleep_type();
                 } else {
                     startTime = sleepDataLists.get(i).getStartTime();
                     startTimeLater = sleepDataLists.get(i + 1).getStartTime();
-                    sleep_type = sleepDataLists.get(i).getSleep_type();
+                   // sleep_type = sleepDataLists.get(i).getSleep_type();
                 }
                 String[] starSplit = startTime.split("[:]");
                 String[] endSplit = startTimeLater.split("[:]");
@@ -1833,7 +1833,7 @@ public class W30SRecordFragment extends BaseFragment implements W30CusHeartView.
                         Log.d(TAG, "解析睡眠数据 = 起始 = " + starTime + "----" + endTime);
                         UpDatasBase.upDevicesDataSleep(DEEP + "", SHALLOW + "", starTime, endTime);//上传睡眠数据
                         if (isSharpe) {
-                            SharedPreferencesUtils.setParam(getActivity(), "upSleepTime", B18iUtils.getSystemDataStart());
+                          //  SharedPreferencesUtils.setParam(getActivity(), "upSleepTime", B18iUtils.getSystemDataStart());
                         }
                     }
                 }

@@ -111,6 +111,8 @@ public class Commont {
 
     //好友 URL
 
+    public static final String FRIEND_BASE_URL = "http://47.90.83.197:9070/Watch";
+
     public static final String Findlist = "/friend/myFriends";//我的好友列表
     public static final String FindFrend = "/addFriend/findByPhone";//查找好友
     public static final String ApplyAddFind = "/addFriend/applyFriend";//申请添加好友

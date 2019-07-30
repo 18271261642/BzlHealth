@@ -104,6 +104,10 @@
                 </LinearLayout>
 
 
+                <include layout="@layout/home_fast_menu_layout"/>
+
+
+
                 <include layout="@layout/include_b31_home_item_layout"/>
 
 

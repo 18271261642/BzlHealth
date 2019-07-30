@@ -231,7 +231,6 @@ public class B18IAppSettingActivity extends WatchBaseActivity {
                                                 String sss = (String) SharedPreferencesUtils.readObject(MyApp.getContext(), Commont.BLEMAC);
                                                 Log.d("--SDK中的--mac--111111-", BluetoothConfig.getDefaultMac(MyApp.getContext()));
                                                 AppsBluetoothManager.getInstance(MyApp.getContext()).doUnbindDevice(sss);
-                                                MyApp.getInstance().getDaoSession().getStepBeanDao().deleteAll();//清空数据库
                                                 SharedPreferencesUtils.saveObject(B18IAppSettingActivity.this, Commont.BLENAME, null);
                                                 SharedPreferencesUtils.saveObject(B18IAppSettingActivity.this, Commont.BLEMAC, null);
                                                 SharedPreferencesUtils.saveObject(B18IAppSettingActivity.this, "userId", null);
@@ -239,7 +238,6 @@ public class B18IAppSettingActivity extends WatchBaseActivity {
                                                 MyCommandManager.DEVICENAME = null;
                                                 SharedPreferencesUtils.setParam(B18IAppSettingActivity.this, SharedPreferencesUtils.CUSTOMER_ID, "");
                                                 SharedPreferencesUtils.setParam(B18IAppSettingActivity.this, SharedPreferencesUtils.CUSTOMER_PASSWORD, "");
-                                                Common.userInfo = null;
                                                 Common.customer_id = null;
                                                 MobclickAgent.onProfileSignOff();
                                                 mHandler.sendEmptyMessageDelayed(0x88, 500);

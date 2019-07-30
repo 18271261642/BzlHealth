@@ -29,6 +29,9 @@ import com.bozlun.health.android.util.URLs;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import com.bozlun.health.android.util.ToastUtil;
 import com.umeng.analytics.MobclickAgent;
+
+import org.w3c.dom.Comment;
+
 import butterknife.BindView;
 import butterknife.OnClick;
 
@@ -68,7 +71,7 @@ public class SetActivity extends BaseActivity {
 
     //检查更新
     private void checkUpdate(){
-        String upUrl = URLs.HTTPs + URLs.bozlun_health_url;
+        String upUrl =Commont.FRIEND_BASE_URL + URLs.bozlun_health_url;
         updateManager = new UpdateManager(SetActivity.this, upUrl);
         updateManager.checkForUpdate(true);
     }
@@ -93,7 +96,8 @@ public class SetActivity extends BaseActivity {
        // HidUtil.getInstance(MyApp.getContext()).close();
     }
 
-    @OnClick({R.id.modify_password_relayout, R.id.help_relayout, R.id.abour_relayout, R.id.feedback_relayout, R.id.exit_login})
+    @OnClick({R.id.modify_password_relayout, R.id.help_relayout,
+            R.id.abour_relayout, R.id.feedback_relayout, R.id.exit_login})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.modify_password_relayout: //修改密码
@@ -178,7 +182,7 @@ public class SetActivity extends BaseActivity {
 
     private void logoOutApp(){
         MyCommandManager.deviceDisconnState = true;
-        MyApp.getInstance().getDaoSession().getStepBeanDao().deleteAll();//清空数据库
+        //MyApp.getInstance().getDaoSession().getStepBeanDao().deleteAll();//清空数据库
         SharedPreferencesUtils.saveObject(SetActivity.this,  Commont.BLENAME, "");
         SharedPreferencesUtils.saveObject(SetActivity.this, Commont.BLEMAC, "");
         MyApp.getInstance().setMacAddress(null);// 清空全局
@@ -189,7 +193,6 @@ public class SetActivity extends BaseActivity {
         MyCommandManager.DEVICENAME = null;
         SharedPreferencesUtils.setParam(SetActivity.this, SharedPreferencesUtils.CUSTOMER_ID, "");
         SharedPreferencesUtils.setParam(SetActivity.this, SharedPreferencesUtils.CUSTOMER_PASSWORD, "");
-        Common.userInfo = null;
         Common.customer_id = null;
         MobclickAgent.onProfileSignOff();
 //        startActivity(new Intent(SetActivity.this, LoginActivity.class));
@@ -223,7 +226,6 @@ public class SetActivity extends BaseActivity {
                         MyCommandManager.deviceDisconnState = true;
                         SharedPreferencesUtils.saveObject(MyApp.getContext(), "mylanmac", "");
                         MyApp.getInstance().setMacAddress(null);// 清空全局
-                        MyApp.getInstance().getDaoSession().getStepBeanDao().deleteAll();//清空数据库
                         SharedPreferencesUtils.saveObject(SetActivity.this,  Commont.BLENAME, null);
                         SharedPreferencesUtils.saveObject(SetActivity.this, "mylanmac", null);
                         MyApp.getInstance().setMacAddress(null);// 清空全局
@@ -232,7 +234,6 @@ public class SetActivity extends BaseActivity {
                         SharedPreferencesUtils.setParam(SetActivity.this, "stepsnum", "0");
                         MyCommandManager.ADDRESS = null;
                         MyCommandManager.DEVICENAME = null;
-                        Common.userInfo = null;
                         Common.customer_id = null;
                         WatchBluetoothService.isInitiative = true;
                         SharedPreferencesUtils.setParam(SetActivity.this, SharedPreferencesUtils.CUSTOMER_ID, "");
@@ -249,44 +250,4 @@ public class SetActivity extends BaseActivity {
         }
     };
 
-    /**
-     * //                                                if(WatchConstants.customBlueDevice != null){
-     //                                                    Log.e(TAG,"---bozlun断开连接---");
-     //                                                    BluetoothDevice bluetoothDevice = WatchConstants.customBlueDevice.getBluetoothDevice();
-     //                                                    HidUtil.getInstance(MyApp.getContext()).disConnect(bluetoothDevice);
-     //                                                }else{
-     //                                                    //根据地址获取连接的设备
-     //                                                    BluetoothDevice bd = HidUtil.getInstance(MyApp.getContext()).getConnectedDevice(bleMac);
-     //                                                    if(bd != null){
-     //                                                        HidUtil.getInstance(MyApp.getContext()).disConnect(bd);
-     //                                                    }else{
-     //                                                        //g
-     //                                                        BluetoothDevice pairD = HidUtil.getInstance(MyApp.getContext()).getPairDeviceByAddress(bluetoothAdapter,bleMac);
-     //                                                        if(pairD != null){
-     //                                                            HidUtil.getInstance(MyApp.getContext()).unPair(bd);
-     //                                                            //已取消配对
-     //                                                            MyApp.getWatchBluetoothService().disconnect();//断开蓝牙
-     //                                                            MyCommandManager.deviceDisconnState = true;
-     //                                                            MyCommandManager.ADDRESS = null;
-     //                                                            MyCommandManager.DEVICENAME = null;
-     //                                                            SharedPreferencesUtils.saveObject(MyApp.getContext(),"mylanya",null);
-     //                                                            SharedPreferencesUtils.saveObject(MyApp.getContext(),"mylanmac",null);
-     //                                                            SharedPreferencesUtils.setParam(MyApp.getContext(), "stepsnum", "0");
-     //                                                            startActivity(new Intent(SetActivity.this,NewSearchActivity.class));
-     //                                                            finish();
-     //                                                        }else{
-     //                                                            //已取消配对
-     //                                                            MyApp.getWatchBluetoothService().disconnect();//断开蓝牙
-     //                                                            MyCommandManager.deviceDisconnState = true;
-     //                                                            MyCommandManager.ADDRESS = null;
-     //                                                            MyCommandManager.DEVICENAME = null;
-     //                                                            SharedPreferencesUtils.saveObject(MyApp.getContext(),"mylanya",null);
-     //                                                            SharedPreferencesUtils.saveObject(MyApp.getContext(),"mylanmac",null);
-     //                                                            SharedPreferencesUtils.setParam(MyApp.getContext(), "stepsnum", "0");
-     //                                                            startActivity(new Intent(SetActivity.this,NewSearchActivity.class));
-     //                                                            finish();
-     //                                                        }
-     //                                                    }
-     //                                                }
-     */
 }

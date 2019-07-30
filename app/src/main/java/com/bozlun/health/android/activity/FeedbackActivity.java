@@ -9,6 +9,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.R;
 import com.bozlun.health.android.base.BaseActivity;
@@ -55,15 +56,16 @@ public class FeedbackActivity extends BaseActivity {
         subscriberOnNextListener = new SubscriberOnNextListener<String>() {
             @Override
             public void onNext(String result) {
+                if(WatchUtils.isEmpty(result))
+                    return;
                 try {
                     JSONObject jsonObject = new JSONObject(result);
-                    String resultCode = jsonObject.getString("resultCode");
-                    if ("001".equals(resultCode)) {
+                    if(!jsonObject.has("code"))
+                        return;
+                    if(jsonObject.getInt("code") == 200){
                         ToastUtil.showShort(FeedbackActivity.this, getString(R.string.submit_success));
                         finish();
                         closeKeyboard();
-                    } else {
-//                        ToastUtil.showShort(FeedbackActivity.this, getString(R.string.submit_fail));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -105,14 +107,15 @@ public class FeedbackActivity extends BaseActivity {
         try {
             Gson gson = new Gson();
             HashMap<String, Object> map = new HashMap<>();
-            String userId = (String) SharedPreferencesUtils.getParam(MyApp.getContext(), "userId","");
+            String userId = (String) SharedPreferencesUtils.readObject(FeedbackActivity.this,Commont.USER_ID_DATA);
             map.put("userId", userId);
             map.put("content", content);
             map.put("contact", contact);
             String mapjson = gson.toJson(map);
             dialogSubscriber = new DialogSubscriber(subscriberOnNextListener, FeedbackActivity.this);
-            OkHttpObservable.getInstance().getData(dialogSubscriber, URLs.HTTPs + URLs.yijian, mapjson);
-        }catch (Error error){
+            OkHttpObservable.getInstance().getData(dialogSubscriber, Commont.FRIEND_BASE_URL + URLs.yijian, mapjson);
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 

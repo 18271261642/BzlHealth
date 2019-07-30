@@ -36,6 +36,7 @@ import com.bozlun.health.android.b30.bean.B30HalfHourDB;
 import com.bozlun.health.android.b30.bean.B30HalfHourDao;
 import com.bozlun.health.android.b30.service.ConnBleHelpService;
 import com.bozlun.health.android.b30.service.FriendsUploadServices;
+import com.bozlun.health.android.b31.B31DeviceActivity;
 import com.bozlun.health.android.b31.B31HomeActivity;
 import com.bozlun.health.android.b31.B31ManFatigueActivity;
 import com.bozlun.health.android.b31.B31ManSpO2Activity;
@@ -53,6 +54,7 @@ import com.bozlun.health.android.bleutil.MyCommandManager;
 import com.bozlun.health.android.commdbserver.CommDBManager;
 import com.bozlun.health.android.commdbserver.CommentDataActivity;
 import com.bozlun.health.android.siswatch.LazyFragment;
+import com.bozlun.health.android.siswatch.NewSearchActivity;
 import com.bozlun.health.android.siswatch.utils.WatchConstants;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
 import com.bozlun.health.android.util.Constant;
@@ -108,7 +110,6 @@ import static com.veepoo.protocol.model.enums.ESpo2hDataType.TYPE_BEATH_BREAK;
 import static com.veepoo.protocol.model.enums.ESpo2hDataType.TYPE_HRV;
 import static com.veepoo.protocol.model.enums.ESpo2hDataType.TYPE_SPO2H;
 
-;
 
 /**
  * B31的记录页面
@@ -202,6 +203,9 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
     //同步的状态
     @BindView(R.id.syncStatusTv)
     TextView syncStatusTv;
+
+    @BindView(R.id.homeFastStatusTv)
+    TextView homeFastStatusTv;
 
 
     //血压是否显示的布局
@@ -597,6 +601,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
         if (MyCommandManager.DEVICENAME != null && MyCommandManager.ADDRESS != null) {    //已连接
             if (b30connectStateTv != null)
                 b30connectStateTv.setText(getResources().getString(R.string.connted));
+            homeFastStatusTv.setText("更多操作");
             int param = (int) SharedPreferencesUtils.getParam(getmContext(), Commont.BATTERNUMBER, 0);
             if (param > 0) {
                 showBatterStute(param);
@@ -607,6 +612,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
             if (getActivity() != null && !getActivity().isFinishing()) {
                 if (b30connectStateTv != null)
                     b30connectStateTv.setText(getResources().getString(R.string.disconnted));
+                homeFastStatusTv.setText(getResources().getString(R.string.disconnted));
                 B31HomeActivity activity = (B31HomeActivity) getActivity();
                 if (activity != null) activity.reconnectDevice();// 重新连接
             }
@@ -633,7 +639,8 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
             R.id.homeB31ManRespRateImg, R.id.battery_watchRecordShareImg,
             R.id.b31BpOxyLin, R.id.b31HrvView, R.id.block_spo2h, R.id.block_heart,
             R.id.block_sleep, R.id.block_breath, R.id.block_lowspo2h,
-            R.id.b30_top_dateTv, R.id.b30CusBloadLin, R.id.homeBPLin})
+            R.id.b30_top_dateTv, R.id.b30CusBloadLin, R.id.homeBPLin,
+            R.id.homeFastLin})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.battery_watchRecordShareImg:  //分享
@@ -701,6 +708,17 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
                 break;
             case R.id.b31GoalStepTv:
 
+                break;
+
+            case R.id.homeFastLin:  //快捷方式
+                if(MyCommandManager.DEVICENAME != null){
+                    startActivity(new Intent(getActivity(), B31DeviceActivity.class));
+                }else{
+                    MyApp.getInstance().getB30ConnStateService().stopAutoConn();
+                    startActivity(new Intent(getActivity(), NewSearchActivity.class));
+                    if (getActivity() != null)
+                        getActivity().finish();
+                }
                 break;
         }
     }
@@ -1138,7 +1156,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
                 dataSetByIndex.setColor(Color.parseColor("#17AAE2"));
             }
         }catch (Exception e){
-
+            e.printStackTrace();
         }
 
     }
@@ -1340,6 +1358,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
                 if (getActivity() != null && !getActivity().isFinishing()) {
                     String textConn = getResources().getString(R.string.connted);
                     if (b30connectStateTv != null) b30connectStateTv.setText(textConn);
+                    homeFastStatusTv.setText("更多操作");
                     if (connBleHelpService != null && MyCommandManager.DEVICENAME != null) {
                         showDeviceIcon();
                         if (b31HomeSwipeRefreshLayout != null) {
@@ -1351,6 +1370,7 @@ public class B31RecordFragment extends LazyFragment implements ConnBleHelpServic
             }
             if (action.equals(WatchUtils.B30_DISCONNECTED_ACTION)) {  //断开
                 MyCommandManager.ADDRESS = null;// 断开连接了就设置为null
+                homeFastStatusTv.setText(getResources().getString(R.string.disconnted));
                 if (getActivity() != null && !getActivity().isFinishing()) {
                     String textDis = getResources().getString(R.string.disconnted);
                     if (b31HomeSwipeRefreshLayout != null)

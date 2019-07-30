@@ -56,44 +56,11 @@ public class TodayRankAdapter extends RecyclerView.Adapter<TodayRankAdapter.View
                 holder.frendSteps.setText(context.getResources().getString(R.string.step) + ":" + String.valueOf(myfriendsBean.getStepNumber()));//步数
                 holder.rankNuber.setText(String.valueOf(position + 1));//排名
                 holder.zanOclick.setVisibility(View.GONE);
-//                holder.zanOclick.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        //
-//                        mOnItemListenter.ItemLoveOnClick(view, myfriendsBean.getUserId());
-//                    }
-//                });
-//                //item点击
-//                holder.line_onclick.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        mOnItemListenter.ItemOnClick(view, myfriendsBean.getUserId(),myfriendsBean.getStepNumber(),myfriendsBean.getHeight(),myfriendsBean.getSee());
-//                    }
-//                });
-//                //item长按
-//                holder.line_onclick.setOnLongClickListener(new View.OnLongClickListener() {
-//                    @Override
-//                    public boolean onLongClick(final View view) {
-//
-//                        final String userName = TextUtils.isEmpty(myfriendsBean.getNickName()) ? myfriendsBean.getPhone() : myfriendsBean.getNickName();
-//                        new CommomDialog(context, R.style.dialog, "确定删除好友 " + userName + "？", new CommomDialog.OnCloseListener() {
-//                            @Override
-//                            public void onClick(Dialog dialog, boolean confirm) {
-//                                if (confirm) {
-//                                    mOnItemListenter.ItemOnLongClick(view, myfriendsBean.getUserId());
-//                                    myfriends.remove(position);
-//                                    notifyDataSetChanged();
-//                                }
-//                                dialog.dismiss();
-//                            }
-//                        }).setTitle("删除好友").show();
-//
-//                        return false;
-//                    }
-//                });
+
             }
 
-        } catch (Error e) {
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
     }
@@ -124,19 +91,4 @@ public class TodayRankAdapter extends RecyclerView.Adapter<TodayRankAdapter.View
 
         }
     }
-
-
-//    private OnItemListenter mOnItemListenter;
-//
-//    public void setmOnItemListenter(OnItemListenter mOnItemListenter) {
-//        this.mOnItemListenter = mOnItemListenter;
-//    }
-//
-//    public interface OnItemListenter {
-//        void ItemLoveOnClick(View view, String applicant);
-//
-//        void ItemOnClick(View view, String applicant, int stepNumber, String frendHeight, int see);
-//
-//        void ItemOnLongClick(View view, String applicant);
-//    }
 }

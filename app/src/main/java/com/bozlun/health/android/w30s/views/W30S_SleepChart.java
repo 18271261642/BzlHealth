@@ -31,6 +31,10 @@ public class W30S_SleepChart extends View {
 
     private int defaultHeight = 160;
 
+    private float mWidth;
+    private Paint noDataPaint;
+
+
     public W30S_SleepChart(Context context) {
         super(context);
         intt();
@@ -73,6 +77,20 @@ public class W30S_SleepChart extends View {
         paint.setStrokeWidth(0.1f);
         paint.setDither(true);
         paint.setAntiAlias(true);
+
+        noDataPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        noDataPaint.setStrokeWidth(1f);
+        noDataPaint.setAntiAlias(true);
+        noDataPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+        noDataPaint.setTextSize(16f);
+        noDataPaint.setColor(Color.WHITE);
+    }
+
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        mWidth = getMeasuredWidth();
     }
 
     @Override
@@ -83,114 +101,119 @@ public class W30S_SleepChart extends View {
 //        canvas.drawRect(rectFdd, paint);
         if (beanList != null)
             Log.e(TAG, "----beanList=" + beanList.size());
-        if (beanList == null || beanList.size() <= 0) return;
-        if (paint == null) init();
-        AD = 0;
-        pos = 0;
-        for (int i = 0; i < beanList.size() - 1; i++) {
-            String time = beanList.get(i).getStartTime();
-            String time1 = beanList.get(i + 1).getStartTime();
-            String[] split = time.split("[:]");
-            String[] split1 = time1.split("[:]");
-            int HH = Integer.valueOf(split[0]);
-            int HH1 = Integer.valueOf(split1[0]);
-            if (HH > HH1) {
-                HH1 += 24;
-            }
-            Integer integer = HH1 - HH;
-            int MM = Integer.valueOf(split1[1]) - Integer.valueOf(split[1]);
-            AD += (integer * 60 + MM);
-        }
-        double it = (double) getWidth() / (double) AD;
-        double v = startX * ((double) getWidth() / (double) AD);
-        Log.e("=======清醒", AD + "-------" + it);
-        for (int i = 0; i < beanList.size(); i++) {
-            String time = null;
-            String time1 = null;
-            String type = null;
-            if (i >= (beanList.size() - 1)) {
-                time = beanList.get(i).getStartTime();
+        if (beanList == null || beanList.size() <= 0) {
+            canvas.drawText("No Data",mWidth / 2,getHeight() / 2,noDataPaint);
 
-                long longStart = W30BasicUtils
-                        .stringToLong( beanList.get(i).getStartTime(), "HH:mm") + (10 * 60 * 1000);
-                time1 = W30BasicUtils.longToString(longStart, "HH:mm");
+        }else{
+           // if (paint == null) init();
+            AD = 0;
+            pos = 0;
+            for (int i = 0; i < beanList.size() - 1; i++) {
+                String time = beanList.get(i).getStartTime();
+                String time1 = beanList.get(i + 1).getStartTime();
+                String[] split = time.split("[:]");
+                String[] split1 = time1.split("[:]");
+                int HH = Integer.valueOf(split[0]);
+                int HH1 = Integer.valueOf(split1[0]);
+                if (HH > HH1) {
+                    HH1 += 24;
+                }
+                Integer integer = HH1 - HH;
+                int MM = Integer.valueOf(split1[1]) - Integer.valueOf(split[1]);
+                AD += (integer * 60 + MM);
+            }
+            double it = (double) getWidth() / (double) AD;
+            double v = startX * ((double) getWidth() / (double) AD);
+            Log.e("=======清醒", AD + "-------" + it);
+            for (int i = 0; i < beanList.size(); i++) {
+                String time = null;
+                String time1 = null;
+                String type = null;
+                if (i >= (beanList.size() - 1)) {
+                    time = beanList.get(i).getStartTime();
+
+                    long longStart = W30BasicUtils
+                            .stringToLong( beanList.get(i).getStartTime(), "HH:mm") + (10 * 60 * 1000);
+                    time1 = W30BasicUtils.longToString(longStart, "HH:mm");
 //                time1 = beanList.get(i).getStartTime();
 //                type = beanList.get(i).getSleep_type();
-                type = "88";
-            } else {
-                time = beanList.get(i).getStartTime();
-                time1 = beanList.get(i + 1).getStartTime();
-                type = beanList.get(i).getSleep_type()+"";
-            }
+                    type = "88";
+                } else {
+                    time = beanList.get(i).getStartTime();
+                    time1 = beanList.get(i + 1).getStartTime();
+                    type = beanList.get(i).getSleepType()+"";
+                }
 
-            String[] split = time.split("[:]");
-            String[] split1 = time1.split("[:]");
+                String[] split = time.split("[:]");
+                String[] split1 = time1.split("[:]");
 
-            int HH = Integer.valueOf(split[0]);
-            int HH1 = Integer.valueOf(split1[0]);
-            if (HH > HH1) {
-                HH1 += 24;
-            }
-            Integer integer = HH1 - HH;
-            int MM = Integer.valueOf(split1[1]) - Integer.valueOf(split[1]);
-            int all = (integer * 60 + MM);
-            double paintWidth = ((double) all * it);
+                int HH = Integer.valueOf(split[0]);
+                int HH1 = Integer.valueOf(split1[0]);
+                if (HH > HH1) {
+                    HH1 += 24;
+                }
+                Integer integer = HH1 - HH;
+                int MM = Integer.valueOf(split1[1]) - Integer.valueOf(split[1]);
+                int all = (integer * 60 + MM);
+                double paintWidth = ((double) all * it);
 //            int paintWidth = (int) ((double) all / (double) AD * getWidth());
-            Log.d("------------", v + "========"+type);
+                Log.d("------------", v + "========"+type);
 //            if (v > 900) { //起床状态
 //                //Log.d("=====AAA==清醒", time + "-------" + time1);
 //                mDataTypeListenter.OnDataTypeListenter("88", time1, "--");
 //            }
-            if (v >= pos && v < (pos + paintWidth)) {
-                if (v > 0) {
-                    if (type.equals("0") || type.equals("4") || type.equals("1") || type.equals("5")) { //清醒状态
-                        Log.d("=====AAA==清醒", time + "-------" + time1);
-                        mDataTypeListenter.OnDataTypeListenter(type, time, time1);
-                    } else if (type.equals("2")) {  //潜睡状态
-                        Log.d("=====AAA==浅睡", time + "-------" + time1);
-                        mDataTypeListenter.OnDataTypeListenter(type, time, time1);
-                    } else if (type.equals("3")) {  //深睡
-                        Log.d("=====AAA==深睡", time + "-------" + time1);
-                        mDataTypeListenter.OnDataTypeListenter(type, time, time1);
-                    } else if (type.equals("88")) {  //起床
-                        Log.d("=====AAA==自定义的起床状态", time + "-------" + time1);
-                        mDataTypeListenter.OnDataTypeListenter(type, time, "--");
+                if (v >= pos && v < (pos + paintWidth)) {
+                    if (v > 0) {
+                        if (type.equals("0") || type.equals("4") || type.equals("1") || type.equals("5")) { //清醒状态
+                            Log.d("=====AAA==清醒", time + "-------" + time1);
+                            mDataTypeListenter.OnDataTypeListenter(type, time, time1);
+                        } else if (type.equals("2")) {  //潜睡状态
+                            Log.d("=====AAA==浅睡", time + "-------" + time1);
+                            mDataTypeListenter.OnDataTypeListenter(type, time, time1);
+                        } else if (type.equals("3")) {  //深睡
+                            Log.d("=====AAA==深睡", time + "-------" + time1);
+                            mDataTypeListenter.OnDataTypeListenter(type, time, time1);
+                        } else if (type.equals("88")) {  //起床
+                            Log.d("=====AAA==自定义的起床状态", time + "-------" + time1);
+                            mDataTypeListenter.OnDataTypeListenter(type, time, "--");
+                        }
+
                     }
-
                 }
+
+                if (type.equals("0") || type.equals("4") || type.equals("1") || type.equals("5")) { //清醒状态
+                    paint.setColor(Color.parseColor("#fcd647"));
+                    Rect rectF1 = new Rect(pos, 0, (int) (pos + paintWidth), getHeight());
+                    canvas.drawRect(rectF1, paint);
+                    pos = (int) (pos + paintWidth);
+                    Log.d("=====BBB==清醒", time + "-------" + time1);
+                } else if (type.equals("2")) {  //潜睡状态
+                    paint.setColor(Color.parseColor("#a6a8ff"));
+                    Rect rectF2 = new Rect(pos, (getHeight() / 5), (int) (pos + paintWidth), getHeight());
+                    canvas.drawRect(rectF2, paint);
+                    pos = (int) (pos + paintWidth);
+                    Log.d("=====BBB==浅睡", time + "-------" + time1);
+                } else if (type.equals("3")) {  //深睡
+                    paint.setColor(Color.parseColor("#b592d6"));
+                    Rect rectF3 = new Rect(pos, (getHeight() / 3), (int) (pos + paintWidth), getHeight());
+                    canvas.drawRect(rectF3, paint);
+                    pos = (int) (pos + paintWidth);
+                    Log.d("=====BBB==深睡", time + "-------" + time1);
+                }else if (type.equals("88")) {  //深睡
+                    paint.setColor(Color.parseColor("#fcd647"));
+                    Rect rectF4 = new Rect(pos, 0, (int) (pos + paintWidth), getHeight());
+                    canvas.drawRect(rectF4, paint);
+                    pos = (int) (pos + paintWidth);
+                    Log.d("=====BBB==起床", time + "-------" + time1);
+                }
+
             }
 
-            if (type.equals("0") || type.equals("4") || type.equals("1") || type.equals("5")) { //清醒状态
-                paint.setColor(Color.parseColor("#fcd647"));
-                Rect rectF1 = new Rect(pos, 0, (int) (pos + paintWidth), getHeight());
-                canvas.drawRect(rectF1, paint);
-                pos = (int) (pos + paintWidth);
-                Log.d("=====BBB==清醒", time + "-------" + time1);
-            } else if (type.equals("2")) {  //潜睡状态
-                paint.setColor(Color.parseColor("#a6a8ff"));
-                Rect rectF2 = new Rect(pos, (getHeight() / 5), (int) (pos + paintWidth), getHeight());
-                canvas.drawRect(rectF2, paint);
-                pos = (int) (pos + paintWidth);
-                Log.d("=====BBB==浅睡", time + "-------" + time1);
-            } else if (type.equals("3")) {  //深睡
-                paint.setColor(Color.parseColor("#b592d6"));
-                Rect rectF3 = new Rect(pos, (getHeight() / 3), (int) (pos + paintWidth), getHeight());
-                canvas.drawRect(rectF3, paint);
-                pos = (int) (pos + paintWidth);
-                Log.d("=====BBB==深睡", time + "-------" + time1);
-            }else if (type.equals("88")) {  //深睡
-                paint.setColor(Color.parseColor("#fcd647"));
-                Rect rectF4 = new Rect(pos, 0, (int) (pos + paintWidth), getHeight());
-                canvas.drawRect(rectF4, paint);
-                pos = (int) (pos + paintWidth);
-                Log.d("=====BBB==起床", time + "-------" + time1);
-            }
-
+            paint.setColor(Color.WHITE);
+            Rect rectM = new Rect((int) v - 2, 0, (int) v + 2, getHeight());
+            canvas.drawRect(rectM, paint);
         }
 
-        paint.setColor(Color.WHITE);
-        Rect rectM = new Rect((int) v - 2, 0, (int) v + 2, getHeight());
-        canvas.drawRect(rectM, paint);
     }
 
 

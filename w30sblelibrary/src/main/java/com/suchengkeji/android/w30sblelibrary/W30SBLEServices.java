@@ -919,7 +919,7 @@ public class W30SBLEServices extends Service {
         List<W30S_SleepDataItem> w30SSleepDataItems = new ArrayList<>();
         for (int i = 0; i < w30SSleepDataList.size(); i++) {
             W30S_SleepDataItem w30SSleepDataItem = new W30S_SleepDataItem();
-            w30SSleepDataItem.setSleep_type(w30SSleepDataList.get(i).getSleep_type());
+            w30SSleepDataItem.setSleepType(w30SSleepDataList.get(i).getSleep_type());
             w30SSleepDataItem.setStartTime(w30SSleepDataList.get(i).getStartTime());
             w30SSleepDataItems.add(w30SSleepDataItem);
         }

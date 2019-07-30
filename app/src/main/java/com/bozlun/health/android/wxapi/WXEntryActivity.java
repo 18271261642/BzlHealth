@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
+
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -12,10 +13,10 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.Volley;
-import com.bozlun.health.android.MyApp;
+import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.R;
 import com.bozlun.health.android.activity.wylactivity.wyl_util.service.ConnectManages;
-import com.bozlun.health.android.bean.BlueUser;
+import com.bozlun.health.android.bean.UserInfoBean;
 import com.bozlun.health.android.siswatch.NewSearchActivity;
 import com.bozlun.health.android.util.Common;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
@@ -28,7 +29,9 @@ import com.tencent.mm.sdk.openapi.IWXAPIEventHandler;
 import com.tencent.mm.sdk.openapi.SendAuth;
 import com.tencent.mm.sdk.openapi.WXAPIFactory;
 import com.umeng.analytics.MobclickAgent;
+
 import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,7 +50,7 @@ public class WXEntryActivity extends WechatHandlerActivity implements IWXAPIEven
 
     @Override
     public void onReq(BaseReq baseReq) {
-        Log.e(TAG,"---baseReq="+baseReq.toString());
+        Log.e(TAG, "---baseReq=" + baseReq.toString());
     }
 
     @Override
@@ -59,7 +62,7 @@ public class WXEntryActivity extends WechatHandlerActivity implements IWXAPIEven
             //获取微信传回的code
             String code = newResp.token;
 
-            Log.e(TAG,"------code--"+code);
+            Log.e(TAG, "------code--" + code);
 
 /**
  * 通过这个获取信息
@@ -69,18 +72,18 @@ public class WXEntryActivity extends WechatHandlerActivity implements IWXAPIEven
  */
             //判断网络是否连接
             Boolean is = ConnectManages.isNetworkAvailable(WXEntryActivity.this);
-            if (is == true) {
+            if (is) {
                 final RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
                 JsonRequest<JSONObject> jsonRequest = new JsonObjectRequest(Request.Method.POST, "https://api.weixin.qq.com/sns/oauth2/access_token?appid=wxd9dd17f96d73d54a&secret=41ecaeaefdddd6f1eebb2542eb27f458&code=" + code + "&grant_type=authorization_code", null,
                         new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject response) {
-                                if(response == null)
+                                if (response == null)
                                     return;
-                                Log.e(TAG,"-----response----"+response.toString());
+                                Log.e(TAG, "-----response----" + response.toString());
                                 try {
                                     JSONObject RES = new JSONObject(response.toString());
-                                    if(!RES.has("access_token"))
+                                    if (!RES.has("access_token"))
                                         return;
                                     String ACCESS_TOKEN = RES.getString("access_token");
                                     String OPENID = RES.getString("openid");
@@ -114,29 +117,33 @@ public class WXEntryActivity extends WechatHandlerActivity implements IWXAPIEven
                                                          * 提交到服务器
                                                          */
                                                         RequestQueue requestQueue = Volley.newRequestQueue(getApplicationContext());
-                                                        JsonRequest<JSONObject> jsonRequest = new JsonObjectRequest(Request.Method.POST, URLs.HTTPs + URLs.disanfang, weixin,
+                                                        JsonRequest<JSONObject> jsonRequest = new JsonObjectRequest(Request.Method.POST, Commont.FRIEND_BASE_URL + URLs.disanfang, weixin,
                                                                 new Response.Listener<JSONObject>() {
                                                                     @Override
-                                                                    public void onResponse(JSONObject response) {
-                                                                        if (response.optString("resultCode").equals("001")) {
-                                                                            try {
-                                                                                String shuzhu = response.optString("userInfo");
-                                                                                JSONObject jsonObject = new JSONObject(shuzhu);
-                                                                                String userId = jsonObject.getString("userId");
-                                                                                Gson gson = new Gson();
-                                                                                BlueUser userInfo = gson.fromJson(shuzhu, BlueUser.class);
-                                                                                Common.userInfo = userInfo;
-                                                                                Common.customer_id = userId;
-                                                                                //保存userid
-                                                                                SharedPreferencesUtils.saveObject(WXEntryActivity.this, "userId", userInfo.getUserId());
-                                                                                MobclickAgent.onProfileSignIn(Common.customer_id);
-                                                                                MyApp.getInstance().getDaoSession().getBlueUserDao().insertOrReplace(userInfo);
-                                                                                startActivity(new Intent(WXEntryActivity.this, NewSearchActivity.class));
-                                                                                finish();
-                                                                            } catch (Exception E) {
-                                                                                E.printStackTrace();
+                                                                    public void onResponse(JSONObject jsonObject) {
+                                                                        try {
+                                                                            if (!jsonObject.has("code"))
+                                                                                return;
+                                                                            if (jsonObject.getInt("code") == 200) {
+                                                                                String userStr = jsonObject.getString("data");
+                                                                                if (userStr != null) {
+                                                                                    UserInfoBean userInfoBean = new Gson().fromJson(userStr, UserInfoBean.class);
+                                                                                    Common.customer_id = userInfoBean.getUserid();
+                                                                                    MobclickAgent.onProfileSignIn("WX", userInfoBean.getUserid());
+                                                                                    //保存userid
+                                                                                    SharedPreferencesUtils.saveObject(WXEntryActivity.this, Commont.USER_ID_DATA, userInfoBean.getUserid());
+                                                                                    SharedPreferencesUtils.saveObject(WXEntryActivity.this, "userInfo", userStr);
+                                                                                    SharedPreferencesUtils.saveObject(WXEntryActivity.this, Commont.USER_INFO_DATA, userStr);
+
+                                                                                    startActivity(new Intent(WXEntryActivity.this, NewSearchActivity.class));
+                                                                                    finish();
+                                                                                }
+
                                                                             }
+                                                                        } catch (Exception e) {
+                                                                            e.printStackTrace();
                                                                         }
+
                                                                     }
                                                                 }, new Response.ErrorListener() {
                                                             @Override
@@ -203,9 +210,9 @@ public class WXEntryActivity extends WechatHandlerActivity implements IWXAPIEven
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.e(TAG,"-----oncratewx---");
+        Log.e(TAG, "-----oncratewx---");
         //注册API
-        iwxapi = WXAPIFactory.createWXAPI(this, "wxd9dd17f96d73d54a",true);
+        iwxapi = WXAPIFactory.createWXAPI(this, "wxd9dd17f96d73d54a", true);
         iwxapi.handleIntent(getIntent(), this);
 
     }
@@ -215,7 +222,7 @@ public class WXEntryActivity extends WechatHandlerActivity implements IWXAPIEven
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
-        iwxapi.handleIntent(intent,this);
+        iwxapi.handleIntent(intent, this);
 
     }
 }

@@ -13,7 +13,6 @@ import android.net.Uri;
 import android.os.Vibrator;
 
 import com.bozlun.health.android.R;
-import com.bozlun.health.android.bean.BlueUser;
 import com.bozlun.health.android.bleutil.SumBean;
 
 import java.lang.reflect.Constructor;
@@ -39,7 +38,6 @@ import cn.sharesdk.onekeyshare.OnekeyShareTheme;
  */
 public class Common {
 
-    public static BlueUser userInfo;
 
     public static String customer_id;
 

@@ -125,7 +125,7 @@ public class B30SysSettingActivity extends WatchBaseActivity {
     //更新APP
     private void updateApp(){
         updateManager =
-                new UpdateManager(this, URLs.HTTPs + URLs.bozlun_health_url);
+                new UpdateManager(this, Commont.FRIEND_BASE_URL + URLs.bozlun_health_url);
         updateManager.checkForUpdate(true);
     }
 
@@ -222,14 +222,13 @@ public class B30SysSettingActivity extends WatchBaseActivity {
         MyCommandManager.DEVICENAME = null;
         SharedPreferencesUtils.saveObject(B30SysSettingActivity.this, Commont.BLENAME, "");
         SharedPreferencesUtils.saveObject(B30SysSettingActivity.this, Commont.BLEMAC, "");
-        MyApp.getInstance().getDaoSession().getStepBeanDao().deleteAll();//清空数据库
+       // MyApp.getInstance().getDaoSession().getStepBeanDao().deleteAll();//清空数据库
         MyApp.getInstance().setMacAddress(null);// 清空全局
         SharedPreferencesUtils.saveObject(B30SysSettingActivity.this, "userId", null);
         SharedPreferencesUtils.saveObject(MyApp.getContext(), "userInfo", "");
         SharedPreferencesUtils.setParam(B30SysSettingActivity.this, "stepsnum", "0");
         SharedPreferencesUtils.setParam(B30SysSettingActivity.this, SharedPreferencesUtils.CUSTOMER_ID, "");
         SharedPreferencesUtils.setParam(B30SysSettingActivity.this, SharedPreferencesUtils.CUSTOMER_PASSWORD, "");
-        Common.userInfo = null;
         Common.customer_id = null;
         MobclickAgent.onProfileSignOff();
         startActivity(NewLoginActivity.class);

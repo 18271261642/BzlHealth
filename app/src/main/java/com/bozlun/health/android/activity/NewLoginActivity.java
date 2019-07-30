@@ -5,7 +5,6 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -20,22 +19,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
-import com.alibaba.fastjson.JSON;
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.JsonRequest;
 import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.R;
 import com.bozlun.health.android.base.BaseActivity;
-import com.bozlun.health.android.bean.BlueUser;
 import com.bozlun.health.android.bean.UserInfoBean;
-import com.bozlun.health.android.net.OkHttpObservable;
-import com.bozlun.health.android.rxandroid.DialogSubscriber;
-import com.bozlun.health.android.rxandroid.SubscriberOnNextListener;
 import com.bozlun.health.android.siswatch.NewSearchActivity;
 import com.bozlun.health.android.siswatch.utils.UpdateManager;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
@@ -43,6 +31,8 @@ import com.bozlun.health.android.util.Common;
 import com.bozlun.health.android.util.LoginListenter;
 import com.bozlun.health.android.util.Md5Util;
 import com.bozlun.health.android.util.ShareSDKUtils;
+import com.bozlun.health.android.w30s.utils.httputils.RequestPressent;
+import com.bozlun.health.android.w30s.utils.httputils.RequestView;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import com.bozlun.health.android.util.ToastUtil;
 import com.bozlun.health.android.util.URLs;
@@ -50,16 +40,11 @@ import com.bozlun.health.android.view.PromptDialog;
 import com.google.gson.Gson;
 import com.umeng.analytics.MobclickAgent;
 import com.yanzhenjie.permission.AndPermission;
-
-import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
 import butterknife.BindView;
 import butterknife.OnClick;
 import cn.sharesdk.facebook.Facebook;
@@ -70,10 +55,10 @@ import cn.sharesdk.tencent.qq.QQ;
 import cn.sharesdk.wechat.friends.Wechat;
 
 /**
- * Created by thinkpad on 2017/3/3.
+ * 登录页面
  */
 
-public class NewLoginActivity extends BaseActivity implements LoginListenter {
+public class NewLoginActivity extends BaseActivity implements LoginListenter,RequestView {
 
     private static final String TAG = "NewLoginActivity";
 
@@ -122,6 +107,9 @@ public class NewLoginActivity extends BaseActivity implements LoginListenter {
 
     //更新
     UpdateManager updateManager;
+    private RequestPressent requestPressent;
+
+    Gson gson = new Gson();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,6 +127,9 @@ public class NewLoginActivity extends BaseActivity implements LoginListenter {
         if (bluetoothAdapter != null && !bluetoothAdapter.isEnabled()) {
             turnOnBlue();
         }
+
+        requestPressent = new RequestPressent();
+        requestPressent.attach(this);
     }
 
     private void turnOnBlue() {
@@ -171,7 +162,7 @@ public class NewLoginActivity extends BaseActivity implements LoginListenter {
         //if (loginWaveView != null) loginWaveView.startMove();  //波浪线贝塞尔曲线
 
 
-        String upUrl = URLs.HTTPs + URLs.bozlun_health_url;
+        String upUrl = Commont.FRIEND_BASE_URL + URLs.bozlun_health_url;
         updateManager = new UpdateManager(NewLoginActivity.this, upUrl);
         updateManager.checkForUpdate(true);
     }
@@ -184,6 +175,8 @@ public class NewLoginActivity extends BaseActivity implements LoginListenter {
             updateManager.destoryUpdateBroad();
         if (handler != null) handler = null;
         isShouQuanOnClick = false;
+        if(requestPressent != null)
+            requestPressent.detach();
     }
 
     @Override
@@ -192,7 +185,9 @@ public class NewLoginActivity extends BaseActivity implements LoginListenter {
     }
 
 
-    @OnClick({R.id.login_visitorTv, R.id.forget_tv, R.id.login_btn, R.id.register_btn, R.id.xinlang_iv, R.id.qq_iv, R.id.weixin_iv, R.id.fecebook_longin, R.id.google_longin, R.id.twitter_longin})
+    @OnClick({R.id.login_visitorTv, R.id.forget_tv, R.id.login_btn,
+            R.id.register_btn, R.id.xinlang_iv, R.id.qq_iv, R.id.weixin_iv,
+            R.id.fecebook_longin, R.id.google_longin, R.id.twitter_longin})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.login_visitorTv://游客
@@ -216,13 +211,9 @@ public class NewLoginActivity extends BaseActivity implements LoginListenter {
                         map.put("phone", "bozlun888@gmail.com");
                         map.put("pwd", Md5Util.Md532("e10adc3949ba59abbe56e057f20f883e"));
                         String mapjson = gson.toJson(map);
-                        dialogSubscriber = new DialogSubscriber(subscriberOnNextListener, NewLoginActivity.this);
-                        OkHttpObservable.getInstance().getData(dialogSubscriber, URLs.HTTPs + URLs.logon, mapjson);
-
-                        SharedPreferences userSettings = getSharedPreferences("Login_id", 0);
-                        SharedPreferences.Editor editor = userSettings.edit();
-                        editor.putInt("id", 0);
-                        editor.commit();
+                        if(requestPressent != null){
+                            requestPressent.getRequestJSONObject(0x01,Commont.FRIEND_BASE_URL+URLs.logon,NewLoginActivity.this,mapjson,1);
+                        }
 
                     }
                 });
@@ -325,46 +316,6 @@ public class NewLoginActivity extends BaseActivity implements LoginListenter {
         closeLoadingDialog();
     }
 
-    private DialogSubscriber dialogSubscriber;
-    private SubscriberOnNextListener<String> subscriberOnNextListener = new SubscriberOnNextListener<String>() {
-        @Override
-        public void onNext(String result) {
-            //Loaddialog.getInstance().dissLoading();
-            Log.e("LoainActivity", "-----loginresult---" + result);
-            Gson gson = new Gson();
-            try {
-                JSONObject jsonObject = new JSONObject(result);
-                String loginResult = jsonObject.getString("resultCode");
-                if ("001".equals(loginResult)) {
-                    String userInfoStr = jsonObject.getString("userInfo");
-                    Log.e(TAG,"------userInfoStr="+userInfoStr);
-                    UserInfoBean userInfoBean = gson.fromJson(userInfoStr,UserInfoBean.class);
-                    Log.e(TAG,"------userInfoBean="+userInfoBean.toString());
-                    Common.customer_id = userInfoBean.getUserId();
-
-                    //账号登录统计
-                    MobclickAgent.onProfileSignIn(userInfoBean.getUserId());
-
-                    //保存userid
-                    SharedPreferencesUtils.saveObject(NewLoginActivity.this, Commont.USER_ID_DATA, userInfoBean.getUserId());
-                    SharedPreferencesUtils.saveObject(NewLoginActivity.this, "userInfo", userInfoStr);
-                    SharedPreferencesUtils.saveObject(NewLoginActivity.this,Commont.USER_INFO_DATA,userInfoStr);
-
-                    MobclickAgent.onProfileSignIn(Common.customer_id);
-                    startActivity(new Intent(NewLoginActivity.this, NewSearchActivity.class));
-                    finish();
-                } else if (loginResult.equals("003")) {
-                    ToastUtil.showShort(NewLoginActivity.this, getString(R.string.yonghuzhej));
-                } else if (loginResult.equals("006")) {
-                    ToastUtil.showShort(NewLoginActivity.this, getString(R.string.miamacuo));
-                } else {
-                    ToastUtil.showShort(NewLoginActivity.this, getString(R.string.miamacuo));
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-    };
 
     //用户手机登录
     private void loginRemote(String uName, String uPwd) {
@@ -373,19 +324,14 @@ public class NewLoginActivity extends BaseActivity implements LoginListenter {
         map.put("phone", uName);
         map.put("pwd", Md5Util.Md532(uPwd));
         String mapjson = gson.toJson(map);
-        Log.e("msg", "-mapjson-" + mapjson);
-        dialogSubscriber = new DialogSubscriber(subscriberOnNextListener, NewLoginActivity.this);
-        OkHttpObservable.getInstance().getData(dialogSubscriber, URLs.HTTPs + URLs.logon, mapjson);
-
-        SharedPreferences userSettings = getSharedPreferences("Login_id", 0);
-        SharedPreferences.Editor editor = userSettings.edit();
-        editor.putInt("id", 0);
-        editor.commit();
-
+        Log.e(TAG, "--------mapjson-" + mapjson);
+        if(requestPressent != null){
+            requestPressent.getRequestJSONObject(0x01,Commont.FRIEND_BASE_URL+URLs.logon,NewLoginActivity.this,mapjson,1);
+        }
 
     }
 
-    JSONObject jsonObject = null;
+
 
 
     /**
@@ -445,11 +391,11 @@ public class NewLoginActivity extends BaseActivity implements LoginListenter {
      * @param userIcon
      * @param userGender
      */
-    void upUserData(String userId, String userName, String userIcon, String userGender) {
+    private void upUserData(String userId, String userName, String userIcon, String userGender) {
 
         try {
             userName = StringFilter(userName);//过滤昵称字符
-            if (TextUtils.isEmpty(userName)) userName = "racefitpro";
+            if (TextUtils.isEmpty(userName)) userName = "天天检";
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("thirdId", userId);
             jsonObject.put("nickName", userName);
@@ -465,67 +411,14 @@ public class NewLoginActivity extends BaseActivity implements LoginListenter {
             }
             //Log.d("-----register--", "用户名账号：" + userId + "  头像：" + userIcon + "用户名：" + userName + "  性别：" + userGender);
 
-
-            //姓名
-            JsonRequest<JSONObject> jsonRequest = new JsonObjectRequest(Request.Method.POST, URLs.HTTPs + URLs.disanfang, jsonObject,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            closeLoadingDialog();
-                            Log.e(TAG, "----QQ--resonpse=" + response.toString());
-                            String shuzhu = response.optString("userInfo");
-                            if (response.optString("resultCode").equals("001")) {
-                                try {
-                                    JSONObject jsonObject = new JSONObject(shuzhu);
-                                    String userId = jsonObject.getString("userId");
-                                    Gson gson = new Gson();
-                                    BlueUser userInfo = gson.fromJson(shuzhu, BlueUser.class);
-
-                                    //当用户使用第三方账号（如新浪微博）登录时，可以这样统计：
-                                    MobclickAgent.onProfileSignIn("QQ",userId);
-
-
-                                    Common.userInfo = userInfo;
-                                    Common.customer_id = userId;
-                                    //保存userid
-                                    SharedPreferencesUtils.saveObject(NewLoginActivity.this, "userId", userInfo.getUserId());
-                                    SharedPreferencesUtils.saveObject(NewLoginActivity.this, "userInfo", shuzhu);
-                                    SharedPreferencesUtils.saveObject(NewLoginActivity.this,Commont.USER_INFO_DATA,jsonObject.getString("userInfo"));
-                                    MobclickAgent.onProfileSignIn("QQ",Common.customer_id);
-                                    //startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                                    SharedPreferences userSettings = getSharedPreferences("Login_id", 0);
-                                    SharedPreferences.Editor editor = userSettings.edit();
-                                    editor.putInt("id", 1);
-                                    editor.commit();
-                                    startActivity(new Intent(NewLoginActivity.this, NewSearchActivity.class));
-                                    finish();
-                                } catch (Exception E) {
-                                    E.printStackTrace();
-                                }
-                            }
-                        }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    if (error == null)
-                        return;
-                }
-            }) {
-                @Override
-                public Map<String, String> getHeaders() {
-                    HashMap<String, String> headers = new HashMap<String, String>();
-                    headers.put("Accept", "application/json");
-                    headers.put("Content-Type", "application/json; charset=UTF-8");
-                    return headers;
-                }
-            };
-            MyApp.getInstance().getRequestQueue().add(jsonRequest);
-        } catch (JSONException e) {
+            if (requestPressent != null) {
+                requestPressent.getRequestJSONObject(0x01, Commont.FRIEND_BASE_URL + URLs.disanfang, NewLoginActivity.this, jsonObject.toString(), 2);
+            }
+        } catch (Exception e) {
             e.printStackTrace();
         }
-
-
     }
+
 
 
     public long exitTime; // 储存点击退出时间
@@ -551,4 +444,71 @@ public class NewLoginActivity extends BaseActivity implements LoginListenter {
     }
 
 
+
+
+
+    @Override
+    public void showLoadDialog(int what) {
+
+    }
+
+    @Override
+    public void successData(int what, Object object, int daystag) {
+        Log.e(TAG,"---------succ="+what+"---obj="+object);
+        if(object == null)
+            return;
+        if(object.toString().contains("<html>"))
+            return;
+        switch (what){
+            case 0x01:  //手机号登录
+                loginForUserPhone(object.toString(),daystag);
+                break;
+        }
+    }
+
+
+
+    @Override
+    public void failedData(int what, Throwable e) {
+        ToastUtil.showToast(NewLoginActivity.this,e.getMessage()+"");
+    }
+
+    @Override
+    public void closeLoadDialog(int what) {
+
+    }
+
+
+
+    //用户输入账号登录
+    private void loginForUserPhone(String result,int tag) {
+        try {
+            JSONObject jsonObject = new JSONObject(result);
+            if (!jsonObject.has("code"))
+                return;
+            if (jsonObject.getInt("code") == 200) {
+                String userStr = jsonObject.getString("data");
+                if (userStr != null) {
+                    UserInfoBean userInfoBean = gson.fromJson(userStr, UserInfoBean.class);
+                    Common.customer_id = userInfoBean.getUserid();
+                    if (tag == 2) {   //第三方登录统计
+                        MobclickAgent.onProfileSignIn("QQ", userInfoBean.getUserid());
+                    } else {
+                        //账号登录统计
+                        MobclickAgent.onProfileSignIn(userInfoBean.getUserid());
+                    }
+                    //保存userid
+                    SharedPreferencesUtils.saveObject(NewLoginActivity.this, Commont.USER_ID_DATA, userInfoBean.getUserid());
+                    SharedPreferencesUtils.saveObject(NewLoginActivity.this, "userInfo", userStr);
+                    SharedPreferencesUtils.saveObject(NewLoginActivity.this, Commont.USER_INFO_DATA, userStr);
+
+                    startActivity(new Intent(NewLoginActivity.this, NewSearchActivity.class));
+                    finish();
+                }
+
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
 }

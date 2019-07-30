@@ -1380,15 +1380,15 @@ public class H9NewRecordFragment extends LazyFragment implements SwipeRefreshLay
                         if (sleepType == 3 || sleepType == 16) {//进入睡眠时间
                             isIntoSleep = true;
                             sleepBeanItemModels.clear();
-                            w30S_sleepDataItem.setSleep_type("1");
+                            w30S_sleepDataItem.setSleepType("1");
                         } else if (sleepType == 4 || sleepType == 17 || sleepType == 18) {
-                            w30S_sleepDataItem.setSleep_type("4");
+                            w30S_sleepDataItem.setSleepType("4");
                         } else if (sleepType == 2) {
-                            w30S_sleepDataItem.setSleep_type("1");
+                            w30S_sleepDataItem.setSleepType("1");
                         } else if (sleepType == 1) {
-                            w30S_sleepDataItem.setSleep_type("2");
+                            w30S_sleepDataItem.setSleepType("2");
                         } else if (sleepType == 0) {
-                            w30S_sleepDataItem.setSleep_type("3");
+                            w30S_sleepDataItem.setSleepType("3");
                         }
                         Log.d(TAG, "-------睡眠对象转换  sleepTime:" + sleepTime + "  sleepType:" + sleepType);
                         if (isIntoSleep) sleepBeanItemModels.add(w30S_sleepDataItem);
@@ -1525,11 +1525,11 @@ public class H9NewRecordFragment extends LazyFragment implements SwipeRefreshLay
                         if (i >= (sleepDataLists.size() - 1)) {
                             startTime = sleepDataLists.get(i).getStartTime();
                             startTimeLater = sleepDataLists.get(i).getStartTime();
-                            sleep_type = sleepDataLists.get(i).getSleep_type() + "";
+                            sleep_type = sleepDataLists.get(i).getSleepType() + "";
                         } else {
                             startTime = sleepDataLists.get(i).getStartTime();
                             startTimeLater = sleepDataLists.get(i + 1).getStartTime();
-                            sleep_type = sleepDataLists.get(i).getSleep_type() + "";
+                            sleep_type = sleepDataLists.get(i).getSleepType() + "";
                         }
                         String[] starSplit = startTime.split("[:]");
                         String[] endSplit = startTimeLater.split("[:]");
@@ -1875,7 +1875,7 @@ public class H9NewRecordFragment extends LazyFragment implements SwipeRefreshLay
         for (W30S_SleepDataItem pLog : list) {
             JSONObject jo = new JSONObject();
             try {
-                jo.put("sleep_type", pLog.getSleep_type());
+                jo.put("sleep_type", pLog.getSleepType());
                 jo.put("startTime", pLog.getStartTime());
             } catch (JSONException e) {
                 e.printStackTrace();

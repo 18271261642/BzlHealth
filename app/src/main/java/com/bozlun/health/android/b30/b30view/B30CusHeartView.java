@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 心率图表
  * Created by Administrator on 2018/8/1.
  */
 
@@ -58,6 +60,12 @@ public class B30CusHeartView extends View {
     private int heartLineColor ;
 
     private boolean isStart = false;
+
+    //基准线的画笔
+    private Paint benchPaint;
+
+    //是否绘制基准线
+    private boolean isCanvasBeanLin = false;
 
     /**
      * 画笔大小:时间,圆半径
@@ -135,6 +143,13 @@ public class B30CusHeartView extends View {
         emptyPaint.setTextSize(timeStroke);
 
 
+        benchPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        benchPaint.setStrokeWidth(2f);
+        benchPaint.setStyle(Paint.Style.STROKE);
+        benchPaint.setTextSize(15f);
+        benchPaint.setColor(Color.WHITE);
+        benchPaint.setAntiAlias(true);
+        benchPaint.setPathEffect(new DashPathEffect(new float[] {20, 20}, 10));
 
 
     }
@@ -167,11 +182,6 @@ public class B30CusHeartView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-       // Log.e(TAG,"--------oddw="+oldw+"---="+getWidth());
-//        width = getWidth();
-        //Log.e("HEART","--getMeasuredWidth--="+getMeasuredWidth());
-
-
 
     }
 
@@ -188,13 +198,39 @@ public class B30CusHeartView extends View {
         if(rateDataList!= null && rateDataList.size()>0){
             if(listMap != null)
                 listMap.clear();
+
+            if(isCanvasBeanLin){
+
+                //绘制基准线10
+                canvas.drawLine(0,(-10*2 - dp2px(30)),width,(-10*2 - dp2px(30)),benchPaint);
+                canvas.drawText(10+"",0,(-10*2 - dp2px(35)),txtPaint);
+
+
+                //绘制基准线60
+                canvas.drawLine(0,(-60*2 - dp2px(30)),width,(-60*2 - dp2px(30)),benchPaint);
+                canvas.drawText(60+"",0,(-60*2 - dp2px(35)),txtPaint);
+
+
+
+                //绘制基准线 90 width-dp2px(15)
+                canvas.drawLine(0,(-90*2 - dp2px(30)),width,(-90*2 - dp2px(30)),benchPaint);
+                canvas.drawText(90+"",0,(-90*2 - dp2px(35)),txtPaint);
+
+
+                //绘制基准线 120
+                canvas.drawLine(0,(-120*2 - dp2px(30)),width,(-120*2 - dp2px(30)),benchPaint);
+                canvas.drawText(120+"",0,(-120*2 - dp2px(35)),txtPaint);
+
+            }
+
+
             for(int i = 0;i<48;i++){
                 if(rateDataList.size()-1>=i){
                     if(rateDataList.get(i) != 0){
                         //canvas.drawCircle(i==0?dp2px(10):i*mCurrentWidth+dp2px(10),-rateDataList.get(i)-180,radioStroke,paint);
 
                         float pointX = (i==0?dp2px(10):i*mCurrentWidth+dp2px(10));
-                        float porintY = (-rateDataList.get(i)-180);
+                        float porintY = (-rateDataList.get(i) * 2 - dp2px(30));
                         Map<Float,Float> tmpMap = new HashMap<>();
                         tmpMap.put(pointX,porintY);
                         listMap.add(tmpMap);
@@ -220,7 +256,7 @@ public class B30CusHeartView extends View {
                 if(rateDataList.size()-1>=i){
                     if(rateDataList.get(i) != 0){
                         canvas.drawCircle(i==0?dp2px(10):i*mCurrentWidth+dp2px(10),
-                                -rateDataList.get(i)-180,radioStroke,paint);
+                                -rateDataList.get(i) * 2 - dp2px(30),radioStroke,paint);
 
                     }
 
@@ -272,5 +308,9 @@ public class B30CusHeartView extends View {
     protected int dp2px(int dpVal) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                 dpVal, getResources().getDisplayMetrics());
+    }
+
+    public void setCanvasBeanLin(boolean canvasBeanLin) {
+        isCanvasBeanLin = canvasBeanLin;
     }
 }

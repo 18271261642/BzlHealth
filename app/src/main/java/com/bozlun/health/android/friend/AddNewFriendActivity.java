@@ -7,8 +7,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -34,17 +32,19 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.bozlun.health.android.bean.UserInfoBean;
 import com.bumptech.glide.Glide;
 import com.bozlun.health.android.Commont;
 import com.bozlun.health.android.MyApp;
 import com.bozlun.health.android.R;
-import com.bozlun.health.android.friend.bean.FindByPhoneBean;
+
 import com.bozlun.health.android.friend.bean.PhoneBean;
 import com.bozlun.health.android.friend.bean.PhoneDto;
 import com.bozlun.health.android.friend.bean.PhoneitemBean;
 import com.bozlun.health.android.friend.views.CharPortraitView;
 import com.bozlun.health.android.siswatch.WatchBaseActivity;
 import com.bozlun.health.android.siswatch.utils.WatchUtils;
+import com.google.gson.reflect.TypeToken;
 import com.suchengkeji.android.w30sblelibrary.utils.SharedPreferencesUtils;
 import com.bozlun.health.android.util.ToastUtil;
 import com.bozlun.health.android.util.URLs;
@@ -75,9 +75,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * @company: 东莞速成科技有限公司
  */
 
-public class AddNewFriendActivity
-        extends WatchBaseActivity
-        implements View.OnTouchListener, TextWatcher, View.OnClickListener,
+public class AddNewFriendActivity   extends WatchBaseActivity  implements View.OnTouchListener, TextWatcher, View.OnClickListener,
         TextView.OnEditorActionListener, RequestView {
     @BindView(R.id.bar_titles)
     TextView barTitles;
@@ -104,6 +102,8 @@ public class AddNewFriendActivity
     private RequestPressent requestPressent;
     private List<PhoneDto> phoneDtos;
 
+    private MyAdapter myAdapter;
+    List<PhoneBean.CheckRegisterBean> tmpList = null;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -146,8 +146,6 @@ public class AddNewFriendActivity
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == 201) {
             initViews();
-        } else {
-            return;
         }
     }
 
@@ -176,7 +174,7 @@ public class AddNewFriendActivity
 
     List<PhoneitemBean> phoneitemBeans = null;
     List<String> stringsNumber = null;
-    List<PhoneBean.CheckRegisterBean> tmpList = null;
+
 
     private void initViews() {
         PhoneUtil phoneUtil = new PhoneUtil(this);
@@ -186,7 +184,7 @@ public class AddNewFriendActivity
 //        for (int i = 0; i < phoneDtos.size(); i++) {
 //            phoneUser += phoneDtos.get(i).getTelPhone() + ",";
 //        }
-        Log.e("====返回=====", phoneDtos.toString() + "==" + phoneDtos.size());
+        // Log.e("====返回=====", phoneDtos.toString() + "==" + phoneDtos.size());
         if (phoneitemBeans == null) phoneitemBeans = new ArrayList<>();
         else phoneitemBeans.clear();
         if (stringsNumber == null) stringsNumber = new ArrayList<>();
@@ -196,37 +194,22 @@ public class AddNewFriendActivity
                 PhoneitemBean phoneitemBean = new PhoneitemBean(phoneDtos.get(i).getTelPhone(), phoneDtos.get(i).getName());
                 phoneitemBeans.add(phoneitemBean);
                 stringsNumber.add(phoneDtos.get(i).getTelPhone());
-                Log.e("====好友=====", i + "==" + phoneDtos.get(i).getTelPhone() + "==" + phoneDtos.get(i).getName());
+                //Log.e("====好友=====", i + "==" + phoneDtos.get(i).getTelPhone() + "==" + phoneDtos.get(i).getName());
             }
         }
-        Log.e("====返回2=====", phoneitemBeans.toString() + "==" + phoneitemBeans.size());
+        // Log.e("====返回2=====", phoneitemBeans.toString() + "==" + phoneitemBeans.size());
         JSONArray jsonArray = ProLogListJson(phoneitemBeans);
         checkExitRegister(jsonArray);
-//        MyAdapter myAdapter = new MyAdapter(phoneDtos);
-//
-////        frendListPhone.setAdapter(myAdapter);
-//        //给listview增加点击事件
-//        frendListPhone.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                String trim = phoneDtos.get(position).getTelPhone().trim();
-//
-//                String userId = (String) SharedPreferencesUtils.readObject(AddNewFriendActivity.this, "userId");
-//                if (!TextUtils.isEmpty(trim)
-//                        && !TextUtils.isEmpty(userId)) {
-//                    closeKey();
-//                    findFrendItem(trim, userId);
-//                } else {
-//                    ToastUtil.showShort(AddNewFriendActivity.this, getResources().getString(R.string.ssdk_sms_top_text) + "/" + getResources().getString(R.string.ssdk_instapaper_email));//输入不能为空
-//                }
-//                frendListPhone.smoothScrollToPosition(0);
-//            }
-//        });
+
     }
 
 
     @SuppressLint("ClickableViewAccessibility")
     private void inEdit() {
+
+        tmpList = new ArrayList<>();
+        myAdapter = new MyAdapter(tmpList);
+        frendListPhone.setAdapter(myAdapter);
         requestPressent = new RequestPressent();
         requestPressent.attach(this);
 
@@ -414,11 +397,11 @@ public class AddNewFriendActivity
 
     /**
      * 查找朋友
-     *
+     *扫描的参数为
      * @param userId
      */
     public void findFrendItem(String phone, String userId) {
-        String sleepUrl = URLs.HTTPs + Commont.FindFrend;
+        String sleepUrl = Commont.FRIEND_BASE_URL + Commont.FindFrend;
         JSONObject sleepJson = new JSONObject();
         try {
             sleepJson.put("phone", phone);
@@ -435,9 +418,8 @@ public class AddNewFriendActivity
 
     void checkExitRegister(JSONArray jsonArray) {
 
-
         String userId = (String) SharedPreferencesUtils.readObject(AddNewFriendActivity.this, "userId");
-        String sleepUrl = URLs.HTTPs + Commont.PhoneIsRegister;
+        String sleepUrl = Commont.FRIEND_BASE_URL + Commont.PhoneIsRegister;
         JSONObject sleepJson = new JSONObject();
         try {
             sleepJson.put("userId", userId);
@@ -459,7 +441,7 @@ public class AddNewFriendActivity
      * @param userId
      */
     public void addFrendItem(String userId, String frendUserID) {
-        String sleepUrl = URLs.HTTPs + Commont.ApplyAddFind;
+        String sleepUrl = Commont.FRIEND_BASE_URL + Commont.ApplyAddFind;
         JSONObject sleepJson = new JSONObject();
         try {
             sleepJson.put("userId", userId);
@@ -476,65 +458,16 @@ public class AddNewFriendActivity
 
     private String frendUerID = "";
 
-    Handler handler = new Handler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message message) {
-            switch (message.what) {
-                case 0x01:
-                    if (findFrendItem != null) findFrendItem.setVisibility(View.VISIBLE);
-                    FindByPhoneBean.UserInfoBean userInfo = (FindByPhoneBean.UserInfoBean) message.obj;
-                    frendUerID = userInfo.getUserId();
-                    String nickName = userInfo.getNickName();
-                    String phone = userInfo.getPhone();
-                    String image = (String) userInfo.getImage();
-                    String birthday = userInfo.getBirthday();
-                    String sex = userInfo.getSex();
-                    int friendStatus = userInfo.getFriendStatus();
-                    if (friendStatus == 0) {//陌生人
-                        btnAdd.setText(getResources().getString(R.string.string_apply_added));//申请添加
-                        btnAdd.setEnabled(true);
-                        btnAdd.setBackgroundColor(getResources().getColor(R.color.new_colorAccent));
-                    } else {//已经是好友
-                        btnAdd.setText(getResources().getString(R.string.string_wite_added));//已添加
-                        btnAdd.setEnabled(false);
-                        btnAdd.setBackgroundColor(Color.GRAY);
-                    }
-                    if (!TextUtils.isEmpty(nickName) && userNames != null) {
-                        userNames.setText(nickName);
-                    } else if (!TextUtils.isEmpty(phone) && userNames != null) {
-                        userNames.setText(phone);
-                    }
-                    if (!TextUtils.isEmpty(image) && imaheListHeard != null) {
-                        Glide.with(AddNewFriendActivity.this).load(image)
-                                .into(imaheListHeard);
-                    } else {
-                        Glide.with(AddNewFriendActivity.this).load(R.mipmap.bg_img).into(imaheListHeard);
-                    }
-                    if (!TextUtils.isEmpty(sex)) {
-                        if (sex.equals("M") || sex.equals("男")) {
-                            frendSex.setText(getResources().getString(R.string.sex_nan));
-                        } else {
-                            frendSex.setText(getResources().getString(R.string.sex_nv));
-                        }
-                    } else {
-                        frendSex.setText("");
-                    }
-                    if (!TextUtils.isEmpty(birthday)) {
-                        int ageFromBirthTime = WatchUtils.getAgeFromBirthTime(birthday);
-                        frendBirthday.setText("" + ageFromBirthTime);
-                    }
-                    break;
-            }
-            return false;
-        }
-    });
-
 
     @Override
     public void showLoadDialog(int what) {
         showLoadingDialog(getResources().getString(R.string.dlog));
     }
 
+    /**
+     * @param object
+     * @param daystag
+     */
 
     @Override
     public void successData(int what, Object object, int daystag) {
@@ -542,158 +475,22 @@ public class AddNewFriendActivity
         if (object == null || TextUtils.isEmpty(object.toString().trim()) || object.toString().contains("<html>"))
             return;
         switch (what) {
-            case 0x01:
-                Log.d("-----------搜索朋友返回--", object.toString());
-                FindByPhoneBean findByPhoneBean = new Gson().fromJson(object.toString().trim(), FindByPhoneBean.class);
-                String resultCode = findByPhoneBean.getResultCode();
-                if (Commont.ReturnCode(resultCode)) {
-                    FindByPhoneBean.UserInfoBean userInfo = findByPhoneBean.getUserInfo();
-                    if (handler != null) {
-                        Message message = new Message();
-                        message.what = what;
-                        message.obj = userInfo;
-                        handler.sendMessage(message);
-                    }
-                }
+            case 0x01:  //搜索好友返回
+                analysisSearchFriendBack(object.toString());
                 break;
-            case 0x02:
+            case 0x02:  //添加好友请求返回
                 Log.d("-----------添加朋友返回--", object.toString());
-                try {
-                    JSONObject jsonObject = new JSONObject(object.toString());
-                    if (jsonObject.has("resultCode")) {
-                        String resultCode1 = jsonObject.getString("resultCode");
-                        if (!WatchUtils.isEmpty(resultCode1)) {
-                            switch (resultCode1) {
-                                case "001":
-                                    ToastUtil.showShort(AddNewFriendActivity.this, getResources().getString(R.string.string_wite_verified));//发送成功待验证
-                                    btnAdd.setText(getResources().getString(R.string.string_wite_verified));//已添加等待验证
-                                    btnAdd.setEnabled(false);
-                                    btnAdd.setBackgroundColor(Color.GRAY);
-                                    return;
-                                case "002"://失败
-                                    ToastUtil.showShort(MyApp.getInstance(), MyApp.getInstance().getResources().getString(R.string.string_network_error));
-                                    return;
-                                case "003"://用户已被注册
-                                    ToastUtil.showShort(MyApp.getInstance(), MyApp.getInstance().getResources().getString(R.string.string_user_isregister));
-                                    return;
-                                case "004"://用户名或密码错误
-                                    ToastUtil.showShort(MyApp.getInstance(), MyApp.getInstance().getResources().getString(R.string.string_nameorpass_error));
-                                    return;
-                                case "005"://服务器异常
-                                    ToastUtil.showShort(MyApp.getInstance(), MyApp.getInstance().getResources().getString(R.string.ssdk_sms_dialog_error_desc_100));
-                                    return;
-                                case "006"://用户不存在或验证码失效
-                                    ToastUtil.showShort(MyApp.getInstance(), MyApp.getInstance().getResources().getString(R.string.string_useror_code_error));
-                                    return;
-                                case "007"://关键参数不能为空
-                                    ToastUtil.showShort(MyApp.getInstance(), MyApp.getInstance().getResources().getString(R.string.ssdk_sms_dialog_error_desc_103));
-                                    return;
-                                case "010"://无数据
-                                    ToastUtil.showShort(MyApp.getInstance(), MyApp.getInstance().getResources().getString(R.string.nodata));
-                                    return;
-                                case "011"://日期格式错误
-                                    ToastUtil.showShort(MyApp.getInstance(), MyApp.getInstance().getResources().getString(R.string.string_datetype_error));
-                                    return;
-                                case "012"://json格式错误
-                                    ToastUtil.showShort(MyApp.getInstance(), MyApp.getInstance().getResources().getString(R.string.string_jsontype_error));
-                                    return;
-                                case "013"://该用户不存在
-                                    ToastUtil.showShort(MyApp.getInstance(), MyApp.getInstance().getResources().getString(R.string.string_user_isnull));
-                                    return;
-                                case "014"://没有申请记录
-                                    ToastUtil.showShort(MyApp.getInstance(), MyApp.getInstance().getResources().getString(R.string.string_user_null_apply));
-                                    return;
-                                case "015"://"验证码次数已用完,请明天再请求"
-                                    ToastUtil.showShort(MyApp.getInstance(), MyApp.getInstance().getResources().getString(R.string.ssdk_sms_dialog_error_desc_107));
-                                    return;
-                                case "016"://验证码错误
-                                    ToastUtil.showShort(MyApp.getInstance(), MyApp.getInstance().getResources().getString(R.string.ssdk_sms_dialog_error_desc_105));
-                                    return;
-                                case "017"://已经赞过了，明天再来吧
-                                    ToastUtil.showShort(MyApp.getInstance(), MyApp.getInstance().getResources().getString(R.string.string_linke_two));
-                                    return;
-                                case "018"://已经是好友了
-                                    ToastUtil.showShort(MyApp.getInstance(), MyApp.getInstance().getResources().getString(R.string.string_frend_two));
-                                    return;
-                                case "019"://申请正在等待验证
-                                    btnAdd.setText(getResources().getString(R.string.string_wite_verified));//已添加
-                                    btnAdd.setEnabled(false);
-                                    btnAdd.setBackgroundColor(Color.GRAY);
-                                    ToastUtil.showShort(MyApp.getInstance(), MyApp.getInstance().getResources().getString(R.string.string_wait_code));
-                                    return;
-                                case "020":
-                                    ToastUtil.showShort(MyApp.getInstance(), getResources().getString(R.string.string_no_frend));
-                                    return;
-                                case "99999"://网络异常
-                                    ToastUtil.showShort(MyApp.getInstance(), MyApp.getInstance().getResources().getString(R.string.ssdk_sms_dialog_net_error));
-                                    return;
-                            }
-                        }
-
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                analysisAddFriendBack(object.toString());
                 break;
             case 0x03:
-
-                if (tmpList == null) tmpList = new ArrayList<>();
-                else tmpList.clear();
-
                 Log.d("-----------手机号检测返回--", object.toString());
-                PhoneBean phoneBean = new Gson().fromJson(object.toString(), PhoneBean.class);
-                if (phoneBean != null) {
-                    if (phoneBean.getResultCode().equals("001")) {
-                        List<PhoneBean.CheckRegisterBean> checkRegister = phoneBean.getCheckRegister();
-                        if (checkRegister == null) return;
-                        for (int i = 0; i < checkRegister.size(); i++) {
-                            PhoneBean.CheckRegisterBean checkRegisterBean = checkRegister.get(i);
-                            if (checkRegisterBean != null) {
-                                if (checkRegisterBean.getUser() != null) {
-                                    if (checkRegisterBean.getIsFriend() == 0) {
-                                        tmpList.add(checkRegisterBean);
-                                    }
-//                                    if (checkRegisterBean.getIsFriend() != 0) {
-//                                        //已经添加的好友删除
-//                                        checkRegister.remove(i);
-//                                    }
-                                }
-//                                else {
-//                                    //未注册用户删除
-//                                    checkRegister.remove(i);
-//
-//                                }
-                            }
-                        }
-
-//                        MyAdapter myAdapter = new MyAdapter(tmpList);
-//                        frendListPhone.setAdapter(myAdapter);
-                        //给listview增加点击事件
-//                        frendListPhone.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//                            @Override
-//                            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                                String trim = phoneDtos.get(position).getTelPhone().trim();
-//
-//                                String userId = (String) SharedPreferencesUtils.readObject(AddNewFriendActivity.this, "userId");
-//                                if (!TextUtils.isEmpty(trim)
-//                                        && !TextUtils.isEmpty(userId)) {
-//                                    closeKey();
-//                                    findFrendItem(trim, userId);
-//                                } else {
-//                                    ToastUtil.showShort(AddNewFriendActivity.this, getResources().getString(R.string.ssdk_sms_top_text) + "/" + getResources().getString(R.string.ssdk_instapaper_email));//输入不能为空
-//                                }
-//                                frendListPhone.smoothScrollToPosition(0);
-//                            }
-//                        });
-                    }
-                }
-
-                MyAdapter myAdapter = new MyAdapter(tmpList);
-                frendListPhone.setAdapter(myAdapter);
+                analysisCheckPhone(object.toString());
                 break;
         }
 
     }
+
+
 
     @Override
     public void failedData(int what, Throwable e) {
@@ -723,12 +520,134 @@ public class AddNewFriendActivity
     }
 
 
-    //自定义适配器
+
+
+    //检查手机号返回
+    private void analysisCheckPhone(String data) {
+        tmpList.clear();
+        try {
+            JSONObject jsonObject = new JSONObject(data);
+            if(jsonObject.getInt("code") == 200){
+              String phoneData = jsonObject.getString("data");
+              if(!WatchUtils.isEmpty(phoneData)){
+                  List<PhoneBean.CheckRegisterBean> phoneList = new Gson().fromJson(phoneData,
+                          new TypeToken<List<PhoneBean.CheckRegisterBean>>(){}.getType());
+                  if(phoneList == null || phoneList.isEmpty())
+                      return;
+                  for(PhoneBean.CheckRegisterBean pc : phoneList){
+                      if(pc.getIsFriend() == 0 && pc.getUser() != null){
+                          tmpList.add(pc);
+                      }
+                  }
+
+                  myAdapter.notifyDataSetChanged();
+
+              }
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+
+
+    //搜索好友返回
+    private void analysisSearchFriendBack(String str) {
+        try {
+            JSONObject jsonObject = new JSONObject(str);
+            if(jsonObject.getInt("code") == 200){
+                if (findFrendItem != null) findFrendItem.setVisibility(View.VISIBLE);
+                UserInfoBean userInfo = new Gson().fromJson(jsonObject.getString("data"),UserInfoBean.class);
+                frendUerID = userInfo.getUserid();
+                String nickName = userInfo.getNickname();
+                String phone = userInfo.getPhone();
+                String image = (String) userInfo.getImage();
+                String birthday = userInfo.getBirthday();
+                String sex = userInfo.getSex();
+                int friendStatus = userInfo.getFriendStatus();
+                if (friendStatus == 0) {//陌生人
+                    btnAdd.setText(getResources().getString(R.string.string_apply_added));//申请添加
+                    btnAdd.setEnabled(true);
+                    btnAdd.setBackgroundColor(getResources().getColor(R.color.new_colorAccent));
+                } else {//已经是好友
+                    btnAdd.setText(getResources().getString(R.string.string_wite_added));//已添加
+                    btnAdd.setEnabled(false);
+                    btnAdd.setBackgroundColor(Color.GRAY);
+                }
+                if (!TextUtils.isEmpty(nickName) && userNames != null) {
+                    userNames.setText(nickName);
+                } else if (!TextUtils.isEmpty(phone) && userNames != null) {
+                    userNames.setText(phone);
+                }
+                if (!TextUtils.isEmpty(image) && imaheListHeard != null) {
+                    Glide.with(AddNewFriendActivity.this).load(image)
+                            .into(imaheListHeard);
+                } else {
+                    Glide.with(AddNewFriendActivity.this).load(R.mipmap.bg_img).into(imaheListHeard);
+                }
+                if (!TextUtils.isEmpty(sex)) {
+                    if (sex.equals("M") || sex.equals("男")) {
+                        frendSex.setText(getResources().getString(R.string.sex_nan));
+                    } else {
+                        frendSex.setText(getResources().getString(R.string.sex_nv));
+                    }
+                } else {
+                    frendSex.setText("");
+                }
+                if (!TextUtils.isEmpty(birthday)) {
+                    int ageFromBirthTime = WatchUtils.getAgeFromBirthTime(birthday);
+                    frendBirthday.setText("" + ageFromBirthTime);
+                }
+            }else{
+                ToastUtil.showToast(AddNewFriendActivity.this,jsonObject.getString("msg")+"");
+            }
+
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+
+    //添加好友返回
+    private void analysisAddFriendBack(String data) {
+        try {
+            JSONObject jsonObject = new JSONObject(data);
+            if (jsonObject.has("code")) {
+                int code = jsonObject.getInt("code");
+                if (code != 200) {
+
+                    if (code == 3002) {   //已经申请过了
+                        btnAdd.setText(getResources().getString(R.string.string_wite_verified));//已添加
+                        btnAdd.setEnabled(false);
+                        btnAdd.setBackgroundColor(Color.GRAY);
+                    }
+                    ToastUtil.showToast(this, jsonObject.getString("msg"));
+
+
+                } else {
+                    btnAdd.setText(getResources().getString(R.string.string_wite_verified));//已添加等待验证
+                    btnAdd.setEnabled(false);
+                    btnAdd.setBackgroundColor(Color.GRAY);
+                }
+
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+
+    //自定义适配器,查看通讯录
     private class MyAdapter extends BaseAdapter {
         List<PhoneBean.CheckRegisterBean> checkRegister;
+        private LayoutInflater layoutInflater;
+
 
         public MyAdapter(List<PhoneBean.CheckRegisterBean> phoneDtos) {
             this.checkRegister = phoneDtos;
+            layoutInflater = LayoutInflater.from(AddNewFriendActivity.this);
         }
 
         @Override
@@ -750,31 +669,31 @@ public class AddNewFriendActivity
         @SuppressLint("NewApi")
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
-            final PhoneBean.CheckRegisterBean checkRegisterBean = checkRegister.get(position);
-//            PhoneDto phoneDto = phoneDtosList.get(position);
-            @SuppressLint("ViewHolder") View view = LayoutInflater.from(AddNewFriendActivity.this).inflate(R.layout.phone_frend_list_item, null);
-            TextView tvName = view.findViewById(R.id.tv_name_list);
-            CharPortraitView portrait = view.findViewById(R.id.cv_portrait);
-            LinearLayout li_view = view.findViewById(R.id.li_view);
+            ViewHolder holder = null;
+            if(convertView == null){
+                convertView = layoutInflater.inflate(R.layout.phone_frend_list_item,parent,false);
+                holder = new ViewHolder();
+                holder.tvName = convertView.findViewById(R.id.tv_name_list);
+                holder.portrait = convertView.findViewById(R.id.cv_portrait);
+                holder.btnAdd = convertView.findViewById(R.id.btn_find_list);
+                convertView.setTag(holder);
 
-            if (checkRegisterBean != null) {
-                if (checkRegisterBean.getUser() != null) {
-                    if (checkRegisterBean.getIsFriend() == 0) {//非好友
-                        String name = checkRegisterBean.getContacts();
-                        String telPhone = checkRegisterBean.getPhone();
-                        if (!WatchUtils.isEmpty(telPhone)) {
-                            portrait.setContent(name).setHead(false);
-                            tvName.setText(telPhone);
-                        }
-                    }
-                }
-
+            }else{
+                holder = (ViewHolder) convertView.getTag();
             }
 
-            Button btnAdd = view.findViewById(R.id.btn_find_list);
-            btnAdd.setOnClickListener(new View.OnClickListener() {
+
+            final PhoneBean.CheckRegisterBean checkRegisterBean = checkRegister.get(position);
+            String name = checkRegisterBean.getContacts();
+            String telPhone = checkRegisterBean.getPhone();
+            if (!WatchUtils.isEmpty(telPhone)) {
+                holder.portrait.setContent(name).setHead(false);
+                holder.tvName.setText(telPhone);
+            }
+
+            holder.btnAdd.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View view) {
+                public void onClick(View v) {
                     String trim = checkRegisterBean.getPhone().trim();
                     String userId = (String) SharedPreferencesUtils.readObject(AddNewFriendActivity.this, "userId");
                     if (!TextUtils.isEmpty(trim)
@@ -790,7 +709,14 @@ public class AddNewFriendActivity
                 }
             });
 
-            return view;
+            return convertView;
+        }
+
+
+        class ViewHolder{
+            Button btnAdd;
+            TextView tvName;
+            CharPortraitView portrait;
         }
     }
 }
